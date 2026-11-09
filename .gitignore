@@ -1,0 +1,153 @@
+# ==========================================
+# Arogya AI 2.0 - Root Monorepo .gitignore
+# ==========================================
+
+# --- Environment & Sensitive Secret Files ---
+.env
+.env.*
+!.env.example
+*.env
+secrets.json
+credentials.json
+service-account*.json
+firebase_options_prod.dart
+jwt_secret*.key
+*.pem
+*.key
+
+# --- Android Keystores & Local Properties ---
+key.properties
+local.properties
+*.jks
+*.keystore
+*.p12
+
+# --- iOS & macOS Signing & Certificates ---
+*.mobileprovision
+*.cer
+*.cert
+*.p8
+AuthKey_*.p8
+
+# --- Operating System Files ---
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+[Dd]esktop.ini
+
+# --- IDE & Editor Artifacts ---
+.idea/
+*.iml
+*.ipr
+*.iws
+.vscode/
+*.sublime-project
+*.sublime-workspace
+.atom/
+*.swp
+*.swo
+*~
+.history/
+
+# --- Logs & Crash Dumps ---
+*.log
+*.log.*
+*.stackdump
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# --- Flutter & Dart Common ---
+.dart_tool/
+**/.dart_tool/
+.packages
+**/.packages
+.pub-cache/
+**/.pub-cache/
+.pub/
+**/.pub/
+.flutter-plugins
+**/.flutter-plugins
+.flutter-plugins-dependencies
+**/.flutter-plugins-dependencies
+build/
+**/build/
+**/doc/api/
+coverage/
+**/coverage/
+.widget_preview/
+app.*.symbols
+app.*.map.json
+*.apk
+**/*.apk
+*.aab
+**/*.aab
+*.dill
+**/*.dill
+
+# --- Platform Ephemeral & Native Builds ---
+**/android/.gradle/
+**/android/app/debug/
+**/android/app/profile/
+**/android/app/release/
+**/ios/Pods/
+**/ios/.symlinks/
+**/ios/Flutter/.last_build_id
+**/ios/Flutter/ephemeral/
+**/ios/Flutter/Generated.xcconfig
+**/ios/Flutter/flutter_export_environment.sh
+**/macos/Pods/
+**/macos/.symlinks/
+**/macos/Flutter/ephemeral/
+**/macos/Flutter/Generated.xcconfig
+**/windows/flutter/ephemeral/
+**/linux/flutter/ephemeral/
+
+# --- Backend: Node.js / TypeScript ---
+node_modules/
+**/node_modules/
+dist/
+**/dist/
+.npm/
+package-lock.json.bak
+yarn.lock.bak
+
+# --- Database & Local Storage ---
+*.sqlite
+*.sqlite3
+*.db
+data/
+**/data/
+uploads/
+**/uploads/
+temp/
+**/temp/
+tmp/
+**/tmp/
+
+# --- ML Datasets & Heavy Archives (>50MB, not tracked by Git) ---
+*.zip
+*.tar
+*.tar.gz
+*.tgz
+*.rar
+*.7z
+braintumor/
+lung/
+skin disease/
+
+# --- Python Artifacts ---
+__pycache__/
+**/__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+.venv/
+ENV/

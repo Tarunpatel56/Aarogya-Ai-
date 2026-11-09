@@ -1,0 +1,28 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "CommonJS",
+    "moduleResolution": "node",
+    "lib": ["ES2022"],
+    "strict": false,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noEmit": true
+  },
+  "include": [
+    "aarogya_backend/src/**/*",
+    "aarogya_backend/tests/**/*"
+  ],
+  "exclude": [
+    "**/node_modules",
+    "**/dist",
+    "aarogya",
+    "aarogya_healthpro",
+    "aarogya_rapid"
+  ]
+}
+
