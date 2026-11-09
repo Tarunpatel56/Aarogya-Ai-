@@ -70,6 +70,13 @@ class _EmergencySosDialogState extends State<EmergencySosDialog>
           _emergency = res;
           _isDispatching = false;
         });
+
+        // Automatically open live tracking command screen so patient sees live radar & driver acceptance
+        Future.delayed(const Duration(milliseconds: 700), () {
+          if (mounted && _emergency != null) {
+            _openTrackingScreen();
+          }
+        });
       }
     } catch (e) {
       if (mounted) {

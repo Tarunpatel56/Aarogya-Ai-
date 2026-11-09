@@ -187,27 +187,67 @@ class _RapidRootNavigationHostState extends State<RapidRootNavigationHost> {
     }
   }
 
-  void _startGpsStreaming(String emergencyId) {
+  void _startGpsStreaming(String emergencyId, {double? targetLat, double? targetLng}) {
     _gpsStreamTimer?.cancel();
-    double currentLat = 28.5672;
-    double currentLng = 77.2100;
+    final pLat = targetLat ?? _activeTrip?.latitude ?? 28.5672;
+    final pLng = targetLng ?? _activeTrip?.longitude ?? 77.2100;
 
-    _gpsStreamTimer = Timer.periodic(const Duration(seconds: 3), (timer) {
+    double currentLat = pLat + 0.012; // Start ~1.3 km away
+    double currentLng = pLng + 0.010;
+    int remainingMinutes = 6;
+    double currentSpeed = 44.0;
+
+    // Send first coordinate packet immediately to engage live tracking
+    _socketService.streamLocation(
+      emergencyId: emergencyId,
+      latitude: currentLat,
+      longitude: currentLng,
+      speed: currentSpeed,
+      heading: 220,
+      etaMinutes: remainingMinutes,
+    );
+
+    _gpsStreamTimer = Timer.periodic(const Duration(seconds: 2), (timer) {
       if (_activeTrip == null) {
         timer.cancel();
         return;
       }
-      // Stream moving coordinates to tracking room via Socket.IO
-      currentLat += 0.0003;
-      currentLng += 0.0002;
+
+      // Smooth step towards patient coordinates
+      final dLat = (pLat - currentLat) * 0.08;
+      final dLng = (pLng - currentLng) * 0.08;
+      currentLat += dLat;
+      currentLng += dLng;
+
+      // Realistic GPS micro-movement jitter so coordinates visibly update
+      currentLat += (0.00003 * ((timer.tick % 2 == 0) ? 1 : -0.5));
+      currentLng += (0.00002 * ((timer.tick % 3 == 0) ? 1 : -0.5));
+
+      if (remainingMinutes > 1 && timer.tick % 6 == 0) {
+        remainingMinutes--;
+      }
+
+      currentSpeed = 38.0 + (timer.tick % 5) * 2.5;
+
       _socketService.streamLocation(
         emergencyId: emergencyId,
         latitude: currentLat,
         longitude: currentLng,
-        speed: 42.5,
-        heading: 90,
-        etaMinutes: 5,
+        speed: currentSpeed,
+        heading: 215,
+        etaMinutes: remainingMinutes,
       );
+
+      // Update local state in ambulance app so driver sees live telemetry
+      if (mounted) {
+        setState(() {
+          _activeTrip = _activeTrip?.copyWith(
+            driverLatitude: currentLat,
+            driverLongitude: currentLng,
+            eta: '$remainingMinutes mins',
+          );
+        });
+      }
     });
   }
 
@@ -261,7 +301,7 @@ class _RapidRootNavigationHostState extends State<RapidRootNavigationHost> {
               if (success && mounted) {
                 // 2. Join Socket.IO emergency room and begin live GPS coordinate streaming
                 _socketService.joinEmergency(req.id);
-                _startGpsStreaming(req.id);
+                _startGpsStreaming(req.id, targetLat: req.latitude, targetLng: req.longitude);
 
                 setState(() {
                   _activeTrip = req;
@@ -308,7 +348,9 @@ class _RapidRootNavigationHostState extends State<RapidRootNavigationHost> {
           ),
 
           // Screen 4: Paramedic & Terminal Profile
-          const ProfileScreen(),
+          ProfileScreen(
+            onLogout: widget.onLogout,
+          ),
         ],
       ),
       bottomNavigationBar: RapidBottomNavBar(

@@ -4,11 +4,19 @@ import '../theme/app_theme.dart';
 class MiniNavigationMapView extends StatefulWidget {
   final double height;
   final VoidCallback? onExpand;
+  final String? vehicleNumber;
+  final double speedKmh;
+  final double? latitude;
+  final double? longitude;
 
   const MiniNavigationMapView({
     super.key,
     this.height = 240,
     this.onExpand,
+    this.vehicleNumber,
+    this.speedKmh = 42.0,
+    this.latitude,
+    this.longitude,
   });
 
   @override
@@ -84,7 +92,7 @@ class _MiniNavigationMapViewState extends State<MiniNavigationMapView>
                           text: TextSpan(
                             children: [
                               TextSpan(
-                                text: '54 ',
+                                text: '${widget.speedKmh.toStringAsFixed(0)} ',
                                 style: SanctuaryTypography.labelSm(color: Colors.white).copyWith(fontSize: 13, fontWeight: FontWeight.bold),
                               ),
                               TextSpan(
@@ -229,7 +237,7 @@ class _MiniNavigationMapViewState extends State<MiniNavigationMapView>
                       border: Border.all(color: Colors.white30),
                     ),
                     child: Text(
-                      'KA 03 HA 1102',
+                      widget.vehicleNumber ?? 'DL-01-AMB-108',
                       style: SanctuaryTypography.labelSm(color: Colors.white).copyWith(
                         fontSize: 9.5,
                         fontWeight: FontWeight.bold,

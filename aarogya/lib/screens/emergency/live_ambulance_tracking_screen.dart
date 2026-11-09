@@ -76,6 +76,38 @@ class _LiveAmbulanceTrackingScreenState
         }
       };
 
+      _socketService.onEmergencyAccepted = (data) {
+        if (mounted) {
+          final emergencyJson = data['emergency'] as Map<String, dynamic>?;
+          final driverName = data['driverName']?.toString();
+          final driverPhone = data['driverPhone']?.toString();
+          final vehicleNo = data['vehicleNumber']?.toString() ?? data['assignedVehicleNo']?.toString();
+          final eta = (data['estimatedMinutes'] as num?)?.toInt();
+
+          setState(() {
+            if (emergencyJson != null) {
+              _emergency = EmergencyModel.fromJson(emergencyJson);
+            } else {
+              _emergency = _emergency.copyWith(
+                status: 'ASSIGNED',
+                driverName: driverName ?? _emergency.driverName,
+                driverPhone: driverPhone ?? _emergency.driverPhone,
+                assignedVehicleNo: vehicleNo ?? _emergency.assignedVehicleNo,
+                estimatedMinutes: eta ?? _emergency.estimatedMinutes,
+              );
+            }
+          });
+
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('🚑 Ambulance Accepted: ${driverName ?? "EMS Unit"} is en route! (${vehicleNo ?? ""})'),
+              backgroundColor: const Color(0xFF15803D),
+              duration: const Duration(seconds: 4),
+            ),
+          );
+        }
+      };
+
       _socketService.onEmergencyStatusUpdated = (data) {
         if (mounted) {
           final newStatus = data['status']?.toString();

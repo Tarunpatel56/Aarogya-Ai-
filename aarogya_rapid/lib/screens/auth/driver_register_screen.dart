@@ -482,3 +482,4 @@ class _DriverRegisterScreenState extends State<DriverRegisterScreen> {
     );
   }
 }
+

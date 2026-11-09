@@ -101,6 +101,10 @@ class _ActiveTripScreenState extends State<ActiveTripScreen> {
             // 3. Simulated Live Navigation Map
             MiniNavigationMapView(
               height: 220,
+              vehicleNumber: req.assignedVehicleNo ?? 'DL-01-AMB-108',
+              speedKmh: 42.0,
+              latitude: req.driverLatitude ?? req.latitude,
+              longitude: req.driverLongitude ?? req.longitude,
               onExpand: () {
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(content: Text('Toggling full navigation view overlay...')),
@@ -167,7 +171,7 @@ class _ActiveTripScreenState extends State<ActiveTripScreen> {
               ),
               const SizedBox(width: 4),
               Text(
-                'KA-03-HA-1102',
+                widget.request?.assignedVehicleNo ?? 'DL-01-AMB-108',
                 style: SanctuaryTypography.labelSm(color: SanctuaryColors.textDark).copyWith(fontSize: 10),
               ),
             ],
@@ -590,30 +594,56 @@ class _ActiveTripScreenState extends State<ActiveTripScreen> {
                 ),
               ),
 
-              // Penicillin Allergy Warning Pill
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                decoration: BoxDecoration(
-                  color: SanctuaryColors.errorWash,
-                  borderRadius: SanctuaryRadius.rBase,
-                  border: Border.all(color: SanctuaryColors.errorBorder),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const Icon(Icons.warning_amber_rounded, color: SanctuaryColors.crimsonRose, size: 14),
-                    const SizedBox(width: 4),
-                    Text(
-                      'PENICILLIN\nALLERGY',
-                      style: SanctuaryTypography.labelSm(color: SanctuaryColors.crimsonRose).copyWith(
-                        fontSize: 9.5,
-                        height: 1.1,
-                        fontWeight: FontWeight.w800,
+              // Dynamic Allergy Warning Pill
+              if (req.allergyName != 'None' && req.allergyName != 'None reported')
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: SanctuaryColors.errorWash,
+                    borderRadius: SanctuaryRadius.rBase,
+                    border: Border.all(color: SanctuaryColors.errorBorder),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(Icons.warning_amber_rounded, color: SanctuaryColors.crimsonRose, size: 14),
+                      const SizedBox(width: 4),
+                      Text(
+                        'ALLERGY:\n${req.allergyName.toUpperCase()}',
+                        style: SanctuaryTypography.labelSm(color: SanctuaryColors.crimsonRose).copyWith(
+                          fontSize: 9.5,
+                          height: 1.1,
+                          fontWeight: FontWeight.w800,
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
+                )
+              else
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: SanctuaryColors.optimalGreenBg,
+                    borderRadius: SanctuaryRadius.rBase,
+                    border: Border.all(color: SanctuaryColors.optimalGreenBorder),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: const [
+                      Icon(Icons.check_circle_outline, color: SanctuaryColors.optimalGreen, size: 13),
+                      SizedBox(width: 4),
+                      Text(
+                        'NO KNOWN\nALLERGIES',
+                        style: TextStyle(
+                          color: SanctuaryColors.optimalGreen,
+                          fontSize: 9,
+                          height: 1.1,
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
             ],
           ),
           const SizedBox(height: 12),
@@ -688,7 +718,7 @@ class _ActiveTripScreenState extends State<ActiveTripScreen> {
                   ),
                   const SizedBox(width: 4),
                   Text(
-                    'boAt Wave Pro • Synced 2m ago',
+                    '${req.wearableDevice} • Live Synced',
                     style: SanctuaryTypography.bodySm(color: SanctuaryColors.textSecondary).copyWith(fontSize: 10.5),
                   ),
                 ],
@@ -941,15 +971,15 @@ class _ActiveTripScreenState extends State<ActiveTripScreen> {
                   child: OutlinedButton.icon(
                     onPressed: () {
                       ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Calling Caregiver Priya (+91 98480-22194)...')),
+                        SnackBar(content: Text('Calling ${req.primaryContactName}: ${req.primaryContactPhone}')),
                       );
                     },
                     icon: const Icon(Icons.person_pin_circle_outlined, size: 15, color: SanctuaryColors.textSecondary),
-                    label: const Text(
-                      'Call Caregiver (Priya)',
+                    label: Text(
+                      'Call ${req.primaryContactName}',
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: TextStyle(color: SanctuaryColors.deepSlateNavy, fontSize: 11.5, fontWeight: FontWeight.w700),
+                      style: const TextStyle(color: SanctuaryColors.deepSlateNavy, fontSize: 11.5, fontWeight: FontWeight.w700),
                     ),
                     style: OutlinedButton.styleFrom(
                       side: const BorderSide(color: SanctuaryColors.hairlineBorder),
@@ -981,24 +1011,60 @@ class _ActiveTripScreenState extends State<ActiveTripScreen> {
             height: 54,
             child: ElevatedButton.icon(
               onPressed: () {
-                setState(() {
-                  currentStep = 3;
-                });
-                widget.onOpenHandoverReport();
+                final req = widget.request;
+                if (req != null) {
+                  if (currentStep == 2) {
+                    setState(() => currentStep = 3);
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Status: Ambulance Arrived at Pickup Scene!'),
+                        backgroundColor: Color(0xFF15803D),
+                      ),
+                    );
+                  } else if (currentStep == 3) {
+                    setState(() => currentStep = 4);
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Status: Patient on Board • Green Corridor Rush to Hospital'),
+                        backgroundColor: Color(0xFF1D4ED8),
+                      ),
+                    );
+                  } else {
+                    widget.onOpenHandoverReport();
+                  }
+                } else {
+                  widget.onOpenHandoverReport();
+                }
               },
-              icon: const Icon(Icons.check_box_outlined, color: Colors.white, size: 22),
-              label: const Text(
-                'CONFIRM: ARRIVED AT PICKUP LOCATION',
+              icon: Icon(
+                currentStep == 2
+                    ? Icons.location_on
+                    : currentStep == 3
+                        ? Icons.airline_seat_flat_rounded
+                        : Icons.assignment_turned_in,
+                color: Colors.white,
+                size: 20,
+              ),
+              label: Text(
+                currentStep == 2
+                    ? 'CONFIRM: ARRIVED AT PICKUP SCENE'
+                    : currentStep == 3
+                        ? 'CONFIRM: PATIENT ON BOARD • RUSH TO HOSPITAL'
+                        : 'OPEN CLINICAL HANDOVER REPORT',
                 textAlign: TextAlign.center,
-                style: TextStyle(
+                style: const TextStyle(
                   color: Colors.white,
                   fontWeight: FontWeight.w800,
-                  fontSize: 13.5,
+                  fontSize: 13,
                   letterSpacing: 0.3,
                 ),
               ),
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF00685F),
+                backgroundColor: currentStep == 2
+                    ? const Color(0xFF00685F)
+                    : currentStep == 3
+                        ? const Color(0xFF1D4ED8)
+                        : const Color(0xFF15803D),
                 elevation: 0,
                 shape: RoundedRectangleBorder(borderRadius: SanctuaryRadius.rBase),
               ),
@@ -1006,7 +1072,11 @@ class _ActiveTripScreenState extends State<ActiveTripScreen> {
           ),
           const SizedBox(height: 6),
           Text(
-            'Unlocks Paramedic Clinical Vitals & Handover Assessment Form',
+            currentStep == 2
+                ? 'Step 1 of 3: Signals arrival at incident site to patient & hospital'
+                : currentStep == 3
+                    ? 'Step 2 of 3: Engages emergency trauma bay preparation'
+                    : 'Step 3 of 3: Finalizes digital clinical handover report',
             style: SanctuaryTypography.bodySm(color: SanctuaryColors.textMuted).copyWith(fontSize: 10.5),
           ),
         ],

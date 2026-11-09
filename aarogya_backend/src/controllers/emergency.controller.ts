@@ -169,14 +169,47 @@ export const emergencyController = {
             ],
           },
         },
+        include: {
+          patientProfile: {
+            include: {
+              user: {
+                select: {
+                  phone: true,
+                },
+              },
+            },
+          },
+        },
         orderBy: { createdAt: 'desc' },
       });
+
+      let driverInfo: any = null;
+      if (active?.assignedDriverId) {
+        const staff = await prisma.ambulanceStaffProfile.findUnique({
+          where: { userId: active.assignedDriverId },
+          include: { user: true },
+        });
+        if (staff) {
+          driverInfo = {
+            driverName: staff.fullName,
+            driverPhone: staff.user?.phone || '+91 98765 43210',
+            assignedVehicleNo: staff.assignedVehicleNumber || active.assignedVehicleNo,
+          };
+        }
+      }
 
       res.status(200).json({
         success: true,
         data: {
           hasActiveEmergency: !!active,
-          emergency: active || null,
+          emergency: active
+            ? {
+                ...active,
+                ...(driverInfo || {}),
+                patientName: active.patientProfile?.fullName,
+                patientPhone: active.patientProfile?.user?.phone,
+              }
+            : null,
         },
       });
     } catch (error) {
@@ -192,16 +225,47 @@ export const emergencyController = {
       const id = String(req.params.id);
       const emergency = await prisma.emergencyRequest.findUnique({
         where: { id },
+        include: {
+          patientProfile: {
+            include: {
+              user: {
+                select: {
+                  phone: true,
+                },
+              },
+            },
+          },
+        },
       });
 
       if (!emergency) {
         throw new NotFoundError('Emergency dispatch request not found');
       }
 
+      let driverInfo: any = null;
+      if (emergency.assignedDriverId) {
+        const staff = await prisma.ambulanceStaffProfile.findUnique({
+          where: { userId: emergency.assignedDriverId },
+          include: { user: true },
+        });
+        if (staff) {
+          driverInfo = {
+            driverName: staff.fullName,
+            driverPhone: staff.user?.phone || '+91 98765 43210',
+            assignedVehicleNo: staff.assignedVehicleNumber || emergency.assignedVehicleNo,
+          };
+        }
+      }
+
       res.status(200).json({
         success: true,
         data: {
-          emergency,
+          emergency: {
+            ...emergency,
+            ...(driverInfo || {}),
+            patientName: emergency.patientProfile?.fullName,
+            patientPhone: emergency.patientProfile?.user?.phone,
+          },
         },
       });
     } catch (error) {

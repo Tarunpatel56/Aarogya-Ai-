@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import '../models/trip_model.dart';
+import '../services/ambulance_dispatch_service.dart';
 import '../theme/app_theme.dart';
 
-class HistoryScreen extends StatelessWidget {
+class HistoryScreen extends StatefulWidget {
   final List<EmergencyRequest> completedTrips;
 
   const HistoryScreen({
@@ -11,7 +12,43 @@ class HistoryScreen extends StatelessWidget {
   });
 
   @override
+  State<HistoryScreen> createState() => _HistoryScreenState();
+}
+
+class _HistoryScreenState extends State<HistoryScreen> {
+  final _dispatchService = AmbulanceDispatchService();
+  List<EmergencyRequest> _dbTrips = [];
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchHistory();
+  }
+
+  Future<void> _fetchHistory() async {
+    final assigned = await _dispatchService.getAssignedTrips();
+    final completed = assigned.where((t) => t.status == 'COMPLETED' || t.status == 'REACHED_HOSPITAL').toList();
+    if (mounted) {
+      setState(() {
+        _dbTrips = completed;
+        _isLoading = false;
+      });
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
+    // Combine local completed with database completed without duplicates
+    final allMap = <String, EmergencyRequest>{};
+    for (final t in widget.completedTrips) {
+      allMap[t.id] = t;
+    }
+    for (final t in _dbTrips) {
+      allMap[t.id] = t;
+    }
+    final trips = allMap.values.toList();
+
     return Scaffold(
       backgroundColor: SanctuaryColors.surface,
       appBar: AppBar(
@@ -23,10 +60,13 @@ class HistoryScreen extends StatelessWidget {
           children: [
             Text(
               'Trip & Handover History',
-              style: SanctuaryTypography.headlineSm(color: SanctuaryColors.deepSlateNavy).copyWith(fontWeight: FontWeight.w800),
+              style: SanctuaryTypography.headlineSm(color: SanctuaryColors.deepSlateNavy).copyWith(
+                fontWeight: FontWeight.w800,
+                fontSize: 16,
+              ),
             ),
             Text(
-              'Aarogya Rapid EMS Unit #KA-01-EA-108',
+              'Verified Log of Completed Emergency Transits',
               style: SanctuaryTypography.bodySm(color: SanctuaryColors.textSecondary).copyWith(fontSize: 11),
             ),
           ],
@@ -36,103 +76,122 @@ class HistoryScreen extends StatelessWidget {
           child: Divider(height: 1, color: SanctuaryColors.hairlineBorder),
         ),
       ),
-      body: ListView(
-        physics: const BouncingScrollPhysics(),
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-        children: [
-          // Telemetry Stats Row
-          Row(
-            children: [
-              Expanded(
-                child: _buildMetricCard(
-                  title: 'COMPLETED',
-                  value: '${completedTrips.length}',
-                  subtitle: 'Transits logged',
-                  icon: Icons.done_all,
-                  color: SanctuaryColors.primaryTeal,
-                ),
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: _buildMetricCard(
-                  title: 'DUTY STATUS',
-                  value: 'Active',
-                  subtitle: 'ALS / BLS Ready',
-                  icon: Icons.shield_outlined,
-                  color: SanctuaryColors.optimalGreen,
-                ),
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: _buildMetricCard(
-                  title: 'NETWORK',
-                  value: 'Connected',
-                  subtitle: 'Aarogya Cloud',
-                  icon: Icons.cloud_done_outlined,
-                  color: const Color(0xFF4F46E5),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 20),
-
-          Text(
-            'Emergency Dispatches Log',
-            style: SanctuaryTypography.headlineSm(color: SanctuaryColors.deepSlateNavy).copyWith(fontWeight: FontWeight.w700),
-          ),
-          const SizedBox(height: 12),
-
-          if (completedTrips.isEmpty) ...[
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 36),
-              decoration: BoxDecoration(
-                color: SanctuaryColors.surfaceContainerLowest,
-                borderRadius: SanctuaryRadius.rLg,
-                border: Border.all(color: SanctuaryColors.hairlineBorder),
-                boxShadow: SanctuaryColors.cardShadow,
-              ),
-              child: Column(
+      body: _isLoading
+          ? const Center(child: CircularProgressIndicator(color: SanctuaryColors.primaryTeal))
+          : RefreshIndicator(
+              onRefresh: _fetchHistory,
+              color: SanctuaryColors.primaryTeal,
+              child: ListView(
+                physics: const AlwaysScrollableScrollPhysics(parent: BouncingScrollPhysics()),
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                 children: [
-                  Container(
-                    padding: const EdgeInsets.all(16),
-                    decoration: const BoxDecoration(
-                      color: Color(0xFFF1F5F9),
-                      shape: BoxShape.circle,
-                    ),
-                    child: const Icon(
-                      Icons.assignment_outlined,
-                      size: 36,
-                      color: SanctuaryColors.deepSlateNavy,
-                    ),
+                  // Telemetry Stats Row
+                  Row(
+                    children: [
+                      Expanded(
+                        child: _buildMetricCard(
+                          title: 'COMPLETED',
+                          value: '${trips.length}',
+                          subtitle: 'Live verified',
+                          icon: Icons.done_all,
+                          color: SanctuaryColors.primaryTeal,
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: _buildMetricCard(
+                          title: 'DUTY READY',
+                          value: 'Active',
+                          subtitle: 'ALS Telemetry',
+                          icon: Icons.shield_outlined,
+                          color: SanctuaryColors.optimalGreen,
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: _buildMetricCard(
+                          title: 'NETWORK',
+                          value: 'Online',
+                          subtitle: 'Socket.IO Hub',
+                          icon: Icons.cloud_done_outlined,
+                          color: const Color(0xFF4F46E5),
+                        ),
+                      ),
+                    ],
                   ),
-                  const SizedBox(height: 14),
-                  Text(
-                    'No Past Emergency Trips Recorded',
-                    style: SanctuaryTypography.headlineSm(color: SanctuaryColors.deepSlateNavy).copyWith(
-                      fontSize: 15,
-                      fontWeight: FontWeight.w700,
-                    ),
+                  const SizedBox(height: 20),
+
+                  Row(
+                    children: [
+                      Text(
+                        'Completed Emergency Dispatches',
+                        style: SanctuaryTypography.headlineSm(color: SanctuaryColors.deepSlateNavy).copyWith(
+                          fontWeight: FontWeight.w700,
+                          fontSize: 15,
+                        ),
+                      ),
+                      const Spacer(),
+                      Text(
+                        '${trips.length} Total',
+                        style: const TextStyle(fontSize: 11.5, color: SanctuaryColors.textMuted, fontWeight: FontWeight.bold),
+                      ),
+                    ],
                   ),
-                  const SizedBox(height: 6),
-                  const Text(
-                    'Completed patient transits and hospital handover reports will be archived here with clinical audit trails.',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: SanctuaryColors.textSecondary,
-                      height: 1.4,
+                  const SizedBox(height: 12),
+
+                  if (trips.isEmpty) ...[
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 36),
+                      decoration: BoxDecoration(
+                        color: SanctuaryColors.surfaceContainerLowest,
+                        borderRadius: SanctuaryRadius.rLg,
+                        border: Border.all(color: SanctuaryColors.hairlineBorder),
+                        boxShadow: SanctuaryColors.cardShadow,
+                      ),
+                      child: Column(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(16),
+                            decoration: const BoxDecoration(
+                              color: Color(0xFFF1F5F9),
+                              shape: BoxShape.circle,
+                            ),
+                            child: const Icon(
+                              Icons.history_toggle_off_rounded,
+                              size: 40,
+                              color: SanctuaryColors.deepSlateNavy,
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+                          Text(
+                            'No Completed Transits Logged',
+                            style: SanctuaryTypography.headlineSm(color: SanctuaryColors.deepSlateNavy).copyWith(
+                              fontSize: 15,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                          const SizedBox(height: 6),
+                          const Text(
+                            'Completed emergency ambulance runs, hospital trauma handovers, and patient transport logs will appear here.',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: SanctuaryColors.textSecondary,
+                              height: 1.4,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
+                  ] else ...[
+                    ...trips.map((req) => _buildTripHistoryCard(req)),
+                  ],
+
+                  const SizedBox(height: 24),
                 ],
               ),
             ),
-          ] else ...[
-            ...completedTrips.map((req) => _buildCompletedTripCard(req)),
-          ],
-          const SizedBox(height: 24),
-        ],
-      ),
     );
   }
 
@@ -147,7 +206,7 @@ class HistoryScreen extends StatelessWidget {
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: SanctuaryColors.surfaceContainerLowest,
-        borderRadius: SanctuaryRadius.rMd,
+        borderRadius: SanctuaryRadius.rLg,
         border: Border.all(color: SanctuaryColors.hairlineBorder),
         boxShadow: SanctuaryColors.cardShadow,
       ),
@@ -155,35 +214,35 @@ class HistoryScreen extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
+              Icon(icon, color: color, size: 16),
+              const Spacer(),
               Text(
                 title,
                 style: SanctuaryTypography.labelSm(color: SanctuaryColors.textMuted).copyWith(fontSize: 9),
               ),
-              Icon(icon, size: 14, color: color),
             ],
           ),
           const SizedBox(height: 6),
           Text(
             value,
-            style: SanctuaryTypography.metricDisplay(color: SanctuaryColors.deepSlateNavy).copyWith(fontSize: 18),
+            style: SanctuaryTypography.headlineSm(color: SanctuaryColors.deepSlateNavy).copyWith(
+              fontWeight: FontWeight.w800,
+              fontSize: 16,
+            ),
           ),
-          const SizedBox(height: 2),
           Text(
             subtitle,
             style: SanctuaryTypography.bodySm(color: SanctuaryColors.textSecondary).copyWith(fontSize: 10),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
           ),
         ],
       ),
     );
   }
 
-  Widget _buildCompletedTripCard(EmergencyRequest req) {
+  Widget _buildTripHistoryCard(EmergencyRequest req) {
     return Container(
-      margin: const EdgeInsets.only(bottom: 10),
+      margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
         color: SanctuaryColors.surfaceContainerLowest,
@@ -195,31 +254,55 @@ class HistoryScreen extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                req.id,
-                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: SanctuaryColors.primaryTeal),
-              ),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                 decoration: BoxDecoration(
                   color: SanctuaryColors.optimalGreenBg,
-                  borderRadius: BorderRadius.circular(4),
+                  borderRadius: SanctuaryRadius.rFull,
                 ),
-                child: const Text('Handover Complete', style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: SanctuaryColors.optimalGreen)),
+                child: const Text(
+                  'COMPLETED',
+                  style: TextStyle(color: SanctuaryColors.optimalGreen, fontSize: 10, fontWeight: FontWeight.bold),
+                ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  '#${req.id}',
+                  style: const TextStyle(fontSize: 11, color: SanctuaryColors.textMuted, fontWeight: FontWeight.bold),
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+              Text(
+                '${req.createdAt.hour.toString().padLeft(2, '0')}:${req.createdAt.minute.toString().padLeft(2, '0')} IST',
+                style: const TextStyle(fontSize: 11, color: SanctuaryColors.textMuted),
               ),
             ],
           ),
-          const SizedBox(height: 6),
+          const SizedBox(height: 8),
           Text(
-            '${req.patientName} • ${req.reportedEmergency}',
-            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: SanctuaryColors.deepSlateNavy),
+            '${req.patientName} (${req.patientGender}, ${req.patientAge}y)',
+            style: SanctuaryTypography.headlineSm(color: SanctuaryColors.deepSlateNavy).copyWith(fontSize: 15, fontWeight: FontWeight.w700),
           ),
-          const SizedBox(height: 3),
+          const SizedBox(height: 4),
           Text(
-            'Handed over to ${req.receivingHospital} (${req.hospitalBay})',
-            style: const TextStyle(fontSize: 11.5, color: SanctuaryColors.textSecondary),
+            'Emergency: ${req.reportedEmergency}',
+            style: const TextStyle(fontSize: 12, color: SanctuaryColors.textSecondary),
+          ),
+          const SizedBox(height: 4),
+          Row(
+            children: [
+              const Icon(Icons.local_hospital_outlined, size: 14, color: SanctuaryColors.primaryTeal),
+              const SizedBox(width: 4),
+              Expanded(
+                child: Text(
+                  'Handed over at ${req.receivingHospital}',
+                  style: const TextStyle(fontSize: 11.5, color: SanctuaryColors.primaryTeal, fontWeight: FontWeight.w600),
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+            ],
           ),
         ],
       ),

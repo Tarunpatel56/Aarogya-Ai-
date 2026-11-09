@@ -133,6 +133,7 @@ export const driverController = {
 
       const profile = await prisma.ambulanceStaffProfile.findUnique({
         where: { userId },
+        include: { user: true },
       });
 
       if (!profile) {
@@ -176,11 +177,18 @@ export const driverController = {
         },
       });
 
+      const driverPhone = profile.user?.phone || '+91 98765 43210';
+
       // Broadcast real-time Socket.IO notification to patient
       socketService.emitEmergencyAccepted(emergencyId, {
-        emergency: updated,
+        emergency: {
+          ...updated,
+          driverName: profile.fullName,
+          driverPhone,
+          assignedVehicleNo: updated.assignedVehicleNo,
+        },
         driverName: profile.fullName,
-        driverPhone: '+91 98765 43210',
+        driverPhone,
         vehicleNumber: updated.assignedVehicleNo,
         estimatedMinutes: 6,
       });
@@ -189,7 +197,12 @@ export const driverController = {
         success: true,
         message: 'Emergency dispatch accepted successfully',
         data: {
-          emergency: updated,
+          emergency: {
+            ...updated,
+            driverName: profile.fullName,
+            driverPhone,
+            vehicleNumber: updated.assignedVehicleNo,
+          },
         },
       });
     } catch (error) {

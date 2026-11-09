@@ -248,26 +248,26 @@ class _HandoverReportScreenState extends State<HandoverReportScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Row(
-                  children: const [
-                    Icon(Icons.local_hospital_outlined, size: 14, color: SanctuaryColors.primaryTeal),
-                    SizedBox(width: 6),
+                  children: [
+                    const Icon(Icons.local_hospital_outlined, size: 14, color: SanctuaryColors.primaryTeal),
+                    const SizedBox(width: 6),
                     Expanded(
                       child: Text(
-                        'Destination: Apollo HealthCity, Third-Stage Emergency, Ward A / Bay 3',
-                        style: TextStyle(color: SanctuaryColors.deepSlateNavy, fontSize: 11, fontWeight: FontWeight.w600),
+                        'Destination: ${req.receivingHospital}, ${req.hospitalBay}',
+                        style: const TextStyle(color: SanctuaryColors.deepSlateNavy, fontSize: 11, fontWeight: FontWeight.w600),
                       ),
                     ),
                   ],
                 ),
                 const SizedBox(height: 4),
                 Row(
-                  children: const [
-                    Icon(Icons.route_outlined, size: 14, color: SanctuaryColors.optimalGreen),
-                    SizedBox(width: 6),
+                  children: [
+                    const Icon(Icons.route_outlined, size: 14, color: SanctuaryColors.optimalGreen),
+                    const SizedBox(width: 6),
                     Expanded(
                       child: Text(
-                        'ETA: 6 mins (Traffic prioritized via Green Corridor)',
-                        style: TextStyle(color: SanctuaryColors.optimalGreen, fontSize: 11, fontWeight: FontWeight.bold),
+                        'ETA: ${req.eta} (Traffic prioritized via Green Corridor)',
+                        style: const TextStyle(color: SanctuaryColors.optimalGreen, fontSize: 11, fontWeight: FontWeight.bold),
                       ),
                     ),
                   ],
@@ -342,12 +342,12 @@ class _HandoverReportScreenState extends State<HandoverReportScreen> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Row(
-                      children: const [
-                        Icon(Icons.watch_outlined, size: 14, color: SanctuaryColors.textSecondary),
-                        SizedBox(width: 4),
+                      children: [
+                        const Icon(Icons.watch_outlined, size: 14, color: SanctuaryColors.textSecondary),
+                        const SizedBox(width: 4),
                         Text(
-                          'boAt Wave Pro',
-                          style: TextStyle(color: SanctuaryColors.deepSlateNavy, fontWeight: FontWeight.bold, fontSize: 12),
+                          req.wearableDevice,
+                          style: const TextStyle(color: SanctuaryColors.deepSlateNavy, fontWeight: FontWeight.bold, fontSize: 12),
                         ),
                       ],
                     ),
@@ -390,8 +390,15 @@ class _HandoverReportScreenState extends State<HandoverReportScreen> {
                           RichText(
                             text: TextSpan(
                               children: [
-                                TextSpan(text: '110 ', style: SanctuaryTypography.headlineSm(color: SanctuaryColors.deepSlateNavy).copyWith(fontWeight: FontWeight.w800, fontSize: 18)),
-                                const TextSpan(text: 'BPM (Tachycardic)', style: TextStyle(color: SanctuaryColors.warningAmber, fontSize: 10.5, fontWeight: FontWeight.bold)),
+                                TextSpan(text: '${req.heartRate} ', style: SanctuaryTypography.headlineSm(color: SanctuaryColors.deepSlateNavy).copyWith(fontWeight: FontWeight.w800, fontSize: 18)),
+                                TextSpan(
+                                  text: req.heartRate > 100 ? 'BPM (Tachycardic)' : 'BPM (Normal)',
+                                  style: TextStyle(
+                                    color: req.heartRate > 100 ? SanctuaryColors.warningAmber : SanctuaryColors.optimalGreen,
+                                    fontSize: 10.5,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
                               ],
                             ),
                           ),
@@ -423,10 +430,10 @@ class _HandoverReportScreenState extends State<HandoverReportScreen> {
                     children: [
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
-                        children: const [
-                          Text('PULSE OXIMETRY (SPO2)', style: TextStyle(color: SanctuaryColors.textMuted, fontSize: 9, fontWeight: FontWeight.bold)),
-                          SizedBox(height: 2),
-                          Text('98%  (Plethysmography)', style: TextStyle(color: SanctuaryColors.deepSlateNavy, fontSize: 13, fontWeight: FontWeight.bold)),
+                        children: [
+                          const Text('PULSE OXIMETRY (SPO2)', style: TextStyle(color: SanctuaryColors.textMuted, fontSize: 9, fontWeight: FontWeight.bold)),
+                          const SizedBox(height: 2),
+                          Text('${req.spo2}%  (Plethysmography)', style: const TextStyle(color: SanctuaryColors.deepSlateNavy, fontSize: 13, fontWeight: FontWeight.bold)),
                         ],
                       ),
                       Container(

@@ -226,12 +226,15 @@ class SocketService {
    */
   public emitEmergencyAccepted(emergencyId: string, payload: any): void {
     if (!this.io) return;
-    this.io.to(`emergency:${emergencyId}`).emit('emergency_accepted', {
+    const data = {
       success: true,
       emergencyId,
       ...payload,
       timestamp: new Date().toISOString(),
-    });
+    };
+    this.io.to(`emergency:${emergencyId}`).emit('emergency_accepted', data);
+    this.io.emit('emergency_accepted', data);
+    this.emitEmergencyStatusUpdate(emergencyId, 'ASSIGNED', payload);
   }
 
   /**
@@ -239,13 +242,15 @@ class SocketService {
    */
   public emitEmergencyStatusUpdate(emergencyId: string, status: string, payload: any = {}): void {
     if (!this.io) return;
-    this.io.to(`emergency:${emergencyId}`).emit('emergency_status_updated', {
+    const data = {
       success: true,
       emergencyId,
       status,
       ...payload,
       timestamp: new Date().toISOString(),
-    });
+    };
+    this.io.to(`emergency:${emergencyId}`).emit('emergency_status_updated', data);
+    this.io.emit('emergency_status_updated', data);
   }
 
   /**
@@ -253,7 +258,13 @@ class SocketService {
    */
   public emitAmbulanceLocation(emergencyId: string, location: any): void {
     if (!this.io) return;
-    this.io.to(`emergency:${emergencyId}`).emit('ambulance_location_updated', location);
+    const data = {
+      success: true,
+      emergencyId,
+      ...location,
+    };
+    this.io.to(`emergency:${emergencyId}`).emit('ambulance_location_updated', data);
+    this.io.emit('ambulance_location_updated', data);
   }
 
   /**

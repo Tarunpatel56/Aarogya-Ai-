@@ -40,6 +40,9 @@ class EmergencyModel {
   });
 
   factory EmergencyModel.fromJson(Map<String, dynamic> json) {
+    final patient = json['patientProfile'] as Map<String, dynamic>? ?? {};
+    final user = patient['user'] as Map<String, dynamic>? ?? {};
+
     return EmergencyModel(
       id: json['id']?.toString() ?? '',
       patientProfileId: json['patientProfileId']?.toString() ?? '',
@@ -53,11 +56,11 @@ class EmergencyModel {
       estimatedMinutes: (json['estimatedMinutes'] as num?)?.toInt() ?? 8,
       driverLatitude: (json['driverLatitude'] as num?)?.toDouble(),
       driverLongitude: (json['driverLongitude'] as num?)?.toDouble(),
-      patientName: json['patientName']?.toString(),
-      patientPhone: json['patientPhone']?.toString(),
+      patientName: json['patientName']?.toString() ?? patient['fullName']?.toString(),
+      patientPhone: json['patientPhone']?.toString() ?? user['phone']?.toString(),
       emergencyHotline: json['emergencyHotline']?.toString() ?? '102',
-      driverName: json['driverName']?.toString() ?? 'Paramedic Lead',
-      driverPhone: json['driverPhone']?.toString() ?? '+91-9876543210',
+      driverName: json['driverName']?.toString(),
+      driverPhone: json['driverPhone']?.toString(),
       createdAt: json['createdAt'] != null
           ? DateTime.tryParse(json['createdAt'].toString()) ?? DateTime.now()
           : DateTime.now(),

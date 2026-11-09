@@ -5,8 +5,8 @@ import { authenticate, requireRoles } from '../middleware/auth.middleware';
 
 const router = Router();
 
-// Gated strictly for DRIVER / AMBULANCE_DRIVER authority
-router.use(authenticate, requireRoles(Role.AMBULANCE_DRIVER, 'DRIVER'));
+// Gated strictly for DRIVER / AMBULANCE_DRIVER / PARAMEDIC authority
+router.use(authenticate, requireRoles(Role.AMBULANCE_DRIVER, Role.PARAMEDIC, 'DRIVER'));
 
 // Self-service driver profile & vehicle assignment
 router.get('/me', driverController.getProfile);

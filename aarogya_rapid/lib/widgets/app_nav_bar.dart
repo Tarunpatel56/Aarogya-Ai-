@@ -10,7 +10,7 @@ class RapidBottomNavBar extends StatelessWidget {
     super.key,
     required this.currentIndex,
     required this.onTap,
-    this.pendingRequestsCount = 2,
+    this.pendingRequestsCount = 0,
   });
 
   @override

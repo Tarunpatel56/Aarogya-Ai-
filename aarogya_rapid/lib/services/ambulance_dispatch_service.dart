@@ -80,5 +80,15 @@ class AmbulanceDispatchService {
       return [];
     }
   }
+
+  /// Retrieve driver operational profile and vehicle info
+  Future<Map<String, dynamic>?> getProfile() async {
+    try {
+      final res = await _apiClient.get('/drivers/me');
+      return res['data']?['profile'] as Map<String, dynamic>?;
+    } catch (_) {
+      return null;
+    }
+  }
 }
 
