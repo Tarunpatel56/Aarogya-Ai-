@@ -6,8 +6,8 @@ import 'package:http/http.dart' as http;
 class ApiConfig {
   static String? _customBaseUrl;
 
-  /// Active public cloud tunnel endpoint for cross-network EMS ambulance units
-  static const String publicTunnelUrl = 'https://nonpictorial-alysia-seminervously.ngrok-free.dev';
+  /// Active production cloud endpoint on Render
+  static const String publicTunnelUrl = 'https://aarogya-ai-azgi.onrender.com';
 
   /// Default API base URL based on runtime platform
   static String get defaultBaseUrl {
