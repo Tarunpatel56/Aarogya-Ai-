@@ -90,5 +90,42 @@ class AmbulanceDispatchService {
       return null;
     }
   }
+
+  /// Super Admin: Retrieve all registered ambulance staff with verification details
+  Future<List<Map<String, dynamic>>> getAdminDrivers({String? status, String? search}) async {
+    try {
+      final params = <String>[];
+      if (status != null && status.isNotEmpty) params.add('status=$status');
+      if (search != null && search.isNotEmpty) params.add('search=${Uri.encodeComponent(search)}');
+      final query = params.isNotEmpty ? '?${params.join('&')}' : '';
+      final res = await _apiClient.get('/admin/drivers$query');
+      final list = res['data']?['staff'] as List<dynamic>? ?? [];
+      return list.cast<Map<String, dynamic>>();
+    } catch (_) {
+      return [];
+    }
+  }
+
+  /// Super Admin: Verify, reject, or update ambulance driver verification status
+  Future<bool> verifyDriver(
+    String driverId, {
+    required String status,
+    String? rejectionReason,
+    String? notes,
+  }) async {
+    try {
+      final res = await _apiClient.patch(
+        '/admin/drivers/$driverId/verify',
+        body: {
+          'status': status,
+          'rejectionReason': rejectionReason,
+          'notes': notes,
+        },
+      );
+      return res['success'] == true;
+    } catch (_) {
+      return false;
+    }
+  }
 }
 

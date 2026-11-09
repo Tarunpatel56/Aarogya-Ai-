@@ -6,8 +6,9 @@ import '../theme/app_theme.dart';
 
 class ProfileScreen extends StatefulWidget {
   final VoidCallback? onLogout;
+  final VoidCallback? onOpenSuperAdmin;
 
-  const ProfileScreen({super.key, this.onLogout});
+  const ProfileScreen({super.key, this.onLogout, this.onOpenSuperAdmin});
 
   @override
   State<ProfileScreen> createState() => _ProfileScreenState();
@@ -150,13 +151,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   Container(
                                     padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                                     decoration: BoxDecoration(
-                                      color: SanctuaryColors.optimalGreenBg,
+                                      color: status == 'VERIFIED'
+                                          ? SanctuaryColors.optimalGreenBg
+                                          : const Color(0xFFFEF3C7),
                                       borderRadius: BorderRadius.circular(4),
                                     ),
                                     child: Text(
-                                      status,
-                                      style: const TextStyle(
-                                        color: SanctuaryColors.optimalGreen,
+                                      status == 'VERIFIED' ? 'VERIFIED' : 'PENDING APPROVAL',
+                                      style: TextStyle(
+                                        color: status == 'VERIFIED'
+                                            ? SanctuaryColors.optimalGreen
+                                            : const Color(0xFFB45309),
                                         fontSize: 9.5,
                                         fontWeight: FontWeight.bold,
                                       ),
@@ -219,10 +224,42 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           title: 'Registered Duty Phone',
                           value: phone,
                         ),
+                        const Divider(height: 1, color: SanctuaryColors.hairlineBorder),
+                        _buildInfoTile(
+                          icon: Icons.shield_outlined,
+                          title: 'Super Admin Compliance Verification',
+                          value: status == 'VERIFIED'
+                              ? 'Verified & Approved (Active EMS Duty)'
+                              : 'Pending Review by Super Admin',
+                          isHighlight: status != 'VERIFIED',
+                        ),
                       ],
                     ),
                   ),
                   const SizedBox(height: 16),
+
+                  // Super Admin Portal Button if Super Admin role or callback
+                  if (widget.onOpenSuperAdmin != null || role == 'PLATFORM_ADMIN' || role == 'SUPER_ADMIN') ...[
+                    SizedBox(
+                      width: double.infinity,
+                      height: 48,
+                      child: ElevatedButton.icon(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: SanctuaryColors.crimsonRose,
+                          foregroundColor: Colors.white,
+                          elevation: 0,
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                        ),
+                        onPressed: widget.onOpenSuperAdmin,
+                        icon: const Icon(Icons.admin_panel_settings, size: 20),
+                        label: const Text(
+                          'OPEN SUPER ADMIN FLEET PORTAL',
+                          style: TextStyle(fontWeight: FontWeight.w900, fontSize: 12.5, letterSpacing: 0.4),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                  ],
 
                   // Active EMS Readiness Card
                   _buildSectionHeader('EMERGENCY STANDBY STATUS'),

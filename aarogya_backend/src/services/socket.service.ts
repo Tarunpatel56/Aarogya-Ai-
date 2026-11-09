@@ -238,6 +238,22 @@ class SocketService {
   }
 
   /**
+   * Broadcast real-time driver verification status update by Super Admin
+   */
+  public emitDriverVerificationUpdate(driverUserId: string, payload: any): void {
+    if (!this.io) return;
+    const data = {
+      success: true,
+      driverUserId,
+      ...payload,
+      timestamp: new Date().toISOString(),
+    };
+    this.io.to(`user:${driverUserId}`).emit('driver_verification_update', data);
+    this.io.emit('driver_verification_update', data);
+    logger.info(`[SOCKET] Emitted driver_verification_update for driver ${driverUserId}: ${payload.status}`);
+  }
+
+  /**
    * Broadcast emergency transit milestone update
    */
   public emitEmergencyStatusUpdate(emergencyId: string, status: string, payload: any = {}): void {

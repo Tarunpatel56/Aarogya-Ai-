@@ -68,3 +68,13 @@ export const assignUserRoleSchema = {
   }),
 };
 
+export const adminVerifyDriverSchema = {
+  body: z.object({
+    status: z.enum(['VERIFIED', 'REJECTED', 'UNDER_REVIEW', 'SUSPENDED', 'PENDING'], {
+      required_error: 'status is required (VERIFIED, REJECTED, UNDER_REVIEW, SUSPENDED)',
+    }),
+    rejectionReason: z.string().trim().max(500).optional(),
+    notes: z.string().trim().max(500).optional(),
+  }),
+};
+

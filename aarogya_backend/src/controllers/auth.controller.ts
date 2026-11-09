@@ -302,7 +302,7 @@ export const authController = {
             phone: cleanPhone,
             passwordHash,
             role: staffRole,
-            verificationStatus: VerificationStatus.VERIFIED, // Auto-verified for immediate active EMS dispatch
+            verificationStatus: VerificationStatus.PENDING, // Strictly PENDING until Super Admin verifies credentials
           },
         });
 

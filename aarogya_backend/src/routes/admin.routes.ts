@@ -10,6 +10,7 @@ import {
   adminCreateUserSchema,
   updateUserStatusSchema,
   assignUserRoleSchema,
+  adminVerifyDriverSchema,
 } from '../validation/admin.validation';
 
 const router = Router();
@@ -31,5 +32,9 @@ router.delete('/users/:id', adminController.deleteUser);
 
 // Transition doctor verification status (VERIFIED, REJECTED, SUSPENDED, UNDER_REVIEW)
 router.patch('/doctors/:id/verify', validateRequest(adminVerifyDoctorSchema), doctorController.adminVerifyDoctor);
+
+// Super Admin Ambulance Driver & Paramedic Fleet Verification
+router.get('/drivers', adminController.getAmbulanceStaffList);
+router.patch('/drivers/:id/verify', validateRequest(adminVerifyDriverSchema), adminController.verifyAmbulanceStaff);
 
 export const adminRoutes = router;

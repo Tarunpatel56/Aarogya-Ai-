@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
-import { EmergencyStatus } from '@prisma/client';
+import { EmergencyStatus, VerificationStatus } from '@prisma/client';
 import { prisma } from '../config/prisma';
-import { NotFoundError, BadRequestError } from '../utils/AppError';
+import { NotFoundError, BadRequestError, ForbiddenError } from '../utils/AppError';
 import { socketService } from '../services/socket.service';
 
 export const driverController = {
@@ -138,6 +138,12 @@ export const driverController = {
 
       if (!profile) {
         throw new NotFoundError('Driver profile not found');
+      }
+
+      if (profile.user.verificationStatus !== VerificationStatus.VERIFIED) {
+        throw new ForbiddenError(
+          'Driver account is pending Super Admin verification. You cannot accept emergency dispatches until approved by Super Admin.'
+        );
       }
 
       const emergency = await prisma.emergencyRequest.findUnique({

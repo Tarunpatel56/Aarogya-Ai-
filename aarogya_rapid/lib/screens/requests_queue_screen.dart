@@ -10,6 +10,7 @@ class RequestsQueueScreen extends StatefulWidget {
   final EmergencyRequest? activeTrip;
   final Function(EmergencyRequest) onAcceptDispatch;
   final VoidCallback onOpenTrip;
+  final VoidCallback? onOpenSuperAdmin;
 
   const RequestsQueueScreen({
     super.key,
@@ -17,6 +18,7 @@ class RequestsQueueScreen extends StatefulWidget {
     this.activeTrip,
     required this.onAcceptDispatch,
     required this.onOpenTrip,
+    this.onOpenSuperAdmin,
   });
 
   @override
@@ -28,6 +30,8 @@ class _RequestsQueueScreenState extends State<RequestsQueueScreen>
   bool isOnDuty = true;
   String _driverName = 'Ambulance Lead Pilot';
   String _vehiclePlate = 'DL-01-AMB-108';
+  String _verificationStatus = 'VERIFIED';
+  String _role = 'AMBULANCE_DRIVER';
   late AnimationController _radarController;
 
   @override
@@ -50,18 +54,30 @@ class _RequestsQueueScreenState extends State<RequestsQueueScreen>
     try {
       final profile = await AmbulanceDispatchService().getProfile();
       if (profile != null && mounted) {
+        final user = profile['user'] as Map<String, dynamic>? ?? {};
         setState(() {
           _driverName = profile['fullName']?.toString() ?? _driverName;
           _vehiclePlate = profile['assignedVehicleNumber']?.toString() ?? _vehiclePlate;
+          _verificationStatus = user['verificationStatus']?.toString() ?? _verificationStatus;
+          _role = user['role']?.toString() ?? _role;
+          if (_verificationStatus != 'VERIFIED') {
+            isOnDuty = false;
+          }
         });
         return;
       }
       final raw = await TokenStorage().getDriverInfo();
       if (raw != null && mounted) {
         final decoded = jsonDecode(raw) as Map<String, dynamic>;
+        final user = decoded['user'] as Map<String, dynamic>? ?? decoded;
         setState(() {
           _driverName = decoded['fullName']?.toString() ?? decoded['name']?.toString() ?? _driverName;
           _vehiclePlate = decoded['assignedVehicleNumber']?.toString() ?? _vehiclePlate;
+          _verificationStatus = user['verificationStatus']?.toString() ?? _verificationStatus;
+          _role = user['role']?.toString() ?? _role;
+          if (_verificationStatus != 'VERIFIED') {
+            isOnDuty = false;
+          }
         });
       }
     } catch (_) {}
@@ -200,6 +216,12 @@ class _RequestsQueueScreenState extends State<RequestsQueueScreen>
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              // 0. Super Admin Verification Pending Banner
+              if (_verificationStatus != 'VERIFIED') ...[
+                _buildVerificationPendingBanner(),
+                const SizedBox(height: 12),
+              ],
+
               // 1. Ambulance Unit Telemetry & Duty Card
               _buildUnitStatusCard(),
               const SizedBox(height: 12),
@@ -363,8 +385,14 @@ class _RequestsQueueScreenState extends State<RequestsQueueScreen>
           ),
         ],
       ),
-      actions: const [
-        Padding(
+      actions: [
+        if (widget.onOpenSuperAdmin != null || _role == 'PLATFORM_ADMIN' || _role == 'SUPER_ADMIN')
+          IconButton(
+            icon: const Icon(Icons.admin_panel_settings, color: SanctuaryColors.crimsonRose, size: 22),
+            onPressed: widget.onOpenSuperAdmin,
+            tooltip: 'Open Super Admin Verification Command',
+          ),
+        const Padding(
           padding: EdgeInsets.only(right: 16),
           child: Tooltip(
             message: 'Connected to Aarogya Real-Time Socket Gateway',
@@ -420,16 +448,29 @@ class _RequestsQueueScreenState extends State<RequestsQueueScreen>
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1.5),
                       decoration: BoxDecoration(
-                        color: SanctuaryColors.optimalGreenBg,
+                        color: _verificationStatus == 'VERIFIED'
+                            ? SanctuaryColors.optimalGreenBg
+                            : const Color(0xFFFEF3C7),
                         borderRadius: BorderRadius.circular(4),
                       ),
-                      child: const Text('ALS Unit', style: TextStyle(color: SanctuaryColors.optimalGreen, fontSize: 9.5, fontWeight: FontWeight.bold)),
+                      child: Text(
+                        _verificationStatus == 'VERIFIED' ? 'ALS Unit • Verified' : 'Pending Super Admin',
+                        style: TextStyle(
+                          color: _verificationStatus == 'VERIFIED'
+                              ? SanctuaryColors.optimalGreen
+                              : const Color(0xFFB45309),
+                          fontSize: 9.5,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
                     ),
                   ],
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  'Pilot: $_driverName • ${isOnDuty ? "Active Duty • Standby" : "Off Duty"}',
+                  _verificationStatus != 'VERIFIED'
+                      ? 'Pilot: $_driverName • Credentials Pending Review'
+                      : 'Pilot: $_driverName • ${isOnDuty ? "Active Duty • Standby" : "Off Duty"}',
                   style: SanctuaryTypography.bodySm(color: SanctuaryColors.textSecondary).copyWith(fontSize: 11),
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -444,7 +485,18 @@ class _RequestsQueueScreenState extends State<RequestsQueueScreen>
               activeTrackColor: SanctuaryColors.optimalGreen,
               inactiveThumbColor: Colors.white,
               inactiveTrackColor: Colors.grey.shade400,
-              onChanged: (val) => setState(() => isOnDuty = val),
+              onChanged: (val) {
+                if (_verificationStatus != 'VERIFIED') {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Cannot go On Duty: Super Admin verification required.'),
+                      backgroundColor: Color(0xFFD97706),
+                    ),
+                  );
+                  return;
+                }
+                setState(() => isOnDuty = val);
+              },
             ),
           ),
         ],
@@ -889,18 +941,139 @@ class _RequestsQueueScreenState extends State<RequestsQueueScreen>
                   height: 48,
                   child: ElevatedButton.icon(
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: req.isCritical ? const Color(0xFFDC2626) : SanctuaryColors.primaryTeal,
+                      backgroundColor: _verificationStatus != 'VERIFIED'
+                          ? Colors.grey.shade400
+                          : (req.isCritical ? const Color(0xFFDC2626) : SanctuaryColors.primaryTeal),
                       foregroundColor: Colors.white,
                       elevation: 0,
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                     ),
-                    onPressed: () => widget.onAcceptDispatch(req),
-                    icon: const Icon(Icons.check_circle_rounded, size: 18),
-                    label: const Text(
-                      'ACCEPT DISPATCH & ENGAGE UNIT',
-                      style: TextStyle(fontWeight: FontWeight.w900, fontSize: 13, letterSpacing: 0.4),
+                    onPressed: _verificationStatus != 'VERIFIED'
+                        ? _showVerificationRequiredDialog
+                        : () => widget.onAcceptDispatch(req),
+                    icon: Icon(
+                      _verificationStatus != 'VERIFIED'
+                          ? Icons.lock_outline_rounded
+                          : Icons.check_circle_rounded,
+                      size: 18,
+                    ),
+                    label: Text(
+                      _verificationStatus != 'VERIFIED'
+                          ? 'VERIFICATION PENDING (SUPER ADMIN REQUIRED)'
+                          : 'ACCEPT DISPATCH & ENGAGE UNIT',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 12, letterSpacing: 0.3),
                     ),
                   ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showVerificationRequiredDialog() {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: Row(
+          children: const [
+            Icon(Icons.shield_outlined, color: Color(0xFFD97706), size: 24),
+            SizedBox(width: 8),
+            Flexible(
+              child: Text(
+                'Super Admin Verification Required',
+                style: TextStyle(fontWeight: FontWeight.w800, fontSize: 16),
+              ),
+            ),
+          ],
+        ),
+        content: const Text(
+          'Your driving license and EMS credentials must be verified and approved by the Super Admin before you can go on duty or accept live emergency dispatches.\n\nPlease wait for Super Admin approval or contact your fleet supervisor.',
+          style: TextStyle(fontSize: 13, height: 1.45, color: SanctuaryColors.deepSlateNavy),
+        ),
+        actions: [
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: SanctuaryColors.primaryTeal),
+            onPressed: () => Navigator.of(ctx).pop(),
+            child: const Text('Understood', style: TextStyle(color: Colors.white)),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildVerificationPendingBanner() {
+    return Container(
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: const Color(0xFFFFFBEB),
+        borderRadius: SanctuaryRadius.rLg,
+        border: Border.all(color: const Color(0xFFFDE68A), width: 1.5),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFFF59E0B).withValues(alpha: 0.1),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: const BoxDecoration(
+              color: Color(0xFFFEF3C7),
+              shape: BoxShape.circle,
+            ),
+            child: const Icon(Icons.shield_outlined, color: Color(0xFFD97706), size: 22),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    const Flexible(
+                      child: Text(
+                        'AWAITING SUPER ADMIN VERIFICATION',
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          color: Color(0xFF92400E),
+                          fontWeight: FontWeight.w900,
+                          fontSize: 11,
+                          letterSpacing: 0.4,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 6),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFFCD34D),
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                      child: const Text(
+                        'PENDING',
+                        style: TextStyle(
+                          color: Color(0xFF78350F),
+                          fontSize: 9,
+                          fontWeight: FontWeight.w900,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 4),
+                const Text(
+                  'Your driving license & EMS credentials are submitted and pending compliance review by Super Admin. You will be activated automatically once approved.',
+                  style: TextStyle(color: Color(0xFFB45309), fontSize: 11, height: 1.35),
                 ),
               ],
             ),

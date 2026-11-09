@@ -124,6 +124,40 @@ class _DriverLoginScreenState extends State<DriverLoginScreen> {
                     ),
                   ),
 
+                // Quick Fill Role Selector (Driver / Super Admin)
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  alignment: WrapAlignment.center,
+                  children: [
+                    ActionChip(
+                      avatar: const Icon(Icons.airport_shuttle, size: 14, color: SanctuaryColors.primaryTeal),
+                      label: const Text('Lead Driver Login', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
+                      backgroundColor: const Color(0xFFEFF6FF),
+                      side: const BorderSide(color: Color(0xFFBFDBFE)),
+                      onPressed: () {
+                        setState(() {
+                          _emailController.text = 'driver@aarogya.ai';
+                          _passwordController.text = 'Driver@123';
+                        });
+                      },
+                    ),
+                    ActionChip(
+                      avatar: const Icon(Icons.admin_panel_settings, size: 14, color: SanctuaryColors.crimsonRose),
+                      label: const Text('Super Admin Command', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: SanctuaryColors.crimsonRose)),
+                      backgroundColor: const Color(0xFFFEF2F2),
+                      side: const BorderSide(color: Color(0xFFFECACA)),
+                      onPressed: () {
+                        setState(() {
+                          _emailController.text = 'superadmin@aarogya.ai';
+                          _passwordController.text = 'Admin@12345';
+                        });
+                      },
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+
                 // Inputs
                 Container(
                   padding: const EdgeInsets.all(20),

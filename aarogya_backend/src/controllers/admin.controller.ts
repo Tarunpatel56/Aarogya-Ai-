@@ -6,6 +6,7 @@ import { tokenService } from '../services/token.service';
 import { NotFoundError, BadRequestError, ConflictError } from '../utils/AppError';
 import { toPrismaRole, toCanonicalRole, isSuperAdmin } from '../types/roles';
 import { logger } from '../utils/logger';
+import { socketService } from '../services/socket.service';
 
 // In-memory audit trail for privileged Super Admin operations
 export interface AdminAuditEntry {
@@ -513,6 +514,158 @@ export const adminController = {
       res.status(200).json({
         success: true,
         message: `User account ${targetUser.email} permanently removed from ecosystem`,
+      });
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  /**
+   * Super Admin retrieves all registered ambulance drivers & paramedics with verification status.
+   */
+  async getAmbulanceStaffList(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const { status, search } = req.query as any;
+
+      const where: Prisma.AmbulanceStaffProfileWhereInput = {};
+
+      if (status) {
+        where.user = { verificationStatus: status as any };
+      }
+
+      if (search && search.trim().length > 0) {
+        const query = search.trim();
+        where.OR = [
+          { fullName: { contains: query, mode: 'insensitive' } },
+          { licenseNumber: { contains: query, mode: 'insensitive' } },
+          { assignedVehicleNumber: { contains: query, mode: 'insensitive' } },
+          { user: { email: { contains: query, mode: 'insensitive' } } },
+          { user: { phone: { contains: query, mode: 'insensitive' } } },
+        ];
+      }
+
+      const staff = await prisma.ambulanceStaffProfile.findMany({
+        where,
+        include: {
+          user: {
+            select: {
+              id: true,
+              email: true,
+              phone: true,
+              role: true,
+              verificationStatus: true,
+              isActive: true,
+              createdAt: true,
+              lastLoginAt: true,
+            },
+          },
+        },
+        orderBy: { user: { createdAt: 'desc' } },
+      });
+
+      res.status(200).json({
+        success: true,
+        data: {
+          staff,
+          count: staff.length,
+        },
+      });
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  /**
+   * Super Admin approves, rejects, or transitions verification status of an ambulance driver or paramedic.
+   */
+  async verifyAmbulanceStaff(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const id = String(req.params.id);
+      const { status, rejectionReason, notes } = req.body;
+      const adminEmail = req.user?.email || 'superadmin@aarogya.ai';
+
+      // Lookup ambulance staff by profile id or user id
+      const staffProfile = await prisma.ambulanceStaffProfile.findFirst({
+        where: {
+          OR: [{ id }, { userId: id }],
+        },
+        include: { user: true },
+      });
+
+      if (!staffProfile) {
+        throw new NotFoundError('Ambulance staff profile not found');
+      }
+
+      const isVerified = status === 'VERIFIED';
+      const now = new Date();
+
+      // Transactionally update User verification status and Staff Profile
+      const [updatedUser, updatedProfile] = await prisma.$transaction([
+        prisma.user.update({
+          where: { id: staffProfile.userId },
+          data: {
+            verificationStatus: status,
+          },
+        }),
+        prisma.ambulanceStaffProfile.update({
+          where: { id: staffProfile.id },
+          data: {
+            verifiedAt: isVerified ? now : null,
+            verifiedBy: isVerified ? adminEmail : null,
+          },
+        }),
+      ]);
+
+      // If an ambulance record is tied to this vehicle number, update its verification status
+      if (staffProfile.assignedVehicleNumber) {
+        await prisma.ambulance.updateMany({
+          where: { vehicleNumber: staffProfile.assignedVehicleNumber },
+          data: {
+            verificationStatus: status,
+            verifiedAt: isVerified ? now : null,
+            verifiedBy: isVerified ? adminEmail : null,
+            rejectionReason: rejectionReason || notes || null,
+          },
+        });
+      }
+
+      recordAudit(
+        req,
+        isVerified ? 'VERIFY_AMBULANCE_DRIVER' : 'UPDATE_DRIVER_VERIFICATION',
+        { id: updatedUser.id, email: updatedUser.email },
+        {
+          previousStatus: staffProfile.user.verificationStatus,
+          newStatus: status,
+          driverName: staffProfile.fullName,
+          vehiclePlate: staffProfile.assignedVehicleNumber,
+          licenseNumber: staffProfile.licenseNumber,
+          rejectionReason: rejectionReason || notes,
+        }
+      );
+
+      // Real-time Socket.IO notification to driver app
+      socketService.emitDriverVerificationUpdate(updatedUser.id, {
+        status,
+        verifiedAt: isVerified ? now.toISOString() : undefined,
+        verifiedBy: isVerified ? adminEmail : undefined,
+        driverName: staffProfile.fullName,
+      });
+
+      res.status(200).json({
+        success: true,
+        message: `Driver ${staffProfile.fullName} verification status updated to ${status} by Super Admin`,
+        data: {
+          driver: {
+            id: updatedProfile.id,
+            userId: updatedUser.id,
+            fullName: updatedProfile.fullName,
+            licenseNumber: updatedProfile.licenseNumber,
+            assignedVehicleNumber: updatedProfile.assignedVehicleNumber,
+            verificationStatus: updatedUser.verificationStatus,
+            verifiedAt: updatedProfile.verifiedAt,
+            verifiedBy: updatedProfile.verifiedBy,
+          },
+        },
       });
     } catch (error) {
       next(error);
