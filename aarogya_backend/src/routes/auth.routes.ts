@@ -10,6 +10,7 @@ import {
   registerAmbulanceStaffSchema,
   loginSchema,
   refreshTokenSchema,
+  logoutSchema,
   sendOtpSchema,
   verifyOtpSchema,
   forgotPasswordSchema,
@@ -62,6 +63,13 @@ router.post(
   authController.refreshToken
 );
 
+router.post(
+  '/refresh',
+  authRateLimiter,
+  validateRequest(refreshTokenSchema),
+  authController.refreshToken
+);
+
 // Phone OTP authentication
 router.post(
   '/send-otp',
@@ -94,7 +102,7 @@ router.post(
 
 router.post(
   '/logout',
-  validateRequest(refreshTokenSchema),
+  validateRequest(logoutSchema),
   authController.logout
 );
 

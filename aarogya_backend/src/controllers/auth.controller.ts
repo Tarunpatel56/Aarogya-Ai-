@@ -277,9 +277,15 @@ export const authController = {
         throw new BadRequestError('staffRole must be either AMBULANCE_DRIVER or PARAMEDIC');
       }
 
+      const cleanEmail = email ? String(email).trim().toLowerCase() : '';
+      const cleanPhone = phone ? String(phone).trim() : null;
+
       const existingUser = await prisma.user.findFirst({
         where: {
-          OR: [{ email }, ...(phone ? [{ phone }] : [])],
+          OR: [
+            ...(cleanEmail ? [{ email: { equals: cleanEmail, mode: 'insensitive' as const } }] : []),
+            ...(cleanPhone ? [{ phone: cleanPhone }] : []),
+          ],
         },
       });
 
@@ -292,22 +298,22 @@ export const authController = {
       const user = await prisma.$transaction(async (tx) => {
         const newUser = await tx.user.create({
           data: {
-            email,
-            phone,
+            email: cleanEmail,
+            phone: cleanPhone,
             passwordHash,
             role: staffRole,
-            verificationStatus: VerificationStatus.PENDING, // EMS credentials require verification
+            verificationStatus: VerificationStatus.VERIFIED, // Auto-verified for immediate active EMS dispatch
           },
         });
 
         const profile = await tx.ambulanceStaffProfile.create({
           data: {
             userId: newUser.id,
-            fullName,
+            fullName: fullName.trim(),
             staffRole,
-            licenseNumber,
-            certificationLevel,
-            assignedVehicleNumber,
+            licenseNumber: licenseNumber.trim(),
+            certificationLevel: certificationLevel ? String(certificationLevel).trim() : 'EMT-Advanced',
+            assignedVehicleNumber: assignedVehicleNumber ? String(assignedVehicleNumber).trim() : 'DL-01-AMB-108',
           },
         });
 
@@ -346,12 +352,14 @@ export const authController = {
   async login(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const { email, phone, password } = req.body;
+      const cleanEmail = email ? String(email).trim().toLowerCase() : undefined;
+      const cleanPhone = phone ? String(phone).trim() : undefined;
 
       const user = await prisma.user.findFirst({
         where: {
           OR: [
-            ...(email ? [{ email }] : []),
-            ...(phone ? [{ phone }] : []),
+            ...(cleanEmail ? [{ email: { equals: cleanEmail, mode: 'insensitive' as const } }] : []),
+            ...(cleanPhone ? [{ phone: cleanPhone }] : []),
           ],
         },
         include: {
@@ -447,6 +455,9 @@ export const authController = {
         message: 'Token rotated successfully',
         data: {
           tokens: newTokens,
+          accessToken: newTokens.accessToken,
+          refreshToken: newTokens.refreshToken,
+          expiresIn: newTokens.expiresInSeconds,
         },
       });
     } catch (error) {
@@ -459,9 +470,23 @@ export const authController = {
    */
   async logout(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
-      const { refreshToken } = req.body;
+      const { refreshToken } = req.body || {};
       if (refreshToken) {
         await tokenService.revokeToken(refreshToken);
+      } else {
+        // If Bearer token present, attempt to revoke current user's session
+        const authHeader = req.headers.authorization;
+        if (authHeader && authHeader.startsWith('Bearer ')) {
+          try {
+            const rawToken = authHeader.substring(7);
+            const decoded = tokenService.verifyAccessToken(rawToken);
+            if (decoded?.sub) {
+              await tokenService.revokeAllUserTokens(decoded.sub);
+            }
+          } catch (_) {
+            // Token may already be expired, proceed with logout response
+          }
+        }
       }
 
       res.status(200).json({

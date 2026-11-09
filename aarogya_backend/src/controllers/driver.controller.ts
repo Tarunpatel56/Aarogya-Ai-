@@ -92,7 +92,7 @@ export const driverController = {
       const pendingDispatches = await prisma.emergencyRequest.findMany({
         where: {
           status: {
-            in: [EmergencyStatus.REQUESTED, EmergencyStatus.SEARCHING],
+            in: [EmergencyStatus.REQUESTED, EmergencyStatus.SEARCHING, EmergencyStatus.ASSIGNED],
           },
           assignedDriverId: null,
         },

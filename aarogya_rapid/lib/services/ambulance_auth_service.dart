@@ -24,15 +24,62 @@ class AmbulanceAuthService {
     final res = await _apiClient.post(
       '/auth/login',
       body: {
-        'email': email.trim(),
+        'email': email.trim().toLowerCase(),
         'password': password,
       },
       requiresAuth: false,
     );
 
     final data = res['data'] ?? res;
-    final accessToken = data['accessToken'];
-    final refreshToken = data['refreshToken'];
+    final tokens = data['tokens'] as Map<String, dynamic>?;
+    final accessToken = tokens?['accessToken'] ?? data['accessToken'];
+    final refreshToken = tokens?['refreshToken'] ?? data['refreshToken'];
+    final user = data['user'] ?? {};
+
+    if (accessToken != null && refreshToken != null) {
+      await _tokenStorage.saveTokens(
+        accessToken: accessToken,
+        refreshToken: refreshToken,
+      );
+      await _tokenStorage.saveDriverInfo(jsonEncode(user));
+    }
+
+    return user;
+  }
+
+  Future<Map<String, dynamic>> register({
+    required String email,
+    required String password,
+    required String fullName,
+    String? phone,
+    String staffRole = 'AMBULANCE_DRIVER',
+    required String licenseNumber,
+    String? assignedVehicleNumber,
+    String? certificationLevel,
+  }) async {
+    final res = await _apiClient.post(
+      '/auth/register/ambulance-staff',
+      body: {
+        'email': email.trim().toLowerCase(),
+        'password': password,
+        'fullName': fullName.trim(),
+        if (phone != null && phone.trim().isNotEmpty) 'phone': phone.trim(),
+        'staffRole': staffRole,
+        'licenseNumber': licenseNumber.trim(),
+        'assignedVehicleNumber': (assignedVehicleNumber != null && assignedVehicleNumber.trim().isNotEmpty)
+            ? assignedVehicleNumber.trim()
+            : 'DL-01-AMB-108',
+        'certificationLevel': (certificationLevel != null && certificationLevel.trim().isNotEmpty)
+            ? certificationLevel.trim()
+            : 'EMT-Advanced',
+      },
+      requiresAuth: false,
+    );
+
+    final data = res['data'] ?? res;
+    final tokens = data['tokens'] as Map<String, dynamic>?;
+    final accessToken = tokens?['accessToken'] ?? data['accessToken'];
+    final refreshToken = tokens?['refreshToken'] ?? data['refreshToken'];
     final user = data['user'] ?? {};
 
     if (accessToken != null && refreshToken != null) {
@@ -48,7 +95,11 @@ class AmbulanceAuthService {
 
   Future<void> logout() async {
     try {
-      await _apiClient.post('/auth/logout');
+      final refreshToken = await _tokenStorage.getRefreshToken();
+      await _apiClient.post(
+        '/auth/logout',
+        body: refreshToken != null ? {'refreshToken': refreshToken} : null,
+      );
     } catch (_) {}
     await _tokenStorage.clearAll();
   }

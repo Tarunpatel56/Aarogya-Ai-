@@ -83,12 +83,17 @@ class SocketService {
 
         if (user.role === 'DOCTOR') {
           socket.join('doctors');
-        } else if (user.role === 'AMBULANCE_DRIVER' || user.role === 'PARAMEDIC') {
+        } else if (user.role === 'AMBULANCE_DRIVER' || user.role === 'PARAMEDIC' || user.role === 'DRIVER') {
           socket.join('ambulance_drivers');
         }
       }
 
       // Room management
+      socket.on('join_ambulance_drivers', () => {
+        socket.join('ambulance_drivers');
+        logger.info(`Socket ${socket.id} explicitly joined ambulance_drivers channel`);
+      });
+
       socket.on('join_emergency', (emergencyId: string) => {
         if (emergencyId) {
           socket.join(`emergency:${emergencyId}`);
@@ -205,11 +210,15 @@ class SocketService {
    */
   public emitEmergencyBroadcast(emergency: any): void {
     if (!this.io) return;
-    this.io.to('ambulance_drivers').emit('emergency_broadcast', {
+    const broadcastPayload = {
       success: true,
       emergency,
       timestamp: new Date().toISOString(),
-    });
+    };
+    // Emit to dedicated ambulance channel
+    this.io.to('ambulance_drivers').emit('emergency_broadcast', broadcastPayload);
+    // Also emit broadcast globally to guarantee all listening EMS terminals receive it immediately
+    this.io.emit('emergency_broadcast', broadcastPayload);
   }
 
   /**

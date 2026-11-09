@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../services/ambulance_auth_service.dart';
 import '../../theme/app_theme.dart';
+import 'driver_register_screen.dart';
 
 class DriverLoginScreen extends StatefulWidget {
   final VoidCallback onLoginSuccess;
@@ -198,7 +199,40 @@ class _DriverLoginScreenState extends State<DriverLoginScreen> {
                     ],
                   ),
                 ),
-                const SizedBox(height: 20),
+                const SizedBox(height: 16),
+
+                // Link to Register Screen
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Text(
+                      "Don't have an EMS Driver account? ",
+                      style: TextStyle(fontSize: 13, color: SanctuaryColors.textSecondary),
+                    ),
+                    TextButton(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => DriverRegisterScreen(
+                              onRegisterSuccess: widget.onLoginSuccess,
+                            ),
+                          ),
+                        );
+                      },
+                      child: const Text(
+                        'Register Here',
+                        style: TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.bold,
+                          color: SanctuaryColors.emergencyRed,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+
                 const Text(
                   'Connected to Shared Aarogya Centralized Backend',
                   style: TextStyle(fontSize: 12, color: SanctuaryColors.textMuted),

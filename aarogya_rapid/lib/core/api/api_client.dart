@@ -105,10 +105,15 @@ class ApiClient {
 
       if (res.statusCode == 200) {
         final data = jsonDecode(res.body);
-        final newAccess = data['data']?['accessToken'] ?? data['accessToken'];
-        final newRefresh = data['data']?['refreshToken'] ?? data['refreshToken'];
+        final payload = data['data'] ?? data;
+        final tokens = payload['tokens'] as Map<String, dynamic>?;
+        final newAccess = tokens?['accessToken'] ?? payload['accessToken'];
+        final newRefresh = tokens?['refreshToken'] ?? payload['refreshToken'];
         if (newAccess != null) {
-          await _tokenStorage.saveTokens(accessToken: newAccess, refreshToken: newRefresh ?? refreshToken);
+          await _tokenStorage.saveTokens(
+            accessToken: newAccess.toString(),
+            refreshToken: (newRefresh ?? refreshToken).toString(),
+          );
           return true;
         }
       }

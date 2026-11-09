@@ -95,11 +95,23 @@ export const emergencyController = {
           assignedHospitalId: nearestHospital?.id,
           hospitalName: nearestHospital?.name || 'AIIMS Emergency Trauma Bay',
           assignedVehicleNo: vehicleNum,
-          status: EmergencyStatus.ASSIGNED,
+          status: EmergencyStatus.REQUESTED,
           estimatedMinutes,
           driverLatitude: driverLat,
           driverLongitude: driverLng,
           vitalsSnapshot: vitalsSnapshot || null,
+        },
+        include: {
+          patientProfile: {
+            include: {
+              user: {
+                select: {
+                  phone: true,
+                  email: true,
+                },
+              },
+            },
+          },
         },
       });
 

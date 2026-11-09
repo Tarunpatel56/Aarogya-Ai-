@@ -282,8 +282,9 @@ class ApiClient {
       if (response.statusCode == 200) {
         final json = jsonDecode(response.body);
         final data = json['data'] ?? json;
-        final newAccess = data['accessToken']?.toString();
-        final newRefresh = data['refreshToken']?.toString();
+        final tokens = data['tokens'] is Map<String, dynamic> ? data['tokens'] as Map<String, dynamic> : null;
+        final newAccess = tokens?['accessToken']?.toString() ?? data['accessToken']?.toString();
+        final newRefresh = tokens?['refreshToken']?.toString() ?? data['refreshToken']?.toString();
 
         if (newAccess != null && newRefresh != null) {
           await _tokenStorage.saveTokens(
