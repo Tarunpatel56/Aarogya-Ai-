@@ -1,0 +1,727 @@
+// Aarogya Healthcare Ecosystem - Prisma Schema Foundation
+// Datasource: PostgreSQL
+// Generator: Prisma Client JS
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum Role {
+  PATIENT
+  DOCTOR
+  HOSPITAL_ADMIN
+  AMBULANCE_DRIVER
+  PARAMEDIC
+  PLATFORM_ADMIN
+}
+
+enum VerificationStatus {
+  PENDING
+  UNDER_REVIEW
+  VERIFIED
+  REJECTED
+  SUSPENDED
+}
+
+enum RecordType {
+  LAB_REPORT
+  PRESCRIPTION
+  DISCHARGE_SUMMARY
+  VITAL_LOG
+  IMAGING_REPORT
+  VACCINATION
+  CONSULTATION_NOTE
+  OTHER
+}
+
+enum ConsultationMode {
+  IN_PERSON
+  ONLINE
+}
+
+enum AvailabilityStatus {
+  AVAILABLE
+  UNAVAILABLE
+  BUSY
+  ON_LEAVE
+}
+
+enum VitalMetricType {
+  HEART_RATE
+  SPO2
+  STEPS
+  SLEEP
+  BLOOD_PRESSURE
+  BODY_TEMPERATURE
+  ECG
+  BLOOD_GLUCOSE
+}
+
+enum VitalSource {
+  SMARTWATCH_BLE
+  LAPTOP_BRIDGE
+  MANUAL_ENTRY
+  EXTERNAL_DEVICE
+}
+
+model User {
+  id                 String             @id @default(uuid())
+  email              String             @unique
+  phone              String?            @unique
+  passwordHash       String
+  role               Role
+  verificationStatus VerificationStatus @default(PENDING)
+  isActive           Boolean            @default(true)
+  isEmailVerified    Boolean            @default(false)
+  isPhoneVerified    Boolean            @default(false)
+  lastLoginAt        DateTime?
+  createdAt          DateTime           @default(now())
+  updatedAt          DateTime           @updatedAt
+
+  refreshTokens        RefreshToken[]
+  patientProfile       PatientProfile?
+  doctorProfile        DoctorProfile?
+  hospitalAdminProfile HospitalAdminProfile?
+  ambulanceStaffProfile AmbulanceStaffProfile?
+  notifications        Notification[]
+  deviceTokens         UserDeviceToken[]
+  ambulance            Ambulance?
+
+  @@index([email])
+  @@index([role])
+  @@index([verificationStatus])
+}
+
+model RefreshToken {
+  id          String   @id @default(uuid())
+  tokenHash   String   @unique
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  familyId    String
+  isRevoked   Boolean  @default(false)
+  expiresAt   DateTime
+  createdAt   DateTime @default(now())
+  userAgent   String?
+  ipAddress   String?
+
+  @@index([userId])
+  @@index([familyId])
+}
+
+model PatientProfile {
+  id                    String          @id @default(uuid())
+  userId                String          @unique
+  user                  User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  fullName              String
+  dateOfBirth           DateTime?
+  gender                String?
+  bloodGroup            String?
+  abhaId                String?         @unique
+  allergies             String?
+  address               String?
+  emergencyContactName  String?
+  emergencyContactPhone String?
+  createdAt             DateTime        @default(now())
+  updatedAt             DateTime        @updatedAt
+
+  medicalRecords        MedicalRecord[]
+  appointments          Appointment[]
+  emergencyRequests     EmergencyRequest[]
+  familyMembers         FamilyMember[]
+  medicineReminders     MedicineReminder[]
+  prescriptions         Prescription[]
+  vitalReadings         VitalReading[]
+  patientDevices        PatientDevice[]
+  primaryDoctorAssignments PatientDoctorAssignment[]
+  assignmentHistories   AssignmentHistory[]
+  accessAuditLogs       AccessAuditLog[]
+
+  @@index([userId])
+  @@index([abhaId])
+}
+
+model MedicalRecord {
+  id               String         @id @default(uuid())
+  patientProfileId String
+  patientProfile   PatientProfile @relation(fields: [patientProfileId], references: [id], onDelete: Cascade)
+  recordType       RecordType
+  title            String
+  description      String?
+  recordDate       DateTime       @default(now())
+  
+  // Secure metadata only (file references, hashes, MIME types); binaries are not stored directly in DB.
+  documentMetadata Json?
+  issuingDoctor    String?
+  facilityName     String?
+
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
+
+  @@index([patientProfileId])
+  @@index([recordType])
+  @@index([recordDate])
+}
+
+model DoctorProfile {
+  id                    String             @id @default(uuid())
+  userId                String             @unique
+  user                  User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  fullName              String
+  nmcRegistrationNumber String             @unique
+  specialization        String
+  qualifications        String
+  experienceYears       Int                @default(0)
+  hospitalAffiliation   String?
+  consultationFee       Float?             @default(0.0)
+  bio                   String?
+  languages             String[]           @default(["English", "Hindi"])
+  consultationModes     ConsultationMode[] @default([IN_PERSON, ONLINE])
+  clinicAddress         String?
+  clinicName            String?
+  latitude              Float?
+  longitude             Float?
+  isOnline              Boolean            @default(true)
+  status                String             @default("ACTIVE") // ACTIVE, INACTIVE, SUSPENDED
+  verifiedAt            DateTime?
+  verifiedBy            String?
+  createdAt             DateTime           @default(now())
+  updatedAt             DateTime           @updatedAt
+
+  availabilities        DoctorAvailability[]
+  appointments          Appointment[]
+  prescriptions         Prescription[]
+  assignedPatients      PatientDoctorAssignment[]
+  assignmentHistories   AssignmentHistory[]
+
+  @@index([userId])
+  @@index([specialization])
+  @@index([nmcRegistrationNumber])
+  @@index([latitude, longitude])
+  @@index([isOnline])
+  @@index([status])
+}
+
+model DoctorAvailability {
+  id              String             @id @default(uuid())
+  doctorProfileId String
+  doctorProfile   DoctorProfile      @relation(fields: [doctorProfileId], references: [id], onDelete: Cascade)
+  startTime       DateTime
+  endTime         DateTime
+  timeZone        String             @default("Asia/Kolkata")
+  status          AvailabilityStatus @default(AVAILABLE)
+  isRecurring     Boolean            @default(false)
+  dayOfWeek       Int?
+  createdAt       DateTime           @default(now())
+  updatedAt       DateTime           @updatedAt
+
+  @@index([doctorProfileId])
+  @@index([startTime, endTime])
+  @@index([status])
+}
+
+model HospitalAdminProfile {
+  id                    String    @id @default(uuid())
+  userId                String    @unique
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  fullName              String
+  hospitalName          String
+  hospitalLicenseNumber String
+  designation           String
+  verifiedAt            DateTime?
+  verifiedBy            String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+}
+
+model AmbulanceStaffProfile {
+  id                    String    @id @default(uuid())
+  userId                String    @unique
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  fullName              String
+  staffRole             Role
+  licenseNumber         String
+  certificationLevel    String?
+  assignedVehicleNumber String?
+  verifiedAt            DateTime?
+  verifiedBy            String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+}
+
+enum AppointmentStatus {
+  REQUESTED
+  CONFIRMED
+  REJECTED
+  CANCELLED
+  COMPLETED
+  NO_SHOW
+}
+
+enum NotificationType {
+  APPOINTMENT_REQUESTED
+  APPOINTMENT_CONFIRMED
+  APPOINTMENT_REJECTED
+  APPOINTMENT_CANCELLED
+  APPOINTMENT_COMPLETED
+}
+
+model Appointment {
+  id                 String            @id @default(uuid())
+  patientProfileId   String
+  patientProfile     PatientProfile    @relation(fields: [patientProfileId], references: [id], onDelete: Cascade)
+  doctorProfileId    String
+  doctorProfile      DoctorProfile     @relation(fields: [doctorProfileId], references: [id], onDelete: Cascade)
+  startTime          DateTime
+  endTime            DateTime
+  mode               ConsultationMode  @default(IN_PERSON)
+  status             AppointmentStatus @default(REQUESTED)
+  reason             String?
+  doctorNotes        String?
+  cancellationReason String?
+  cancelledAt        DateTime?
+  cancelledByRole    Role?
+  createdAt          DateTime          @default(now())
+  updatedAt          DateTime          @updatedAt
+
+  prescriptions      Prescription[]
+
+  @@index([patientProfileId])
+  @@index([doctorProfileId])
+  @@index([startTime, endTime])
+  @@index([status])
+  @@index([doctorProfileId, status])
+  @@index([patientProfileId, status])
+}
+
+model Notification {
+  id        String           @id @default(uuid())
+  userId    String
+  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type      NotificationType
+  title     String
+  message   String
+  metadata  Json?
+  isRead    Boolean          @default(false)
+  createdAt DateTime         @default(now())
+
+  @@index([userId])
+  @@index([isRead])
+  @@index([createdAt])
+}
+
+// ==============================================================================
+// 1. Production Emergency SOS Dispatch Model
+// ==============================================================================
+enum EmergencyStatus {
+  REQUESTED
+  SEARCHING
+  ASSIGNED
+  EN_ROUTE
+  PATIENT_ON_BOARD
+  REACHED_HOSPITAL
+  COMPLETED
+  CANCELLED
+}
+
+model EmergencyRequest {
+  id                  String          @id @default(uuid())
+  patientProfileId    String
+  patientProfile      PatientProfile  @relation(fields: [patientProfileId], references: [id], onDelete: Cascade)
+  latitude            Float
+  longitude           Float
+  pickupAddress       String?
+  selectedAmbulanceId String?
+  selectedAmbulance   Ambulance?      @relation(fields: [selectedAmbulanceId], references: [id], onDelete: SetNull)
+  assignedDriverId    String?
+  assignedVehicleNo   String?
+  assignedHospitalId  String?
+  hospitalName        String?
+  status              EmergencyStatus @default(REQUESTED)
+  vitalsSnapshot      Json?
+  estimatedMinutes    Int?
+  driverLatitude      Float?
+  driverLongitude     Float?
+  rejectionReason     String?
+  rejectedByAmbulanceIds String[]    @default([])
+  createdAt           DateTime        @default(now())
+  updatedAt           DateTime        @updatedAt
+
+  @@index([patientProfileId])
+  @@index([status])
+  @@index([assignedDriverId])
+  @@index([selectedAmbulanceId])
+}
+
+// ==============================================================================
+// 2. Family Health Profile Model
+// ==============================================================================
+model FamilyMember {
+  id                  String          @id @default(uuid())
+  patientProfileId    String
+  patientProfile      PatientProfile  @relation(fields: [patientProfileId], references: [id], onDelete: Cascade)
+  fullName            String
+  relationship        String
+  dateOfBirth         DateTime?
+  gender              String?
+  bloodGroup          String?
+  allergies           String?
+  medicalHistory      String?
+  createdAt           DateTime        @default(now())
+  updatedAt           DateTime        @updatedAt
+
+  @@index([patientProfileId])
+}
+
+// ==============================================================================
+// 3. Medicine Reminders & Adherence Tracking Model
+// ==============================================================================
+model MedicineReminder {
+  id                  String          @id @default(uuid())
+  patientProfileId    String
+  patientProfile      PatientProfile  @relation(fields: [patientProfileId], references: [id], onDelete: Cascade)
+  medicineName        String
+  dosage              String
+  dosageForm          String
+  frequency           String
+  reminderTimes       String[]
+  startDate           DateTime
+  endDate             DateTime?
+  instructions        String?
+  isActive            Boolean         @default(true)
+  createdAt           DateTime        @default(now())
+  updatedAt           DateTime        @updatedAt
+
+  doseLogs            MedicineDoseLog[]
+
+  @@index([patientProfileId])
+  @@index([isActive])
+}
+
+model MedicineDoseLog {
+  id                  String           @id @default(uuid())
+  medicineReminderId  String
+  medicineReminder    MedicineReminder @relation(fields: [medicineReminderId], references: [id], onDelete: Cascade)
+  scheduledTime       DateTime
+  takenAt             DateTime?
+  status              String           // "TAKEN", "MISSED", "SKIPPED"
+  createdAt           DateTime         @default(now())
+
+  @@index([medicineReminderId])
+  @@index([scheduledTime])
+}
+
+// ==============================================================================
+// 4. Hospital & Verified Beds Model
+// ==============================================================================
+model Hospital {
+  id                  String          @id @default(uuid())
+  name                String
+  licenseNumber       String          @unique
+  address             String
+  city                String
+  state               String
+  latitude            Float
+  longitude           Float
+  contactPhone        String
+  emergencyPhone      String
+  availableIcuBeds    Int             @default(0)
+  totalIcuBeds        Int             @default(0)
+  availableNormalBeds Int             @default(0)
+  totalNormalBeds     Int             @default(0)
+  hasEmergencyBay     Boolean         @default(true)
+  hasTraumaCenter     Boolean         @default(false)
+  verifiedAt          DateTime?
+  createdAt           DateTime        @default(now())
+  updatedAt           DateTime        @updatedAt
+
+  departments         HospitalDepartment[]
+  beds                HospitalBed[]
+  ambulances          Ambulance[]
+
+  @@index([city])
+  @@index([latitude, longitude])
+}
+
+// ==============================================================================
+// 5. FCM Device Token Model
+// ==============================================================================
+model UserDeviceToken {
+  id                  String          @id @default(uuid())
+  userId              String
+  user                User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  fcmToken            String          @unique
+  platform            String          // "android", "ios", "web"
+  createdAt           DateTime        @default(now())
+  updatedAt           DateTime        @updatedAt
+
+  @@index([userId])
+}
+
+// ==============================================================================
+// 6. Hospital Granular Wards & Bed Management Model
+// ==============================================================================
+enum BedType {
+  ICU
+  NORMAL
+  EMERGENCY
+  NEONATAL
+  PEDIATRIC
+}
+
+enum BedStatus {
+  AVAILABLE
+  OCCUPIED
+  MAINTENANCE
+  RESERVED
+}
+
+model HospitalDepartment {
+  id                  String          @id @default(uuid())
+  hospitalId          String
+  hospital            Hospital        @relation(fields: [hospitalId], references: [id], onDelete: Cascade)
+  name                String          // e.g. "Cardiology", "Trauma & Emergency", "Neurology"
+  floorNumber         String?
+  headDoctorName      String?
+  contactExtension    String?
+  createdAt           DateTime        @default(now())
+  updatedAt           DateTime        @updatedAt
+
+  beds                HospitalBed[]
+
+  @@index([hospitalId])
+}
+
+model HospitalBed {
+  id                  String          @id @default(uuid())
+  hospitalId          String
+  hospital            Hospital        @relation(fields: [hospitalId], references: [id], onDelete: Cascade)
+  departmentId        String?
+  department          HospitalDepartment? @relation(fields: [departmentId], references: [id], onDelete: SetNull)
+  bedNumber           String          // e.g. "ICU-04", "EMG-02"
+  bedType             BedType         @default(NORMAL)
+  status              BedStatus       @default(AVAILABLE)
+  occupiedByPatient   String?         // Patient name or ID if occupied
+  notes               String?
+  lastSanitizedAt     DateTime?
+  createdAt           DateTime        @default(now())
+  updatedAt           DateTime        @updatedAt
+
+  @@index([hospitalId])
+  @@index([status])
+  @@index([bedType])
+}
+
+// ==============================================================================
+// 7. Digital Prescription & Medication Items Model
+// ==============================================================================
+model Prescription {
+  id                  String          @id @default(uuid())
+  patientProfileId    String
+  patientProfile      PatientProfile  @relation(fields: [patientProfileId], references: [id], onDelete: Cascade)
+  doctorProfileId     String
+  doctorProfile       DoctorProfile   @relation(fields: [doctorProfileId], references: [id], onDelete: Cascade)
+  appointmentId       String?
+  appointment         Appointment?    @relation(fields: [appointmentId], references: [id], onDelete: SetNull)
+  diagnosis           String
+  doctorNotes         String?
+  generalAdvice       String?
+  followUpDate        DateTime?
+  digitalSignature    String?
+  createdAt           DateTime        @default(now())
+  updatedAt           DateTime        @updatedAt
+
+  items               PrescriptionItem[]
+
+  @@index([patientProfileId])
+  @@index([doctorProfileId])
+  @@index([appointmentId])
+  @@index([createdAt])
+}
+
+model PrescriptionItem {
+  id                  String          @id @default(uuid())
+  prescriptionId      String
+  prescription        Prescription    @relation(fields: [prescriptionId], references: [id], onDelete: Cascade)
+  medicineName        String
+  dosage              String          // e.g. "500mg", "1 tablet"
+  frequency           String          // e.g. "1-0-1", "Twice daily after food"
+  durationDays        Int             @default(5)
+  timing              String?         // e.g. "After food", "Before breakfast"
+  instructions        String?
+  createdAt           DateTime        @default(now())
+
+  @@index([prescriptionId])
+}
+
+model VitalReading {
+  id               String          @id @default(uuid())
+  patientProfileId String
+  patientProfile   PatientProfile  @relation(fields: [patientProfileId], references: [id], onDelete: Cascade)
+  deviceId         String?
+  metricType       VitalMetricType
+  metricValue      Float
+  secondaryValue   Float?          // e.g. Diastolic BP
+  unit             String          // "bpm", "%", "steps", "hours", "mmHg", "°C", "mg/dL"
+  measuredAt       DateTime
+  receivedAt       DateTime        @default(now())
+  source           VitalSource     @default(SMARTWATCH_BLE)
+  syncStatus       String          @default("SYNCED")
+  metadata         Json?           // sensorContact, confidence, sleep stages, etc.
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
+
+  @@unique([patientProfileId, metricType, measuredAt])
+  @@index([patientProfileId, metricType])
+  @@index([measuredAt])
+}
+
+model PatientDevice {
+  id               String          @id @default(uuid())
+  patientProfileId String
+  patientProfile   PatientProfile  @relation(fields: [patientProfileId], references: [id], onDelete: Cascade)
+  name             String
+  macAddress       String
+  deviceType       String          @default("SMARTWATCH") // SMARTWATCH, BP_MONITOR, OXIMETER, GLUCOMETER
+  connectionStatus String          @default("DISCONNECTED") // CONNECTED, DISCONNECTED, PAIRING
+  batteryLevel     Int?
+  firmwareVersion  String?
+  lastSyncAt       DateTime?
+  isPaired         Boolean         @default(true)
+  metadata         Json?
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
+
+  @@unique([patientProfileId, macAddress])
+  @@index([patientProfileId])
+}
+
+// ==============================================================================
+// 8. Centralized Doctor Assignment & Historical Routing
+// ==============================================================================
+enum AssignmentStatus {
+  ACTIVE
+  CHANGED
+  TERMINATED
+}
+
+model PatientDoctorAssignment {
+  id               String           @id @default(uuid())
+  patientProfileId String
+  patientProfile   PatientProfile   @relation(fields: [patientProfileId], references: [id], onDelete: Cascade)
+  doctorProfileId  String
+  doctorProfile    DoctorProfile    @relation(fields: [doctorProfileId], references: [id], onDelete: Cascade)
+  status           AssignmentStatus @default(ACTIVE)
+  assignedAt       DateTime         @default(now())
+  endedAt          DateTime?
+  changeReason     String?
+  assignedByRole   Role             @default(PATIENT)
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
+
+  @@index([patientProfileId, status])
+  @@index([doctorProfileId])
+  @@index([status])
+}
+
+model AssignmentHistory {
+  id               String         @id @default(uuid())
+  patientProfileId String
+  patientProfile   PatientProfile @relation(fields: [patientProfileId], references: [id], onDelete: Cascade)
+  doctorProfileId  String
+  doctorProfile    DoctorProfile  @relation(fields: [doctorProfileId], references: [id], onDelete: Cascade)
+  previousDoctorId String?
+  reason           String?
+  changedAt        DateTime       @default(now())
+  changedByRole    Role           @default(PATIENT)
+
+  @@index([patientProfileId])
+  @@index([doctorProfileId])
+}
+
+// ==============================================================================
+// 9. Centralized Ambulance Vehicle Entity & Real-Time Tracking
+// ==============================================================================
+enum AmbulanceType {
+  BASIC_LIFE_SUPPORT
+  ADVANCED_LIFE_SUPPORT
+  PATIENT_TRANSPORT
+  NEONATAL_AMBULANCE
+}
+
+enum AmbulanceStatus {
+  AVAILABLE
+  BUSY
+  OFFLINE
+  ON_TRIP
+}
+
+model Ambulance {
+  id                   String           @id @default(uuid())
+  driverUserId         String?          @unique
+  driverUser           User?            @relation(fields: [driverUserId], references: [id], onDelete: SetNull)
+  driverName           String
+  driverPhone          String
+  drivingLicenseNumber String
+  vehicleNumber        String           @unique
+  ambulanceType        AmbulanceType    @default(ADVANCED_LIFE_SUPPORT)
+  organizationName     String?
+  hospitalId           String?
+  hospital             Hospital?        @relation(fields: [hospitalId], references: [id], onDelete: SetNull)
+  equipmentDetails     String?
+  photos               String[]         @default([])
+  verificationStatus   VerificationStatus @default(PENDING)
+  verifiedAt           DateTime?
+  verifiedBy           String?
+  rejectionReason      String?
+  currentStatus        AmbulanceStatus  @default(OFFLINE)
+  latitude             Float?
+  longitude            Float?
+  speed                Float?
+  heading              Float?
+  lastLocationUpdate   DateTime?
+  createdAt            DateTime         @default(now())
+  updatedAt            DateTime         @updatedAt
+
+  requests             EmergencyRequest[]
+  locationHistories    AmbulanceLocationHistory[]
+
+  @@index([currentStatus])
+  @@index([verificationStatus])
+  @@index([latitude, longitude])
+  @@index([vehicleNumber])
+}
+
+model AmbulanceLocationHistory {
+  id          String    @id @default(uuid())
+  ambulanceId String
+  ambulance   Ambulance @relation(fields: [ambulanceId], references: [id], onDelete: Cascade)
+  latitude    Float
+  longitude   Float
+  speed       Float?
+  heading     Float?
+  timestamp   DateTime  @default(now())
+
+  @@index([ambulanceId, timestamp])
+}
+
+// ==============================================================================
+// 10. Medical Data Access Audit Log
+// ==============================================================================
+model AccessAuditLog {
+  id               String         @id @default(uuid())
+  patientProfileId String
+  patientProfile   PatientProfile @relation(fields: [patientProfileId], references: [id], onDelete: Cascade)
+  accessorUserId   String
+  accessorRole     Role
+  action           String         // "VIEW_MEDICAL_RECORDS", "VIEW_VITALS", "CONSULTATION"
+  resource         String
+  ipAddress        String?
+  timestamp        DateTime       @default(now())
+
+  @@index([patientProfileId, timestamp])
+}

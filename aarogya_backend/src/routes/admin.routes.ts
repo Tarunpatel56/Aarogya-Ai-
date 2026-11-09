@@ -1,0 +1,35 @@
+import { Router } from 'express';
+import { Role } from '@prisma/client';
+import { doctorController } from '../controllers/doctor.controller';
+import { adminController } from '../controllers/admin.controller';
+import { authenticate, requireRoles } from '../middleware/auth.middleware';
+import { validateRequest } from '../middleware/validateRequest';
+import { adminVerifyDoctorSchema } from '../validation/doctor.validation';
+import {
+  queryUsersSchema,
+  adminCreateUserSchema,
+  updateUserStatusSchema,
+  assignUserRoleSchema,
+} from '../validation/admin.validation';
+
+const router = Router();
+
+// Gated strictly for SUPER_ADMIN / PLATFORM_ADMIN authority
+router.use(authenticate, requireRoles(Role.PLATFORM_ADMIN, 'SUPER_ADMIN'));
+
+// Platform Operational Statistics & Audit Trail
+router.get('/stats', adminController.getStats);
+router.get('/audit-logs', adminController.getAuditLogs);
+
+// User Management Foundation
+router.get('/users', validateRequest(queryUsersSchema), adminController.getUsers);
+router.get('/users/:id', adminController.getUserById);
+router.post('/users', validateRequest(adminCreateUserSchema), adminController.createUser);
+router.patch('/users/:id/status', validateRequest(updateUserStatusSchema), adminController.updateUserStatus);
+router.patch('/users/:id/role', validateRequest(assignUserRoleSchema), adminController.assignUserRole);
+router.delete('/users/:id', adminController.deleteUser);
+
+// Transition doctor verification status (VERIFIED, REJECTED, SUSPENDED, UNDER_REVIEW)
+router.patch('/doctors/:id/verify', validateRequest(adminVerifyDoctorSchema), doctorController.adminVerifyDoctor);
+
+export const adminRoutes = router;
