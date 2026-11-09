@@ -26,3 +26,4 @@ A centralized, real-time healthcare ecosystem connecting Patients, Doctors, and 
    - PostgreSQL database with Prisma ORM and PostGIS geospatial discovery.
    - Real-time WebSockets (Socket.IO) & Firebase Cloud Messaging (FCM).
    - Role-Based Access Control (RBAC) & Superadmin verification engine.
+

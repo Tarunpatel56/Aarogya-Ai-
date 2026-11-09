@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
 import '../models/watch_telemetry_model.dart';
 import '../services/watch_service.dart';
+import '../services/ble_watch_service.dart';
+import '../widgets/ble_watch_scanner_dialog.dart';
 import 'log_glucose_dialog.dart';
 
 class HealthMonitoringScreen extends StatefulWidget {
@@ -17,6 +19,7 @@ class HealthMonitoringScreen extends StatefulWidget {
 
 class _HealthMonitoringScreenState extends State<HealthMonitoringScreen> {
   late final WatchService _watchService;
+  late final BleWatchService _bleWatchService;
   WatchTelemetryModel? _telemetry;
   WatchConnectionState _connectionState = WatchConnectionState.notConnected;
   bool _isPromptDismissed = false;
@@ -35,15 +38,20 @@ class _HealthMonitoringScreenState extends State<HealthMonitoringScreen> {
   void initState() {
     super.initState();
     _watchService = widget.watchService ?? WatchService();
-    _telemetry = _watchService.currentTelemetry;
+    _bleWatchService = BleWatchService();
+    _telemetry = _bleWatchService.telemetryNotifier.value ?? _watchService.currentTelemetry;
     _isPromptDismissed = _watchService.isPromptDismissed;
-    _connectionState = _watchService.connectionState;
+    _connectionState = _bleWatchService.connectionStateNotifier.value != WatchConnectionState.notConnected
+        ? _bleWatchService.connectionStateNotifier.value
+        : _watchService.connectionState;
 
     _watchService.connectionStateNotifier.addListener(_onWatchStateChanged);
     _watchService.telemetryNotifier.addListener(_onWatchTelemetryChanged);
     _watchService.promptDismissedNotifier.addListener(
       _onPromptDismissedChanged,
     );
+    _bleWatchService.telemetryNotifier.addListener(_onBleTelemetryChanged);
+    _bleWatchService.connectionStateNotifier.addListener(_onBleConnectionStateChanged);
 
     _initPreferences();
     _startLivePolling();
@@ -57,6 +65,8 @@ class _HealthMonitoringScreenState extends State<HealthMonitoringScreen> {
     _watchService.promptDismissedNotifier.removeListener(
       _onPromptDismissedChanged,
     );
+    _bleWatchService.telemetryNotifier.removeListener(_onBleTelemetryChanged);
+    _bleWatchService.connectionStateNotifier.removeListener(_onBleConnectionStateChanged);
     super.dispose();
   }
 
@@ -113,53 +123,34 @@ class _HealthMonitoringScreenState extends State<HealthMonitoringScreen> {
     }
   }
 
-  Future<void> _connectWatch() async {
-    setState(() {
-      _isLoading = true;
-      _errorMessage = null;
-    });
-
-    try {
-      final telemetry = await _watchService.connect();
+  void _onBleTelemetryChanged() {
+    if (mounted && _bleWatchService.telemetryNotifier.value != null) {
       setState(() {
-        _telemetry = telemetry;
-        _isLoading = false;
-        _isPromptDismissed = true;
-        _connectionState = _watchService.connectionState;
+        _telemetry = _bleWatchService.telemetryNotifier.value;
       });
-
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              '✓ Connected to ${telemetry.name} (${telemetry.connectionStatus})',
-            ),
-            backgroundColor: AppColors.primaryTeal,
-          ),
-        );
-      }
-    } catch (e) {
-      final cleanMsg = e.toString().replaceAll('ApiException: ', '');
-      setState(() {
-        _errorMessage = cleanMsg;
-        _isLoading = false;
-        _connectionState = _watchService.connectionState;
-      });
-      if (mounted) {
-        final isBridgeUnavailable =
-            _connectionState == WatchConnectionState.bridgeUnavailable;
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              isBridgeUnavailable
-                  ? 'Laptop Bridge Unavailable: $cleanMsg'
-                  : 'Watch connection failed: $cleanMsg',
-            ),
-            backgroundColor: const Color(0xFFDC2626),
-          ),
-        );
-      }
     }
+  }
+
+  void _onBleConnectionStateChanged() {
+    if (mounted) {
+      setState(() {
+        if (_bleWatchService.isConnected) {
+          _connectionState = WatchConnectionState.connected;
+          _isPromptDismissed = true;
+          _isLoading = false;
+        } else if (_bleWatchService.connectionStateNotifier.value == WatchConnectionState.connecting) {
+          _isLoading = true;
+        } else if (_bleWatchService.connectionStateNotifier.value == WatchConnectionState.disconnected) {
+          _connectionState = WatchConnectionState.disconnected;
+          _isLoading = false;
+        }
+      });
+    }
+  }
+
+  Future<void> _connectWatch() async {
+    // Open modern Bluetooth Smartwatch Scanner Modal with Live GATT 0x180D streaming
+    BleWatchScannerDialog.show(context, bleService: _bleWatchService);
   }
 
   Future<void> _handleNotNow() async {
@@ -213,6 +204,7 @@ class _HealthMonitoringScreenState extends State<HealthMonitoringScreen> {
   }
 
   void _disconnectWatch() {
+    _bleWatchService.disconnect();
     _watchService.disconnect();
     setState(() {
       _telemetry = null;
