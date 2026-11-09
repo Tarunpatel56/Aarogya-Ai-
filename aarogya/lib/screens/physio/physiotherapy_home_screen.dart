@@ -142,31 +142,38 @@ class _PhysiotherapyHomeScreenState extends State<PhysiotherapyHomeScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFE0F2F1),
-                      borderRadius: BorderRadius.circular(10),
+              Expanded(
+                child: Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFE0F2F1),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: const Icon(
+                        Icons.fitness_center_rounded,
+                        color: AppColors.primaryTeal,
+                        size: 20,
+                      ),
                     ),
-                    child: const Icon(
-                      Icons.fitness_center_rounded,
-                      color: AppColors.primaryTeal,
-                      size: 20,
+                    const SizedBox(width: 10),
+                    const Expanded(
+                      child: Text(
+                        '7-Day Rehabilitation Activity',
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.textPrimary,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
                     ),
-                  ),
-                  const SizedBox(width: 10),
-                  const Text(
-                    '7-Day Rehabilitation Activity',
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.textPrimary,
-                    ),
-                  ),
-                ],
+                  ],
+                ),
               ),
+              const SizedBox(width: 8),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                 decoration: BoxDecoration(
@@ -280,24 +287,31 @@ class _PhysiotherapyHomeScreenState extends State<PhysiotherapyHomeScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Row(
-                children: [
-                  CircleAvatar(
-                    radius: 14,
-                    backgroundColor: Color(0xFF00E5FF),
-                    child: Icon(Icons.bolt, color: Color(0xFF0F172A), size: 18),
-                  ),
-                  SizedBox(width: 8),
-                  Text(
-                    'AI Motion Tracking Studio',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 14.5,
-                      fontWeight: FontWeight.bold,
+              const Expanded(
+                child: Row(
+                  children: [
+                    CircleAvatar(
+                      radius: 14,
+                      backgroundColor: Color(0xFF00E5FF),
+                      child: Icon(Icons.bolt, color: Color(0xFF0F172A), size: 18),
                     ),
-                  ),
-                ],
+                    SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        'AI Motion Tracking Studio',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 14.5,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ],
+                ),
               ),
+              const SizedBox(width: 8),
               Container(
                 padding: const EdgeInsets.symmetric(
                   horizontal: 7,

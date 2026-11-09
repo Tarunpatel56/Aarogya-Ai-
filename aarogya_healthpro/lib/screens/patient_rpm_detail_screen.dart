@@ -76,10 +76,13 @@ class _PatientRpmDetailScreenState extends State<PatientRpmDetailScreen> {
         children: [
           Row(
             children: [
-              Text(
-                'Patient RPM Telemetry',
-                style: ClinicalTypography.headlineSm(color: ClinicalColors.deepSlateNavy)
-                    .copyWith(fontSize: 16, fontWeight: FontWeight.bold),
+              Flexible(
+                child: Text(
+                  'Patient RPM Telemetry',
+                  style: ClinicalTypography.headlineSm(color: ClinicalColors.deepSlateNavy)
+                      .copyWith(fontSize: 16, fontWeight: FontWeight.bold),
+                  overflow: TextOverflow.ellipsis,
+                ),
               ),
               const SizedBox(width: 8),
               Container(

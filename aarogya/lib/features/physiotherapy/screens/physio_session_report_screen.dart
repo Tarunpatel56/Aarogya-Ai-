@@ -69,14 +69,19 @@ class _PhysioSessionReportScreenState extends State<PhysioSessionReportScreen> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(
-                        rep.exerciseTitle,
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
+                      Expanded(
+                        child: Text(
+                          rep.exerciseTitle,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                         ),
                       ),
+                      const SizedBox(width: 8),
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                         decoration: BoxDecoration(
@@ -228,9 +233,11 @@ class _PhysioSessionReportScreenState extends State<PhysioSessionReportScreen> {
                         children: [
                           Icon(Icons.check_circle, color: Color(0xFF16A34A), size: 16),
                           SizedBox(width: 8),
-                          Text(
-                            'Flawless posture detected! No biomechanical compensation.',
-                            style: TextStyle(fontSize: 11.5, color: Color(0xFF15803D), fontWeight: FontWeight.bold),
+                          Expanded(
+                            child: Text(
+                              'Flawless posture detected! No biomechanical compensation.',
+                              style: TextStyle(fontSize: 11.5, color: Color(0xFF15803D), fontWeight: FontWeight.bold),
+                            ),
                           ),
                         ],
                       ),

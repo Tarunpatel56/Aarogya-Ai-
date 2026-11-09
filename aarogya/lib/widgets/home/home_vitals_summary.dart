@@ -44,20 +44,26 @@ class HomeVitalsSummary extends StatelessWidget {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Row(
-              children: const [
-                Icon(Icons.monitor_heart_outlined, color: AppColors.primaryTeal, size: 19),
-                SizedBox(width: 6),
-                Text(
-                  'Health Metrics',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w800,
-                    color: AppColors.textPrimary,
+            Expanded(
+              child: Row(
+                children: const [
+                  Icon(Icons.monitor_heart_outlined, color: AppColors.primaryTeal, size: 19),
+                  SizedBox(width: 6),
+                  Flexible(
+                    child: Text(
+                      'Health Metrics',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w800,
+                        color: AppColors.textPrimary,
+                      ),
+                      overflow: TextOverflow.ellipsis,
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
+            const SizedBox(width: 8),
             GestureDetector(
               onTap: onNavigateToHealth,
               child: const Text(

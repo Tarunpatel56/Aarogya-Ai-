@@ -162,9 +162,12 @@ class _ActiveTripScreenState extends State<ActiveTripScreen> {
           ),
           Row(
             children: [
-              Text(
-                'TRIP #${widget.request?.id ?? "STANDBY"}',
-                style: SanctuaryTypography.labelSm(color: SanctuaryColors.textSecondary).copyWith(fontSize: 10),
+              Flexible(
+                child: Text(
+                  'TRIP #${widget.request?.id != null && widget.request!.id.length > 8 ? widget.request!.id.substring(0, 8) : (widget.request?.id ?? "STANDBY")}',
+                  style: SanctuaryTypography.labelSm(color: SanctuaryColors.textSecondary).copyWith(fontSize: 10),
+                  overflow: TextOverflow.ellipsis,
+                ),
               ),
               const SizedBox(width: 6),
               Container(
@@ -176,9 +179,12 @@ class _ActiveTripScreenState extends State<ActiveTripScreen> {
                 ),
               ),
               const SizedBox(width: 4),
-              Text(
-                widget.request?.assignedVehicleNo ?? 'DL-01-AMB-108',
-                style: SanctuaryTypography.labelSm(color: SanctuaryColors.textDark).copyWith(fontSize: 10),
+              Flexible(
+                child: Text(
+                  widget.request?.assignedVehicleNo ?? 'DL-01-AMB-108',
+                  style: SanctuaryTypography.labelSm(color: SanctuaryColors.textDark).copyWith(fontSize: 10),
+                  overflow: TextOverflow.ellipsis,
+                ),
               ),
             ],
           ),

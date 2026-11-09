@@ -24,20 +24,26 @@ class HomeUpcomingConsultation extends StatelessWidget {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Row(
-              children: const [
-                Icon(Icons.calendar_month_outlined, color: AppColors.primaryTeal, size: 19),
-                SizedBox(width: 6),
-                Text(
-                  'Doctor Consultations',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w800,
-                    color: AppColors.textPrimary,
+            Expanded(
+              child: Row(
+                children: const [
+                  Icon(Icons.calendar_month_outlined, color: AppColors.primaryTeal, size: 19),
+                  SizedBox(width: 6),
+                  Flexible(
+                    child: Text(
+                      'Doctor Consultations',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w800,
+                        color: AppColors.textPrimary,
+                      ),
+                      overflow: TextOverflow.ellipsis,
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
+            const SizedBox(width: 8),
             TextButton(
               onPressed: onViewAll,
               child: const Text(
