@@ -140,6 +140,7 @@ model PatientProfile {
   primaryDoctorAssignments PatientDoctorAssignment[]
   assignmentHistories   AssignmentHistory[]
   accessAuditLogs       AccessAuditLog[]
+  physiotherapySessions PhysiotherapySession[]
 
   @@index([userId])
   @@index([abhaId])
@@ -725,4 +726,45 @@ model AccessAuditLog {
   timestamp        DateTime       @default(now())
 
   @@index([patientProfileId, timestamp])
+}
+
+// ==============================================================================
+// 11. Physiotherapy & Biomechanics Module
+// ==============================================================================
+model PhysiotherapySession {
+  id                    String         @id @default(uuid())
+  patientProfileId      String
+  patientProfile        PatientProfile @relation(fields: [patientProfileId], references: [id], onDelete: Cascade)
+  
+  exerciseName          String         // e.g., "Squats", "Arm Curls", "Shoulder Raises"
+  exerciseCategory      String         @default("REHABILITATION") // "REHABILITATION", "POSTURE", "MOBILITY"
+  durationSeconds       Int            @default(0)
+  completedReps         Int            @default(0)
+  targetReps            Int            @default(10)
+  averageFormAccuracy   Float          @default(0.0) // 0 - 100%
+  painRatingVAS         Int            @default(0)   // 0 - 10 Visual Analogue Scale
+  difficultyFeedback    String         @default("Just Right")
+  
+  // Clinical biomechanical snapshots & telemetry
+  minAngle              Float?
+  maxAngle              Float?
+  targetAngleMin        Float?
+  targetAngleMax        Float?
+  
+  postureErrors         Json?          // Array of posture warning strings detected
+  repHistory            Json?          // Detailed rep telemetry (timestamps, peak angles, form scores)
+  
+  inferenceEngine       String         @default("MediaPipe Lite") // "MediaPipe Lite" (GPU/CPU)
+  hardwareDelegate      String         @default("GPU")            // "GPU" | "CPU"
+  averageFps            Float          @default(30.0)
+  averageLatencyMs      Float          @default(18.0)
+  
+  status                String         @default("COMPLETED")      // "COMPLETED" | "INTERRUPTED"
+  notes                 String?
+  
+  createdAt             DateTime       @default(now())
+  updatedAt             DateTime       @updatedAt
+
+  @@index([patientProfileId, createdAt])
+  @@index([exerciseName])
 }

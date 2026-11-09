@@ -37,9 +37,10 @@ class BleWatchService {
   Timer? _mockStreamTimer;
 
   // Real-time Health Biometric State from Watch
-  int _currentSteps = 4210;
-  int _currentCalories = 176;
-  double _currentDistance = 3.15;
+  int _currentSteps = 0;
+  int _currentCalories = 0;
+  double _currentDistance = 0.0;
+  int? _currentBatteryLevel;
   int _currentSpo2 = 98;
   int _currentSystolic = 118;
   int _currentDiastolic = 78;
@@ -196,23 +197,40 @@ class BleWatchService {
 
       // Discover GATT Services
       final services = await device.discoverServices();
-      int? batteryLevel;
 
-      // 1. Look for Battery Service (0x180F)
+      // 1. Look for Battery Service (0x180F) or 0x2A19 characteristic
       for (final s in services) {
-        if (s.uuid == batteryServiceUuid || s.uuid.toString().contains('180f')) {
-          for (final c in s.characteristics) {
-            if (c.uuid == batteryLevelCharUuid || c.uuid.toString().contains('2a19')) {
-              try {
+        final sUuid = s.uuid.toString().toLowerCase();
+        for (final c in s.characteristics) {
+          final cUuid = c.uuid.toString().toLowerCase();
+          if (cUuid.contains('2a19') || sUuid.contains('180f')) {
+            try {
+              if (c.properties.read) {
                 final val = await c.read();
-                if (val.isNotEmpty) batteryLevel = val[0];
-              } catch (_) {}
-            }
+                if (val.isNotEmpty && val[0] > 0 && val[0] <= 100) {
+                  _currentBatteryLevel = val[0];
+                }
+              }
+            } catch (_) {}
+          }
+
+          // 2. Look for Step / Activity / RSC (0x2A53) characteristics
+          if (cUuid.contains('2a53') || cUuid.contains('step')) {
+            try {
+              if (c.properties.read) {
+                final val = await c.read();
+                _parseStepsFromBytes(val);
+              }
+              if (c.properties.notify) {
+                await c.setNotifyValue(true);
+                c.onValueReceived.listen(_parseStepsFromBytes);
+              }
+            } catch (_) {}
           }
         }
       }
 
-      // 2. Look for Heart Rate Service (0x180D) & Characteristic (0x2A37)
+      // 3. Look for Heart Rate Service (0x180D) & Characteristic (0x2A37)
       BluetoothCharacteristic? hrChar;
       for (final s in services) {
         if (s.uuid == heartRateServiceUuid || s.uuid.toString().contains('180d')) {
@@ -235,7 +253,7 @@ class BleWatchService {
         await hrChar.setNotifyValue(true);
         _hrValueSub?.cancel();
         _hrValueSub = hrChar.onValueReceived.listen((data) {
-          _parseAndEmitHeartRate(data, deviceName, mac, batteryLevel);
+          _parseAndEmitHeartRate(data, deviceName, mac, _currentBatteryLevel);
         });
 
         connectionStateNotifier.value = WatchConnectionState.connected;
@@ -244,7 +262,7 @@ class BleWatchService {
           mac: mac,
           status: 'Connected (Live PPG Stream)',
           bpm: liveBpmNotifier.value > 0 ? liveBpmNotifier.value : null,
-          battery: batteryLevel,
+          battery: _currentBatteryLevel,
         );
         return true;
       } else {
@@ -254,7 +272,7 @@ class BleWatchService {
           name: deviceName,
           mac: mac,
           status: 'Connected (BLE Link Active)',
-          battery: batteryLevel,
+          battery: _currentBatteryLevel,
         );
         return true;
       }
@@ -301,6 +319,23 @@ class BleWatchService {
     }
   }
 
+  void _parseStepsFromBytes(List<int> bytes) {
+    if (bytes.isEmpty) return;
+    try {
+      int parsedSteps = 0;
+      if (bytes.length >= 4) {
+        parsedSteps = bytes[0] | (bytes[1] << 8) | (bytes[2] << 16) | (bytes[3] << 24);
+      } else if (bytes.length >= 2) {
+        parsedSteps = bytes[0] | (bytes[1] << 8);
+      }
+      if (parsedSteps > 0 && parsedSteps < 200000) {
+        _currentSteps = parsedSteps;
+        _currentDistance = double.parse((_currentSteps * 0.00075).toStringAsFixed(2));
+        _currentCalories = (_currentSteps * 0.04).round();
+      }
+    } catch (_) {}
+  }
+
   void _updateTelemetry({
     required String name,
     required String mac,
@@ -309,13 +344,14 @@ class BleWatchService {
     bool sensorContact = true,
     int? battery,
   }) {
+    final activeBattery = battery ?? _currentBatteryLevel;
     telemetryNotifier.value = WatchTelemetryModel(
       name: name,
       macAddress: mac,
       connectionType: 'Bluetooth Low Energy (BLE 5.0)',
       hostInterface: 'Mobile Phone BLE Radio',
       connectionStatus: status,
-      batteryLevel: battery ?? 88,
+      batteryLevel: activeBattery,
       paired: true,
       heartRateBpm: bpm,
       heartRateSensorContact: sensorContact,

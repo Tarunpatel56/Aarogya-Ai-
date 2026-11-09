@@ -13,6 +13,7 @@ import { wearableRoutes } from './wearable.routes';
 import { emergencyRoutes } from './emergency.routes';
 import { prescriptionRoutes } from './prescription.routes';
 import { vitalsRoutes, deviceRoutes } from './vitals.routes';
+import { physiotherapyRoutes } from './physiotherapy.routes';
 
 const router = Router();
 
@@ -67,6 +68,9 @@ router.use('/devices', deviceRoutes);
 
 // Emergency SOS dispatch & live ambulance tracking
 router.use('/emergency', emergencyRoutes);
+
+// Real-time on-device MediaPipe Physiotherapy AI & Clinical ROM Tracking
+router.use('/physiotherapy', physiotherapyRoutes);
 
 // Administrative authority & verification workflows
 router.use('/admin', adminRoutes);
