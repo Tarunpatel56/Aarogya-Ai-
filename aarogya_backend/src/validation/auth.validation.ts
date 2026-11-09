@@ -147,7 +147,9 @@ export const refreshTokenSchema = {
 };
 
 export const logoutSchema = {
-  body: z.object({
-    refreshToken: z.string().optional(),
-  }),
+  body: z
+    .object({
+      refreshToken: z.string().nullable().optional(),
+    })
+    .optional(),
 };
