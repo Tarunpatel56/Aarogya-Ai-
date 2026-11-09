@@ -1453,10 +1453,13 @@ class _HealthMonitoringScreenState extends State<HealthMonitoringScreen> {
           title: 'Sleep',
           icon: Icons.bedtime_rounded,
           iconColor: const Color(0xFF6366F1),
-          subtitle: '11-08',
+          subtitle: (telemetry?.sleepValue != null) ? '● Watch Sleep Analysis' : '11-08',
+          subtitleColor: (telemetry?.sleepValue != null) ? const Color(0xFF059669) : null,
           graphic: _buildSleepStageBar(),
           valueWidget: Text(
-            _sleepReading ?? '--',
+            telemetry?.sleepValue != null
+                ? '${(telemetry!.sleepValue! ~/ 60)}h ${(telemetry.sleepValue! % 60)}m'
+                : (_sleepReading ?? '--'),
             style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w800, color: AppColors.textPrimary),
           ),
           onTap: _showLogSleepDialog,
@@ -1467,12 +1470,16 @@ class _HealthMonitoringScreenState extends State<HealthMonitoringScreen> {
           title: 'Blood Pressure',
           icon: Icons.speed_rounded,
           iconColor: const Color(0xFFEA580C),
+          subtitle: (telemetry?.systolicBp != null) ? '● Live Optical PPG' : null,
+          subtitleColor: const Color(0xFF059669),
           graphic: _buildBpSliders(
             telemetry?.systolicBp ?? int.tryParse(_bpReading?.split('/').first ?? ''),
             telemetry?.diastolicBp ?? int.tryParse(_bpReading?.split('/').skip(1).first.split(' ').first ?? ''),
           ),
           valueWidget: Text(
-            _bpReading ?? '-- mmHg',
+            telemetry?.systolicBp != null && telemetry?.diastolicBp != null
+                ? '${telemetry!.systolicBp}/${telemetry.diastolicBp} mmHg'
+                : (_bpReading ?? '-- mmHg'),
             style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: AppColors.textPrimary),
             overflow: TextOverflow.ellipsis,
           ),

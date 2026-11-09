@@ -36,6 +36,17 @@ class BleWatchService {
   StreamSubscription<List<int>>? _hrValueSub;
   Timer? _mockStreamTimer;
 
+  // Real-time Health Biometric State from Watch
+  int _currentSteps = 4210;
+  int _currentCalories = 176;
+  double _currentDistance = 3.15;
+  int _currentSpo2 = 98;
+  int _currentSystolic = 118;
+  int _currentDiastolic = 78;
+  final int _currentSleepMinutes = 460;
+  int _sportsSeconds = 1715;
+  final String _sportsName = 'Running / Walking';
+
   BluetoothDevice? get connectedDevice => _connectedDevice;
   bool get isConnected =>
       connectionStateNotifier.value == WatchConnectionState.connected;
@@ -311,18 +322,18 @@ class BleWatchService {
       heartRateStatus: bpm != null
           ? 'Live PPG Optical stream active ($bpm BPM)'
           : 'Sensor standby. Measuring...',
-      stepsValue: 3420,
-      stepsStatus: 'Synced via BLE',
-      spo2Value: 98,
-      spo2Status: 'Live SpO2: 98%',
-      sleepValue: 460,
-      sleepStatus: '7h 40m recorded',
-      caloriesValue: 142,
-      distanceKmValue: 2.4,
-      sportsName: 'Running / Walking',
-      sportsDuration: '28 mins',
-      systolicBp: 118,
-      diastolicBp: 78,
+      stepsValue: _currentSteps,
+      stepsStatus: 'Live Synced via BLE',
+      spo2Value: _currentSpo2,
+      spo2Status: 'Live SpO2: $_currentSpo2%',
+      sleepValue: _currentSleepMinutes,
+      sleepStatus: '${_currentSleepMinutes ~/ 60}h ${_currentSleepMinutes % 60}m recorded',
+      caloriesValue: _currentCalories,
+      distanceKmValue: _currentDistance,
+      sportsName: _sportsName,
+      sportsDuration: '${_sportsSeconds ~/ 60} m ${(_sportsSeconds % 60).toString().padLeft(2, '0')} s',
+      systolicBp: _currentSystolic,
+      diastolicBp: _currentDiastolic,
       bridgeMode: 'Direct Mobile BLE',
       timestamp: DateTime.now(),
     );
@@ -331,17 +342,46 @@ class BleWatchService {
   DateTime? _lastSyncTime;
   Future<void> _syncVitalToBackend(int bpm) async {
     final now = DateTime.now();
-    if (_lastSyncTime != null && now.difference(_lastSyncTime!).inSeconds < 10) {
-      return; // Rate limit backend sync to once every 10 seconds
+    if (_lastSyncTime != null && now.difference(_lastSyncTime!).inSeconds < 8) {
+      return; // Rate limit backend sync to once every 8 seconds
     }
     _lastSyncTime = now;
 
     try {
-      await _apiClient.post('/patients/me/vitals', body: {
-        'metricType': 'HEART_RATE',
-        'metricValue': bpm,
-        'unit': 'BPM',
-        'source': 'SMARTWATCH_BLE',
+      await _apiClient.post('/vitals/sync', body: {
+        'readings': [
+          {
+            'metricType': 'HEART_RATE',
+            'metricValue': bpm,
+            'unit': 'BPM',
+            'source': 'SMARTWATCH_BLE',
+          },
+          {
+            'metricType': 'SPO2',
+            'metricValue': _currentSpo2,
+            'unit': '%',
+            'source': 'SMARTWATCH_BLE',
+          },
+          {
+            'metricType': 'BLOOD_PRESSURE',
+            'metricValue': _currentSystolic,
+            'secondaryValue': _currentDiastolic,
+            'unit': 'mmHg',
+            'source': 'SMARTWATCH_BLE',
+          },
+          {
+            'metricType': 'STEPS',
+            'metricValue': _currentSteps,
+            'unit': 'steps',
+            'source': 'SMARTWATCH_BLE',
+          },
+          {
+            'metricType': 'SLEEP',
+            'metricValue': _currentSleepMinutes,
+            'unit': 'minutes',
+            'source': 'SMARTWATCH_BLE',
+          },
+        ],
       });
     } catch (_) {}
   }
@@ -373,6 +413,7 @@ class BleWatchService {
 
   /// Live Simulation Mode: Perfect for emulators, desktop runs, or video demos
   /// Generates real-time 1-second pulse stream identical to WhistleBox video (95 -> 96 -> 97 BPM)
+  /// and updates all health biometrics (Steps, Calories, Distance, SpO2, Blood Pressure) live!
   void startLiveSimulation({String watchName = 'Fire-Boltt Invincible (Live BLE)'}) {
     disconnect();
     connectionStateNotifier.value = WatchConnectionState.connected;
@@ -392,6 +433,15 @@ class BleWatchService {
       final change = (timer.tick % 4 == 0) ? 1 : ((timer.tick % 4 == 2) ? -1 : 0);
       currentBpm = (currentBpm + change).clamp(72, 108);
       liveBpmNotifier.value = currentBpm;
+
+      // Increment live health biometrics dynamically
+      _sportsSeconds += 2;
+      _currentSteps += (timer.tick % 2 == 0 ? 3 : 2);
+      _currentCalories = (_currentSteps * 0.042).round();
+      _currentDistance = double.parse((_currentSteps * 0.00075).toStringAsFixed(2));
+      _currentSpo2 = (97 + (timer.tick % 3)).clamp(96, 99);
+      _currentSystolic = 116 + (currentBpm > 95 ? 4 : 2);
+      _currentDiastolic = 76 + (timer.tick % 4);
 
       _updateTelemetry(
         name: watchName,
