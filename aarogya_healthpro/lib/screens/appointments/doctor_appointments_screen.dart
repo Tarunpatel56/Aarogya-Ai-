@@ -3,6 +3,8 @@ import '../../theme/app_colors.dart';
 import '../../models/doctor_appointment_model.dart';
 import '../../services/doctor_appointment_service.dart';
 import '../../core/api/api_exception.dart';
+import '../../widgets/patient_medical_file_dialog.dart';
+import '../prescriptions/prescription_authoring_screen.dart';
 
 class DoctorAppointmentsScreen extends StatefulWidget {
   final DoctorAppointmentService appointmentService;
@@ -413,236 +415,25 @@ class _DoctorAppointmentsScreenState extends State<DoctorAppointmentsScreen> {
     );
   }
 
-  void _showPatientMedicalReportDialog(DoctorAppointmentModel apt) {
-    final patient = apt.patient;
-    final vitals = patient?.vitalReadings ?? [];
-    final records = patient?.medicalRecords ?? [];
-
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        titlePadding: const EdgeInsets.fromLTRB(20, 20, 20, 10),
-        contentPadding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
-        title: Row(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: AppColors.primary.withOpacity(0.12),
-                shape: BoxShape.circle,
-              ),
-              child: const Icon(Icons.assignment_ind_outlined, color: AppColors.primary, size: 24),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    patient?.fullName ?? 'Patient Medical File',
-                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                  ),
-                  Text(
-                    '${apt.mode == "ONLINE" ? "Teleconsult" : "In-Person Clinic"} • Fee: ₹${apt.consultationFee.toInt()}',
-                    style: const TextStyle(fontSize: 12, color: AppColors.textMuted),
-                  ),
-                ],
-              ),
-            ),
-          ],
+  void _prescribeAppointment(DoctorAppointmentModel apt) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => PrescriptionAuthoringScreen(
+          patientProfileId: apt.patientProfileId,
+          patientName: apt.patient?.fullName ?? 'Patient',
+          appointmentId: apt.id,
+          existingAllergies: apt.patient?.allergies,
         ),
-        content: SizedBox(
-          width: double.maxFinite,
-          child: SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const Divider(),
-                const SizedBox(height: 8),
-
-                // 1. Patient Baseline
-                const Text('Patient Demographics', style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold)),
-                const SizedBox(height: 6),
-                Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFF8FAFC),
-                    borderRadius: BorderRadius.circular(10),
-                    border: Border.all(color: const Color(0xFFE2E8F0)),
-                  ),
-                  child: Column(
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text('Gender: ${patient?.gender ?? "N/A"}', style: const TextStyle(fontSize: 12)),
-                          Text('Blood: ${patient?.bloodGroup ?? "N/A"}', style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFFDC2626))),
-                        ],
-                      ),
-                      const SizedBox(height: 6),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text('Phone: ${patient?.phoneNumber ?? "N/A"}', style: const TextStyle(fontSize: 12)),
-                          Text('Allergies: ${patient?.allergies ?? "None"}', style: const TextStyle(fontSize: 12, color: Color(0xFFD97706))),
-                        ],
-                      ),
-                      if (apt.reason != null && apt.reason!.isNotEmpty) ...[
-                        const Divider(height: 14),
-                        Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Text('Symptoms: ', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
-                            Expanded(child: Text(apt.reason!, style: const TextStyle(fontSize: 12, color: AppColors.onSurface))),
-                          ],
-                        ),
-                      ],
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 16),
-
-                // 2. Vital Signs (From Smartwatch & Mobile Logs)
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const Text('Vital Signs & Wearable Telemetry', style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold)),
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFDCFCE7),
-                        borderRadius: BorderRadius.circular(4),
-                      ),
-                      child: const Text('Live Sync', style: TextStyle(fontSize: 10, color: Color(0xFF15803D), fontWeight: FontWeight.bold)),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 6),
-                if (vitals.isEmpty)
-                  Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFF8FAFC),
-                      borderRadius: BorderRadius.circular(10),
-                      border: Border.all(color: const Color(0xFFE2E8F0)),
-                    ),
-                    child: const Text('No recent vital readings logged yet.', style: TextStyle(fontSize: 12, color: AppColors.textMuted)),
-                  )
-                else
-                  Wrap(
-                    spacing: 8,
-                    runSpacing: 8,
-                    children: vitals.take(6).map((v) {
-                      Color bg = const Color(0xFFEFF6FF);
-                      Color textCol = const Color(0xFF1D4ED8);
-                      IconData ic = Icons.monitor_heart;
-
-                      if (v.metricType.contains('HEART')) {
-                        bg = const Color(0xFFFEF2F2);
-                        textCol = const Color(0xFFDC2626);
-                        ic = Icons.favorite_rounded;
-                      } else if (v.metricType.contains('OXYGEN') || v.metricType.contains('SPO2')) {
-                        bg = const Color(0xFFEFF6FF);
-                        textCol = const Color(0xFF2563EB);
-                        ic = Icons.water_drop;
-                      } else if (v.metricType.contains('PRESSURE')) {
-                        bg = const Color(0xFFFFF7ED);
-                        textCol = const Color(0xFFC2410C);
-                        ic = Icons.speed;
-                      }
-
-                      return Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-                        decoration: BoxDecoration(
-                          color: bg,
-                          borderRadius: BorderRadius.circular(8),
-                          border: Border.all(color: textCol.withOpacity(0.3)),
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(ic, size: 16, color: textCol),
-                            const SizedBox(width: 6),
-                            Text(
-                              '${v.metricType.replaceAll('_', ' ')}: ${v.metricValue.toInt()}${v.secondaryValue != null ? "/${v.secondaryValue!.toInt()}" : ""} ${v.unit}',
-                              style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: textCol),
-                            ),
-                          ],
-                        ),
-                      );
-                    }).toList(),
-                  ),
-                const SizedBox(height: 16),
-
-                // 3. Uploaded Medical Records & Lab Reports
-                const Text('Medical Records & Lab Reports', style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold)),
-                const SizedBox(height: 6),
-                if (records.isEmpty)
-                  Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFF8FAFC),
-                      borderRadius: BorderRadius.circular(10),
-                      border: Border.all(color: const Color(0xFFE2E8F0)),
-                    ),
-                    child: const Text('No uploaded clinical reports or prescriptions.', style: TextStyle(fontSize: 12, color: AppColors.textMuted)),
-                  )
-                else
-                  Column(
-                    children: records.map((r) {
-                      return Container(
-                        margin: const EdgeInsets.only(bottom: 6),
-                        padding: const EdgeInsets.all(10),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(8),
-                          border: Border.all(color: const Color(0xFFE2E8F0)),
-                        ),
-                        child: Row(
-                          children: [
-                            const Icon(Icons.picture_as_pdf_outlined, color: Colors.red, size: 20),
-                            const SizedBox(width: 8),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(r.title, style: const TextStyle(fontSize: 12.5, fontWeight: FontWeight.w600)),
-                                  Text('${r.recordType} • ${r.recordDate.toLocal().day}/${r.recordDate.toLocal().month}/${r.recordDate.toLocal().year}', style: const TextStyle(fontSize: 11, color: AppColors.textMuted)),
-                                ],
-                              ),
-                            ),
-                            Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                              decoration: BoxDecoration(
-                                color: const Color(0xFFF1F5F9),
-                                borderRadius: BorderRadius.circular(4),
-                              ),
-                              child: const Text('Attached', style: TextStyle(fontSize: 10, color: Color(0xFF475569))),
-                            ),
-                          ],
-                        ),
-                      );
-                    }).toList(),
-                  ),
-              ],
-            ),
-          ),
-        ),
-        actions: [
-          ElevatedButton(
-            onPressed: () => Navigator.pop(ctx),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.primary,
-              foregroundColor: Colors.white,
-            ),
-            child: const Text('Close Report'),
-          ),
-        ],
       ),
+    );
+  }
+
+  void _showPatientMedicalReportDialog(DoctorAppointmentModel apt) {
+    PatientMedicalFileDialog.show(
+      context,
+      apt,
+      onPrescribe: (apt) => _prescribeAppointment(apt),
     );
   }
 

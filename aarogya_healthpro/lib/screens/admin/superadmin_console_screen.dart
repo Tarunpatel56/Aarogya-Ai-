@@ -551,9 +551,12 @@ class _SuperAdminConsoleScreenState extends State<SuperAdminConsoleScreen>
           ),
           const Divider(height: 20),
 
-          // Action row
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          // Action row (Wrap eliminates any RenderFlex overflow on small screens)
+          Wrap(
+            alignment: WrapAlignment.spaceBetween,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            spacing: 8,
+            runSpacing: 6,
             children: [
               // Verify button for unverified doctors
               if (isDoctor && !isVerified)
@@ -567,9 +570,7 @@ class _SuperAdminConsoleScreenState extends State<SuperAdminConsoleScreen>
                     padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                     minimumSize: Size.zero,
                   ),
-                )
-              else
-                const SizedBox.shrink(),
+                ),
 
               Row(
                 mainAxisSize: MainAxisSize.min,

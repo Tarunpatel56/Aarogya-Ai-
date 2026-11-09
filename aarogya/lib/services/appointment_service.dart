@@ -14,6 +14,7 @@ class AppointmentService {
     int? durationMinutes,
     String mode = 'IN_PERSON',
     String? reason,
+    List<Map<String, dynamic>>? vitals,
   }) async {
     final body = <String, dynamic>{
       'doctorProfileId': doctorProfileId,
@@ -29,6 +30,9 @@ class AppointmentService {
     }
     if (reason != null && reason.trim().isNotEmpty) {
       body['reason'] = reason.trim();
+    }
+    if (vitals != null && vitals.isNotEmpty) {
+      body['vitals'] = vitals;
     }
 
     final res = await _apiClient.post('/appointments', body: body);

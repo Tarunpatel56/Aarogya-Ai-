@@ -3,6 +3,7 @@ import '../../theme/app_theme.dart';
 import '../../models/doctor_model.dart';
 import '../../services/doctor_service.dart';
 import '../../services/appointment_service.dart';
+import '../../services/ble_watch_service.dart';
 import '../../core/api/api_exception.dart';
 
 class DoctorDirectoryScreen extends StatefulWidget {
@@ -379,8 +380,11 @@ class _DoctorDirectoryScreenState extends State<DoctorDirectoryScreen> {
           const SizedBox(height: 12),
           const Divider(height: 1),
           const SizedBox(height: 10),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          Wrap(
+            alignment: WrapAlignment.spaceBetween,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            spacing: 10,
+            runSpacing: 8,
             children: [
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -522,12 +526,19 @@ class _DoctorBookingSheetState extends State<_DoctorBookingSheet> {
     });
 
     try {
+      // 1. Gather live wearable snapshot & sync to backend so doctor receives full telemetry
+      final bleService = BleWatchService();
+      final vitalsSnapshot = bleService.getVitalsSnapshotList();
+      await bleService.syncAllWearableVitalsToBackend(force: true);
+
+      // 2. Submit booking request with embedded vitals panel
       await widget.appointmentService.requestAppointment(
         doctorProfileId: widget.doctor.id,
         startTime: slotStart,
         endTime: slotEnd,
         mode: _selectedMode,
         reason: _reasonController.text.isNotEmpty ? _reasonController.text : null,
+        vitals: vitalsSnapshot,
       );
 
       if (mounted) {

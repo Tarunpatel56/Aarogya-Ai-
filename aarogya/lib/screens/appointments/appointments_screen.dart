@@ -289,21 +289,33 @@ class _AppointmentsScreenState extends State<AppointmentsScreen> {
                                           ),
                                         ],
                                         const SizedBox(height: 8),
-                                        Row(
+                                        Wrap(
+                                          spacing: 12,
+                                          runSpacing: 4,
+                                          crossAxisAlignment: WrapCrossAlignment.center,
                                           children: [
-                                            const Icon(Icons.access_time, size: 15, color: Color(0xFF64748B)),
-                                            const SizedBox(width: 6),
-                                            Text(timeStr, style: const TextStyle(fontSize: 12.5, color: Color(0xFF475569))),
-                                            const SizedBox(width: 14),
-                                            Icon(
-                                              appt.mode == 'ONLINE' ? Icons.videocam_outlined : Icons.business_outlined,
-                                              size: 15,
-                                              color: const Color(0xFF64748B),
+                                            Row(
+                                              mainAxisSize: MainAxisSize.min,
+                                              children: [
+                                                const Icon(Icons.access_time, size: 15, color: Color(0xFF64748B)),
+                                                const SizedBox(width: 6),
+                                                Text(timeStr, style: const TextStyle(fontSize: 12.5, color: Color(0xFF475569))),
+                                              ],
                                             ),
-                                            const SizedBox(width: 4),
-                                            Text(
-                                              appt.mode == 'ONLINE' ? 'Online' : 'In-Person',
-                                              style: const TextStyle(fontSize: 12.5, color: Color(0xFF475569)),
+                                            Row(
+                                              mainAxisSize: MainAxisSize.min,
+                                              children: [
+                                                Icon(
+                                                  appt.mode == 'ONLINE' ? Icons.videocam_outlined : Icons.business_outlined,
+                                                  size: 15,
+                                                  color: const Color(0xFF64748B),
+                                                ),
+                                                const SizedBox(width: 4),
+                                                Text(
+                                                  appt.mode == 'ONLINE' ? 'Online' : 'In-Person',
+                                                  style: const TextStyle(fontSize: 12.5, color: Color(0xFF475569)),
+                                                ),
+                                              ],
                                             ),
                                           ],
                                         ),
@@ -329,8 +341,11 @@ class _AppointmentsScreenState extends State<AppointmentsScreen> {
                                           ),
                                         ],
                                         const SizedBox(height: 10),
-                                        Row(
-                                          mainAxisAlignment: MainAxisAlignment.end,
+                                        Wrap(
+                                          alignment: WrapAlignment.end,
+                                          crossAxisAlignment: WrapCrossAlignment.center,
+                                          spacing: 8,
+                                          runSpacing: 8,
                                           children: [
                                             if (appt.mode == 'ONLINE' || appt.status == 'CONFIRMED')
                                               ElevatedButton.icon(
@@ -351,8 +366,7 @@ class _AppointmentsScreenState extends State<AppointmentsScreen> {
                                                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                                                 ),
                                               ),
-                                            if (appt.canCancel) ...[
-                                              const SizedBox(width: 8),
+                                            if (appt.canCancel)
                                               TextButton.icon(
                                                 onPressed: () => _cancelAppointment(appt),
                                                 icon: const Icon(Icons.cancel_outlined, size: 16, color: Color(0xFFDC2626)),
@@ -361,7 +375,6 @@ class _AppointmentsScreenState extends State<AppointmentsScreen> {
                                                   style: TextStyle(color: Color(0xFFDC2626), fontSize: 12),
                                                 ),
                                               ),
-                                            ],
                                           ],
                                         ),
                                       ],

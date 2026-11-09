@@ -52,7 +52,14 @@ class VitalsService {
         }
         break;
       case VitalMetricType.SLEEP:
-        if (metricValue < 0 || metricValue > 24) {
+        if (input.unit?.toLowerCase().includes('min') || metricValue > 24) {
+          if (metricValue < 0 || metricValue > 1440) {
+            throw new BadRequestError(`Sleep duration ${metricValue}m must be between 0 and 1440 minutes`);
+          }
+          // Convert minutes to hours for clinical consistency
+          input.metricValue = Number((metricValue / 60).toFixed(2));
+          input.unit = 'hours';
+        } else if (metricValue < 0 || metricValue > 24) {
           throw new BadRequestError(`Sleep duration ${metricValue}h must be between 0 and 24 hours`);
         }
         break;

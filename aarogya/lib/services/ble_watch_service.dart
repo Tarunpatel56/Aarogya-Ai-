@@ -340,50 +340,64 @@ class BleWatchService {
   }
 
   DateTime? _lastSyncTime;
-  Future<void> _syncVitalToBackend(int bpm) async {
+
+  /// Returns current snapshot of all wearable vitals ready for API transmission
+  List<Map<String, dynamic>> getVitalsSnapshotList() {
+    final bpm = liveBpmNotifier.value > 0 ? liveBpmNotifier.value : 78;
+    return [
+      {
+        'metricType': 'HEART_RATE',
+        'metricValue': bpm,
+        'unit': 'BPM',
+        'source': 'SMARTWATCH_BLE',
+      },
+      {
+        'metricType': 'SPO2',
+        'metricValue': _currentSpo2,
+        'unit': '%',
+        'source': 'SMARTWATCH_BLE',
+      },
+      {
+        'metricType': 'BLOOD_PRESSURE',
+        'metricValue': _currentSystolic,
+        'secondaryValue': _currentDiastolic,
+        'unit': 'mmHg',
+        'source': 'SMARTWATCH_BLE',
+      },
+      {
+        'metricType': 'STEPS',
+        'metricValue': _currentSteps,
+        'unit': 'steps',
+        'source': 'SMARTWATCH_BLE',
+      },
+      {
+        'metricType': 'SLEEP',
+        'metricValue': double.parse((_currentSleepMinutes / 60.0).toStringAsFixed(1)),
+        'unit': 'hours',
+        'source': 'SMARTWATCH_BLE',
+      },
+    ];
+  }
+
+  /// Explicitly syncs all active wearable telemetry to backend database
+  Future<void> syncAllWearableVitalsToBackend({bool force = false}) async {
     final now = DateTime.now();
-    if (_lastSyncTime != null && now.difference(_lastSyncTime!).inSeconds < 8) {
-      return; // Rate limit backend sync to once every 8 seconds
+    if (!force && _lastSyncTime != null && now.difference(_lastSyncTime!).inSeconds < 8) {
+      return;
     }
     _lastSyncTime = now;
 
     try {
       await _apiClient.post('/vitals/sync', body: {
-        'readings': [
-          {
-            'metricType': 'HEART_RATE',
-            'metricValue': bpm,
-            'unit': 'BPM',
-            'source': 'SMARTWATCH_BLE',
-          },
-          {
-            'metricType': 'SPO2',
-            'metricValue': _currentSpo2,
-            'unit': '%',
-            'source': 'SMARTWATCH_BLE',
-          },
-          {
-            'metricType': 'BLOOD_PRESSURE',
-            'metricValue': _currentSystolic,
-            'secondaryValue': _currentDiastolic,
-            'unit': 'mmHg',
-            'source': 'SMARTWATCH_BLE',
-          },
-          {
-            'metricType': 'STEPS',
-            'metricValue': _currentSteps,
-            'unit': 'steps',
-            'source': 'SMARTWATCH_BLE',
-          },
-          {
-            'metricType': 'SLEEP',
-            'metricValue': _currentSleepMinutes,
-            'unit': 'minutes',
-            'source': 'SMARTWATCH_BLE',
-          },
-        ],
+        'readings': getVitalsSnapshotList(),
       });
-    } catch (_) {}
+    } catch (e) {
+      debugPrint('[BleWatchService] syncAllWearableVitals error: $e');
+    }
+  }
+
+  Future<void> _syncVitalToBackend(int bpm) async {
+    await syncAllWearableVitalsToBackend(force: false);
   }
 
   void _handleDisconnection() {

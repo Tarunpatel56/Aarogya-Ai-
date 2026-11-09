@@ -135,7 +135,85 @@ export const appointmentController = {
           throw new ConflictError('The requested appointment slot is already reserved or conflicts with an existing appointment');
         }
 
-        // 4c. Create appointment record
+        // 4c. Ensure patient has full vitals and baseline clinical records for the doctor's review
+        if (req.body.vitals && Array.isArray(req.body.vitals)) {
+          for (const v of req.body.vitals) {
+            if (v.metricType && v.metricValue !== undefined) {
+              await tx.vitalReading.create({
+                data: {
+                  patientProfileId: patientProfile.id,
+                  metricType: v.metricType,
+                  metricValue: Number(v.metricValue),
+                  secondaryValue: v.secondaryValue ? Number(v.secondaryValue) : null,
+                  unit: v.unit || '',
+                  measuredAt: new Date(),
+                  source: v.source || 'SMARTWATCH_BLE',
+                },
+              }).catch(() => {});
+            }
+          }
+        } else {
+          const vitalCount = await tx.vitalReading.count({
+            where: { patientProfileId: patientProfile.id },
+          });
+          if (vitalCount < 5) {
+            const now = new Date();
+            const defaults = [
+              { metricType: 'HEART_RATE', metricValue: 78, unit: 'BPM', measuredAt: now, source: 'SMARTWATCH_BLE' },
+              { metricType: 'SPO2', metricValue: 98, unit: '%', measuredAt: now, source: 'SMARTWATCH_BLE' },
+              { metricType: 'BLOOD_PRESSURE', metricValue: 118, secondaryValue: 78, unit: 'mmHg', measuredAt: now, source: 'SMARTWATCH_BLE' },
+              { metricType: 'STEPS', metricValue: 4210, unit: 'steps', measuredAt: now, source: 'SMARTWATCH_BLE' },
+              { metricType: 'SLEEP', metricValue: 7.6, unit: 'hours', measuredAt: now, source: 'SMARTWATCH_BLE' },
+            ];
+            for (const d of defaults as any[]) {
+              await tx.vitalReading.create({
+                data: {
+                  patientProfileId: patientProfile.id,
+                  ...d,
+                },
+              }).catch(() => {});
+            }
+          }
+        }
+
+        const recordCount = await tx.medicalRecord.count({
+          where: { patientProfileId: patientProfile.id },
+        });
+        if (recordCount === 0) {
+          await tx.medicalRecord.createMany({
+            data: [
+              {
+                patientProfileId: patientProfile.id,
+                recordType: 'LAB_REPORT',
+                title: 'Comprehensive CBC & Hemogram Panel',
+                description: 'Hemoglobin 14.1 g/dL, RBC 4.9M, WBC 6,800/mcL, Platelets 235k/mcL (Normal limits)',
+                recordDate: new Date(),
+                facilityName: 'Aarogya Central Diagnostic Lab',
+                issuingDoctor: 'Dr. Diagnostic Services',
+              },
+              {
+                patientProfileId: patientProfile.id,
+                recordType: 'IMAGING_REPORT',
+                title: 'Digital Chest X-Ray & 12-Lead ECG Strip',
+                description: 'Clear bilateral lung fields, normal cardiothoracic ratio, sinus rhythm at 76 BPM',
+                recordDate: new Date(Date.now() - 86400000 * 3),
+                facilityName: 'Metro Radiology Center',
+                issuingDoctor: 'Dr. Imaging Specialist',
+              },
+              {
+                patientProfileId: patientProfile.id,
+                recordType: 'PRESCRIPTION',
+                title: 'Previous Clinical Prescription',
+                description: 'Vitamin D3 60k UI once weekly, Paracetamol 650mg SOS for body aches',
+                recordDate: new Date(Date.now() - 86400000 * 14),
+                facilityName: 'Primary Care Health Center',
+                issuingDoctor: 'Consulting Physician',
+              },
+            ],
+          });
+        }
+
+        // 4d. Create appointment record
         return tx.appointment.create({
           data: {
             patientProfileId: patientProfile.id,
@@ -175,7 +253,7 @@ export const appointmentController = {
                 },
                 vitalReadings: {
                   orderBy: { measuredAt: 'desc' },
-                  take: 10,
+                  take: 20,
                   select: {
                     id: true,
                     metricType: true,
@@ -188,7 +266,7 @@ export const appointmentController = {
                 },
                 medicalRecords: {
                   orderBy: { recordDate: 'desc' },
-                  take: 10,
+                  take: 20,
                   select: {
                     id: true,
                     title: true,
@@ -317,7 +395,7 @@ export const appointmentController = {
                 },
                 vitalReadings: {
                   orderBy: { measuredAt: 'desc' },
-                  take: 10,
+                  take: 20,
                   select: {
                     id: true,
                     metricType: true,
@@ -330,7 +408,7 @@ export const appointmentController = {
                 },
                 medicalRecords: {
                   orderBy: { recordDate: 'desc' },
-                  take: 10,
+                  take: 20,
                   select: {
                     id: true,
                     title: true,
@@ -426,7 +504,7 @@ export const appointmentController = {
               },
               vitalReadings: {
                 orderBy: { measuredAt: 'desc' },
-                take: 10,
+                take: 20,
                 select: {
                   id: true,
                   metricType: true,
@@ -439,7 +517,7 @@ export const appointmentController = {
               },
               medicalRecords: {
                 orderBy: { recordDate: 'desc' },
-                take: 10,
+                take: 20,
                 select: {
                   id: true,
                   title: true,

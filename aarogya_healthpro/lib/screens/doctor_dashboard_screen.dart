@@ -380,15 +380,20 @@ class _DoctorDashboardScreenState extends State<DoctorDashboardScreen> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Row(
-                  children: const [
-                    Icon(Icons.auto_awesome, color: AppColors.primary, size: 22),
-                    SizedBox(width: 8),
-                    Text(
-                      'Aarogya Clinical Co-Pilot',
-                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.onSurface),
-                    ),
-                  ],
+                Expanded(
+                  child: Row(
+                    children: const [
+                      Icon(Icons.auto_awesome, color: AppColors.primary, size: 22),
+                      SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          'Aarogya Clinical Co-Pilot',
+                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.onSurface),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
                 IconButton(
                   icon: const Icon(Icons.close),

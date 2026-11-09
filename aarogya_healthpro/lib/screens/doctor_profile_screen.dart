@@ -409,9 +409,11 @@ class _DoctorProfileScreenState extends State<DoctorProfileScreen> {
                   size: 28,
                 ),
                 const SizedBox(width: 10),
-                Text(
-                  isVerified ? 'Verified Medical Practitioner' : 'Verification Details',
-                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                Expanded(
+                  child: Text(
+                    isVerified ? 'Verified Medical Practitioner' : 'Verification Details',
+                    style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
                 ),
               ],
             ),
