@@ -127,7 +127,7 @@ class _BleWatchScannerDialogState extends State<BleWatchScannerDialog>
                 const Divider(height: 1),
                 const SizedBox(height: 16),
 
-                // If Connected: Live Heart Rate Streaming View (like WhistleBox video)
+                // If Connected: Live Heart Rate Streaming View
                 if (state == WatchConnectionState.connected) ...[
                   _buildLiveStreamingCard(),
                 ] else if (state == WatchConnectionState.connecting) ...[
@@ -318,11 +318,125 @@ class _BleWatchScannerDialogState extends State<BleWatchScannerDialog>
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        // 1. Direct Fire-Boltt Invincible Quick Connect Card
+        Container(
+          padding: const EdgeInsets.all(14),
+          decoration: BoxDecoration(
+            gradient: const LinearGradient(
+              colors: [Color(0xFFF0FDF4), Color(0xFFDCFCE7)],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(color: const Color(0xFF86EFAC)),
+          ),
+          child: Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(10),
+                decoration: const BoxDecoration(
+                  color: Colors.white,
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(Icons.watch_rounded, color: Color(0xFF15803D), size: 24),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: const [
+                    Text(
+                      'Fire-Boltt Invincible (182)',
+                      style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Color(0xFF14532D)),
+                    ),
+                    SizedBox(height: 2),
+                    Text(
+                      'Hardware ID: F4:4E:FC:B8:F3:42',
+                      style: TextStyle(fontSize: 11, color: Color(0xFF166534)),
+                    ),
+                  ],
+                ),
+              ),
+              ElevatedButton(
+                onPressed: () => _ble.connectByMac(BleWatchService.knownFireBolttMac),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF15803D),
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                  elevation: 0,
+                ),
+                child: const Text('Direct Connect', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+              ),
+            ],
+          ),
+        ),
+
+        const SizedBox(height: 16),
+
+        // 2. Paired / Bonded Devices Section
+        ValueListenableBuilder<List<BluetoothDevice>>(
+          valueListenable: _ble.bondedDevicesNotifier,
+          builder: (context, bondedList, _) {
+            if (bondedList.isEmpty) return const SizedBox.shrink();
+
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'Paired in Phone / System Bluetooth',
+                  style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
+                ),
+                const SizedBox(height: 8),
+                ...bondedList.map((device) {
+                  final name = BleWatchService.getDeviceName(device);
+                  return Container(
+                    margin: const EdgeInsets.only(bottom: 8),
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFF8FAFC),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: const Color(0xFFE2E8F0)),
+                    ),
+                    child: Row(
+                      children: [
+                        const Icon(Icons.bluetooth_connected, color: AppColors.primaryTeal, size: 20),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(name, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold)),
+                              Text(device.remoteId.str, style: const TextStyle(fontSize: 11, color: AppColors.textSecondary)),
+                            ],
+                          ),
+                        ),
+                        ElevatedButton(
+                          onPressed: () => _ble.connect(device),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppColors.primaryTeal,
+                            foregroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                            minimumSize: Size.zero,
+                          ),
+                          child: const Text('Connect', style: TextStyle(fontSize: 12)),
+                        ),
+                      ],
+                    ),
+                  );
+                }),
+                const SizedBox(height: 10),
+              ],
+            );
+          },
+        ),
+
+        // 3. Nearby Scanned Devices Section
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             const Text(
-              'Discovered Smartwatches',
+              'Discovered Nearby Devices',
               style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
             ),
             ValueListenableBuilder<bool>(
@@ -351,45 +465,33 @@ class _BleWatchScannerDialogState extends State<BleWatchScannerDialog>
             ),
           ],
         ),
-        const SizedBox(height: 10),
+        const SizedBox(height: 8),
 
-        // Scanned Device Results
         ValueListenableBuilder<List<ScanResult>>(
           valueListenable: _ble.scanResultsNotifier,
           builder: (context, results, _) {
             if (results.isEmpty) {
               return Container(
                 width: double.infinity,
-                padding: const EdgeInsets.all(20),
+                padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
                   color: const Color(0xFFF8FAFC),
-                  borderRadius: BorderRadius.circular(14),
+                  borderRadius: BorderRadius.circular(12),
                   border: Border.all(color: const Color(0xFFE2E8F0)),
                 ),
                 child: Column(
                   children: [
-                    const Icon(Icons.watch_outlined, size: 40, color: Color(0xFF94A3B8)),
+                    const Icon(Icons.bluetooth_searching, size: 36, color: Color(0xFF94A3B8)),
                     const SizedBox(height: 8),
                     const Text(
-                      'Searching for your Smartwatch...',
-                      style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold),
+                      'Scanning for BLE advertisement signal...',
+                      style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.w600),
                     ),
                     const SizedBox(height: 4),
                     const Text(
-                      'Ensure watch Bluetooth is ON and swipe to the Heart Rate screen on your watch.',
+                      'If watch does not appear, tap "Direct Connect" above or use Live Demo.',
                       textAlign: TextAlign.center,
-                      style: TextStyle(fontSize: 11.5, color: AppColors.textSecondary),
-                    ),
-                    const SizedBox(height: 14),
-                    ElevatedButton.icon(
-                      onPressed: () => _ble.startLiveSimulation(),
-                      icon: const Icon(Icons.play_circle_outline, size: 16),
-                      label: const Text('Test Live Stream (Demo / Emulator)'),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF0F766E),
-                        foregroundColor: Colors.white,
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                      ),
+                      style: TextStyle(fontSize: 11, color: AppColors.textSecondary),
                     ),
                   ],
                 ),
@@ -399,45 +501,32 @@ class _BleWatchScannerDialogState extends State<BleWatchScannerDialog>
             return Column(
               children: results.map((result) {
                 final device = result.device;
-                final name = device.platformName.isNotEmpty ? device.platformName : 'BLE Health Watch';
-                final isFireBoltt = name.toLowerCase().contains('fire') ||
-                    name.toLowerCase().contains('boltt') ||
-                    name.toLowerCase().contains('watch') ||
-                    name.toLowerCase().contains('invincible');
+                final name = BleWatchService.getDeviceName(result);
 
                 return Container(
                   margin: const EdgeInsets.only(bottom: 8),
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: isFireBoltt ? const Color(0xFFF0FDF4) : Colors.white,
+                    color: Colors.white,
                     borderRadius: BorderRadius.circular(12),
-                    border: Border.all(
-                      color: isFireBoltt ? const Color(0xFF86EFAC) : const Color(0xFFE2E8F0),
-                    ),
+                    border: Border.all(color: const Color(0xFFE2E8F0)),
                   ),
                   child: Row(
                     children: [
                       Container(
                         padding: const EdgeInsets.all(8),
-                        decoration: BoxDecoration(
-                          color: isFireBoltt ? const Color(0xFFDCFCE7) : const Color(0xFFF1F5F9),
+                        decoration: const BoxDecoration(
+                          color: Color(0xFFF1F5F9),
                           shape: BoxShape.circle,
                         ),
-                        child: Icon(
-                          Icons.watch_rounded,
-                          color: isFireBoltt ? const Color(0xFF15803D) : const Color(0xFF64748B),
-                          size: 20,
-                        ),
+                        child: const Icon(Icons.watch_rounded, color: Color(0xFF64748B), size: 18),
                       ),
                       const SizedBox(width: 12),
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(
-                              name,
-                              style: const TextStyle(fontSize: 13.5, fontWeight: FontWeight.bold),
-                            ),
+                            Text(name, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold)),
                             Text(
                               'RSSI: ${result.rssi} dBm • ${device.remoteId.str}',
                               style: const TextStyle(fontSize: 11, color: AppColors.textSecondary),
@@ -448,7 +537,7 @@ class _BleWatchScannerDialogState extends State<BleWatchScannerDialog>
                       ElevatedButton(
                         onPressed: () => _ble.connect(device),
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: isFireBoltt ? const Color(0xFF15803D) : AppColors.primaryTeal,
+                          backgroundColor: AppColors.primaryTeal,
                           foregroundColor: Colors.white,
                           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
@@ -464,24 +553,54 @@ class _BleWatchScannerDialogState extends State<BleWatchScannerDialog>
         ),
 
         const SizedBox(height: 14),
+
+        // 4. Important Troubleshooting Notice for Fire-Boltt
         Container(
-          padding: const EdgeInsets.all(10),
+          padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
             color: const Color(0xFFFFFBEB),
-            borderRadius: BorderRadius.circular(10),
+            borderRadius: BorderRadius.circular(12),
             border: Border.all(color: const Color(0xFFFDE68A)),
           ),
-          child: Row(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: const [
-              Icon(Icons.lightbulb_outline, size: 16, color: Color(0xFFD97706)),
-              SizedBox(width: 8),
-              Expanded(
-                child: Text(
-                  'Tip: Wear your watch and open the Heart Rate screen so the green sensor starts pulse reading.',
-                  style: TextStyle(fontSize: 11, color: Color(0xFF92400E)),
-                ),
+              Row(
+                children: [
+                  Icon(Icons.warning_amber_rounded, size: 16, color: Color(0xFFD97706)),
+                  SizedBox(width: 6),
+                  Text(
+                    'Fire-Boltt Connection Tips:',
+                    style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF92400E)),
+                  ),
+                ],
+              ),
+              SizedBox(height: 6),
+              Text(
+                '1. Da Fit / Companion App: Close Da Fit app in phone background. Bluetooth can only maintain 1 active connection at a time.\n'
+                '2. Watch Screen ON: Swipe to Heart Rate screen so green optical sensor turns ON.\n'
+                '3. Phone Bluetooth & Location: Make sure phone Bluetooth is ON and permission is granted.',
+                style: TextStyle(fontSize: 11, color: Color(0xFF78350F), height: 1.4),
               ),
             ],
+          ),
+        ),
+
+        const SizedBox(height: 12),
+
+        // 5. Instant Test Live Stream
+        SizedBox(
+          width: double.infinity,
+          child: OutlinedButton.icon(
+            onPressed: () => _ble.startLiveSimulation(),
+            icon: const Icon(Icons.play_circle_outline, size: 16),
+            label: const Text('Start Live PPG Stream Demo (95 -> 97 BPM)'),
+            style: OutlinedButton.styleFrom(
+              foregroundColor: const Color(0xFF0F766E),
+              side: const BorderSide(color: Color(0xFF14B8A6)),
+              padding: const EdgeInsets.symmetric(vertical: 10),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+            ),
           ),
         ),
       ],

@@ -26,6 +26,8 @@ class BleWatchService {
   final ValueNotifier<bool> isScanningNotifier = ValueNotifier<bool>(false);
   final ValueNotifier<List<ScanResult>> scanResultsNotifier =
       ValueNotifier<List<ScanResult>>([]);
+  final ValueNotifier<List<BluetoothDevice>> bondedDevicesNotifier =
+      ValueNotifier<List<BluetoothDevice>>([]);
 
   BluetoothDevice? _connectedDevice;
   BluetoothCharacteristic? _heartRateCharacteristic;
@@ -38,15 +40,59 @@ class BleWatchService {
   bool get isConnected =>
       connectionStateNotifier.value == WatchConnectionState.connected;
 
-  // Standard Bluetooth SIG UUIDs
+  // Known Fire-Boltt MAC & UUIDs
+  static const String knownFireBolttMac = 'F4:4E:FC:B8:F3:42';
   static final Guid heartRateServiceUuid = Guid('180d');
   static final Guid heartRateMeasurementCharUuid = Guid('2a37');
   static final Guid batteryServiceUuid = Guid('180f');
   static final Guid batteryLevelCharUuid = Guid('2a19');
 
+  /// Resolves the most descriptive display name for a scanned or paired device
+  static String getDeviceName(dynamic item) {
+    if (item is ScanResult) {
+      if (item.advertisementData.advName.trim().isNotEmpty) {
+        return item.advertisementData.advName.trim();
+      }
+      if (item.device.platformName.trim().isNotEmpty) {
+        return item.device.platformName.trim();
+      }
+      final mac = item.device.remoteId.str.replaceAll(':', '').toUpperCase();
+      if (mac.contains('F44EFCB8F342')) {
+        return 'FireBoltt 182 (Invincible)';
+      }
+      return 'BLE Device (${item.device.remoteId.str})';
+    } else if (item is BluetoothDevice) {
+      if (item.platformName.trim().isNotEmpty) {
+        return item.platformName.trim();
+      }
+      final mac = item.remoteId.str.replaceAll(':', '').toUpperCase();
+      if (mac.contains('F44EFCB8F342')) {
+        return 'FireBoltt 182 (Invincible)';
+      }
+      return 'Paired Device (${item.remoteId.str})';
+    }
+    return 'Smartwatch';
+  }
+
   /// Starts scanning for nearby BLE Smartwatches and fitness bands
-  Future<void> startScan({Duration timeout = const Duration(seconds: 12)}) async {
+  Future<void> startScan({Duration timeout = const Duration(seconds: 14)}) async {
     try {
+      // 1. Fetch already bonded/paired devices on the phone/host OS
+      try {
+        final bonded = await FlutterBluePlus.bondedDevices;
+        final connected = FlutterBluePlus.connectedDevices;
+        final combined = <String, BluetoothDevice>{};
+        for (final d in connected) {
+          combined[d.remoteId.str] = d;
+        }
+        for (final d in bonded) {
+          combined[d.remoteId.str] = d;
+        }
+        bondedDevicesNotifier.value = combined.values.toList();
+      } catch (e) {
+        debugPrint('[BleWatchService] bondedDevices fetch notice: $e');
+      }
+
       // Check if Bluetooth is supported
       if (await FlutterBluePlus.isSupported == false) {
         debugPrint('[BleWatchService] Bluetooth not supported on this platform');
@@ -64,10 +110,17 @@ class BleWatchService {
 
       _scanSub?.cancel();
       _scanSub = FlutterBluePlus.scanResults.listen((results) {
-        // Filter out devices with empty names or sort by signal strength
-        final filtered = results.where((r) => r.device.platformName.isNotEmpty).toList();
-        filtered.sort((a, b) => b.rssi.compareTo(a.rssi));
-        scanResultsNotifier.value = filtered;
+        // Keep all connectable or named devices (do not drop if platformName is empty!)
+        final list = results.where((r) {
+          final hasName = r.advertisementData.advName.isNotEmpty ||
+              r.device.platformName.isNotEmpty ||
+              r.device.remoteId.str.replaceAll(':', '').toUpperCase().contains('F44EFCB8F342');
+          return hasName || r.advertisementData.connectable;
+        }).toList();
+
+        // Sort by RSSI signal strength
+        list.sort((a, b) => b.rssi.compareTo(a.rssi));
+        scanResultsNotifier.value = list;
       });
 
       await FlutterBluePlus.startScan(
@@ -92,6 +145,18 @@ class BleWatchService {
       isScanningNotifier.value = false;
       _scanSub?.cancel();
     } catch (_) {}
+  }
+
+  /// Direct 1-tap connect by MAC address (e.g. F4:4E:FC:B8:F3:42)
+  Future<bool> connectByMac(String mac) async {
+    try {
+      final cleanMac = mac.replaceAll('-', ':').toUpperCase();
+      final device = BluetoothDevice.fromId(cleanMac);
+      return await connect(device);
+    } catch (e) {
+      debugPrint('[BleWatchService] connectByMac error: $e');
+      return false;
+    }
   }
 
   /// Connects to a selected BLE smartwatch and binds to Heart Rate GATT (0x180D)
@@ -149,7 +214,7 @@ class BleWatchService {
         }
       }
 
-      final deviceName = device.platformName.isNotEmpty ? device.platformName : 'Smartwatch';
+      final deviceName = getDeviceName(device);
       final mac = device.remoteId.str;
 
       if (hrChar != null) {
@@ -316,7 +381,7 @@ class BleWatchService {
 
     _updateTelemetry(
       name: watchName,
-      mac: 'F4:4E:FC:B8:F3:42',
+      mac: knownFireBolttMac,
       status: 'Connected (Live PPG Stream)',
       bpm: currentBpm,
       battery: 92,
@@ -324,14 +389,13 @@ class BleWatchService {
 
     _mockStreamTimer?.cancel();
     _mockStreamTimer = Timer.periodic(const Duration(seconds: 2), (timer) {
-      // Natural slight pulse variation (e.g. 95, 96, 97, 98, 97, 96)
       final change = (timer.tick % 4 == 0) ? 1 : ((timer.tick % 4 == 2) ? -1 : 0);
       currentBpm = (currentBpm + change).clamp(72, 108);
       liveBpmNotifier.value = currentBpm;
 
       _updateTelemetry(
         name: watchName,
-        mac: 'F4:4E:FC:B8:F3:42',
+        mac: knownFireBolttMac,
         status: 'Connected (Live PPG Stream)',
         bpm: currentBpm,
         battery: 92,
