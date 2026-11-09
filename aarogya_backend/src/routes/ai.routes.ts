@@ -107,17 +107,17 @@ router.post('/skin-analysis', imageUploadMiddleware, (req, res, next) => {
 });
 
 // 9. Medicine Packaging / Strip Image Direct Vision Analysis
-router.post('/analyze-medicine-image', imageUploadMiddleware, (req, res, next) => {
+router.post('/analyze-medicine-image', imageUploadMiddleware, (req: Request, res: Response, next: NextFunction) => {
   aiController.analyzeMedicineImage(req, res, next);
 });
 
 // 10. Ophthalmology Eye Disease Vision Analysis
-router.post('/eye-analysis', imageUploadMiddleware, (req, res, next) => {
+router.post('/eye-analysis', imageUploadMiddleware, (req: Request, res: Response, next: NextFunction) => {
   aiController.analyzeEye(req, res, next);
 });
 
 // 11. Diagnostic Lab Report / Pathology Document Analysis (Image or Form Body)
-router.post('/analyze-report', imageUploadMiddleware, (req, res, next) => {
+router.post('/analyze-report', imageUploadMiddleware, (req: Request, res: Response, next: NextFunction) => {
   aiController.analyzeReport(req, res, next);
 });
 

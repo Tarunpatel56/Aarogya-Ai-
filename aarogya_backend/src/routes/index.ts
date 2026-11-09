@@ -1,4 +1,4 @@
-import { Router } from 'express';
+import { Router, Request, Response } from 'express';
 import { healthRoutes } from './health.routes';
 import { authRoutes } from './auth.routes';
 import { patientRoutes } from './patient.routes';
@@ -18,7 +18,7 @@ import { physiotherapyRoutes } from './physiotherapy.routes';
 const router = Router();
 
 // Root API information
-router.get('/', (_req, res) => {
+router.get('/', (_req: Request, res: Response) => {
   res.json({
     success: true,
     message: 'Aarogya Healthcare Backend API',
