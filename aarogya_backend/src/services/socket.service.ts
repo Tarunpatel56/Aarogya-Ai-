@@ -238,6 +238,23 @@ class SocketService {
   }
 
   /**
+   * Broadcast emergency claim to all ambulance drivers so they remove it from their queues (first come first served)
+   */
+  public emitEmergencyClaimed(emergencyId: string, claimedByDriverId: string, payload: any = {}): void {
+    if (!this.io) return;
+    const data = {
+      success: true,
+      emergencyId,
+      claimedByDriverId,
+      ...payload,
+      timestamp: new Date().toISOString(),
+    };
+    this.io.to('ambulance_drivers').emit('emergency_claimed', data);
+    this.io.emit('emergency_claimed', data);
+    logger.info(`[SOCKET] Emitted emergency_claimed for dispatch ${emergencyId} by driver ${claimedByDriverId}`);
+  }
+
+  /**
    * Broadcast real-time driver verification status update by Super Admin
    */
   public emitDriverVerificationUpdate(driverUserId: string, payload: any): void {

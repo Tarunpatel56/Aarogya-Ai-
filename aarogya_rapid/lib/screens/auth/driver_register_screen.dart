@@ -27,6 +27,12 @@ class _DriverRegisterScreenState extends State<DriverRegisterScreen> {
   bool _obscurePassword = true;
   String? _errorMessage;
 
+  // Uploaded Document references
+  String? _dlFileName;
+  String? _rcFileName;
+  String? _certFileName;
+  String? _idFileName;
+
   @override
   void dispose() {
     _fullNameController.dispose();
@@ -39,7 +45,142 @@ class _DriverRegisterScreenState extends State<DriverRegisterScreen> {
     super.dispose();
   }
 
-  Future<void> _handleRegister() async {
+  Map<String, dynamic>? _buildDocumentsPayload() {
+    final docs = <String, dynamic>{};
+    if (_dlFileName != null) {
+      docs['drivingLicense'] = {
+        'fileName': _dlFileName,
+        'docType': 'COMMERCIAL_DRIVING_LICENSE',
+        'uploadedAt': DateTime.now().toIso8601String(),
+        'fileSize': '1.8 MB',
+      };
+    }
+    if (_rcFileName != null) {
+      docs['vehicleRc'] = {
+        'fileName': _rcFileName,
+        'docType': 'AMBULANCE_REGISTRATION_CERTIFICATE',
+        'uploadedAt': DateTime.now().toIso8601String(),
+        'fileSize': '2.1 MB',
+      };
+    }
+    if (_certFileName != null) {
+      docs['certification'] = {
+        'fileName': _certFileName,
+        'docType': _selectedRole == 'PARAMEDIC' ? 'ALS_PARAMEDIC_CERT' : 'COMMERCIAL_HEAVY_EMS_CERT',
+        'uploadedAt': DateTime.now().toIso8601String(),
+        'fileSize': '950 KB',
+      };
+    }
+    if (_idFileName != null) {
+      docs['identityProof'] = {
+        'fileName': _idFileName,
+        'docType': 'GOVERNMENT_ID_AADHAAR',
+        'uploadedAt': DateTime.now().toIso8601String(),
+        'fileSize': '1.1 MB',
+      };
+    }
+    return docs.isNotEmpty ? docs : null;
+  }
+
+  void _simulateAttachAllDocs() {
+    final name = _fullNameController.text.trim().isNotEmpty
+        ? _fullNameController.text.trim().replaceAll(' ', '_')
+        : 'Pilot';
+    setState(() {
+      _dlFileName = 'DL_${name}_2026.pdf';
+      _rcFileName = 'Ambulance_RC_DL01AMB108.pdf';
+      _certFileName = _selectedRole == 'PARAMEDIC' ? 'ALS_Advanced_Paramedic_Cert.pdf' : 'EMS_Heavy_Vehicle_Cert.pdf';
+      _idFileName = 'Govt_Aadhaar_Card_$name.pdf';
+    });
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('✓ 4 Compliance Documents attached (DL, RC, Cert, ID)'),
+        backgroundColor: SanctuaryColors.optimalGreen,
+        duration: Duration(seconds: 2),
+      ),
+    );
+  }
+
+  void _pickOrToggleDoc(String key, String defaultName) {
+    setState(() {
+      switch (key) {
+        case 'DL':
+          _dlFileName = _dlFileName == null ? defaultName : null;
+          break;
+        case 'RC':
+          _rcFileName = _rcFileName == null ? defaultName : null;
+          break;
+        case 'CERT':
+          _certFileName = _certFileName == null ? defaultName : null;
+          break;
+        case 'ID':
+          _idFileName = _idFileName == null ? defaultName : null;
+          break;
+      }
+    });
+  }
+
+  /// ⚡ DIRECT REGISTER / DEMO PASS:
+  /// Instant registration without filling documents or typing full details
+  Future<void> _handleDirectRegister() async {
+    final tag = DateTime.now().millisecondsSinceEpoch % 10000;
+    final fullName = _fullNameController.text.trim().isNotEmpty
+        ? _fullNameController.text.trim()
+        : 'Pilot Vikram #$tag';
+    final email = _emailController.text.trim().isNotEmpty
+        ? _emailController.text.trim()
+        : 'pilot$tag@aarogya.ai';
+    final password = _passwordController.text.isNotEmpty
+        ? _passwordController.text
+        : 'Driver@123';
+    final phone = _phoneController.text.trim().isNotEmpty
+        ? _phoneController.text.trim()
+        : '98${tag}12345'.padRight(10, '0');
+    final license = _licenseController.text.trim().isNotEmpty
+        ? _licenseController.text.trim()
+        : 'DL-DIRECT-$tag';
+    final vehicle = _vehicleController.text.trim().isNotEmpty
+        ? _vehicleController.text.trim()
+        : 'DL-01-AMB-$tag';
+
+    setState(() {
+      _isLoading = true;
+      _errorMessage = null;
+    });
+
+    try {
+      await _authService.register(
+        fullName: fullName,
+        email: email,
+        phone: phone,
+        staffRole: _selectedRole,
+        licenseNumber: license,
+        assignedVehicleNumber: vehicle,
+        certificationLevel: _selectedRole == 'PARAMEDIC' ? 'EMT-Critical Care' : 'Commercial Heavy EMS',
+        password: password,
+        documents: null, // Direct pass - no documents required
+      );
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('⚡ Direct Registration Successful: $email (Pending Super Admin)'),
+            backgroundColor: SanctuaryColors.optimalGreen,
+          ),
+        );
+        widget.onRegisterSuccess();
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _errorMessage = e.toString().replaceAll('ApiException: ', '');
+          _isLoading = false;
+        });
+      }
+    }
+  }
+
+  Future<void> _handleRegisterWithDocuments() async {
     if (!_formKey.currentState!.validate()) return;
 
     if (_passwordController.text != _confirmPasswordController.text) {
@@ -53,6 +194,7 @@ class _DriverRegisterScreenState extends State<DriverRegisterScreen> {
     });
 
     try {
+      final documents = _buildDocumentsPayload();
       await _authService.register(
         fullName: _fullNameController.text.trim(),
         email: _emailController.text.trim(),
@@ -64,12 +206,13 @@ class _DriverRegisterScreenState extends State<DriverRegisterScreen> {
             : 'DL-01-AMB-108',
         certificationLevel: _selectedRole == 'PARAMEDIC' ? 'EMT-Critical Care' : 'Commercial Heavy EMS',
         password: _passwordController.text,
+        documents: documents,
       );
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('✓ EMS Account registered successfully! Live dispatch active.'),
+            content: Text('✓ EMS Account & Documents registered! Pending Super Admin Approval.'),
             backgroundColor: Color(0xFF15803D),
           ),
         );
@@ -97,9 +240,9 @@ class _DriverRegisterScreenState extends State<DriverRegisterScreen> {
           onPressed: () => Navigator.pop(context),
         ),
         title: const Text(
-          'Register EMS Staff',
+          'Register Ambulance Pilot / Paramedic',
           style: TextStyle(
-            fontSize: 17,
+            fontSize: 16.5,
             fontWeight: FontWeight.bold,
             color: SanctuaryColors.primaryDark,
           ),
@@ -108,57 +251,50 @@ class _DriverRegisterScreenState extends State<DriverRegisterScreen> {
       body: SafeArea(
         child: Center(
           child: SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
             child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 460),
+              constraints: const BoxConstraints(maxWidth: 480),
               child: Form(
                 key: _formKey,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    // Header Card
-                    Row(
-                      children: [
-                        Container(
-                          width: 48,
-                          height: 48,
-                          decoration: BoxDecoration(
-                            color: SanctuaryColors.emergencyRed,
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: const Icon(
-                            Icons.emergency_rounded,
-                            color: Colors.white,
-                            size: 28,
-                          ),
-                        ),
-                        const SizedBox(width: 14),
-                        const Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'Create EMS Terminal Account',
-                                style: TextStyle(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
-                                  color: SanctuaryColors.primaryDark,
+                    // Top Info Card
+                    Container(
+                      padding: const EdgeInsets.all(14),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFFFFBEB),
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: const Color(0xFFFDE68A)),
+                      ),
+                      child: Row(
+                        children: [
+                          const Icon(Icons.shield_outlined, color: Color(0xFFD97706), size: 24),
+                          const SizedBox(width: 10),
+                          const Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Super Admin Verification Enforced',
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 13,
+                                    color: Color(0xFF92400E),
+                                  ),
                                 ),
-                              ),
-                              SizedBox(height: 2),
-                              Text(
-                                'Ambulance Driver & Paramedic Network',
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  color: SanctuaryColors.textSecondary,
+                                SizedBox(height: 2),
+                                Text(
+                                  'New pilots must upload compliance documents or use Quick Pass. Duty activates upon Super Admin approval.',
+                                  style: TextStyle(fontSize: 11, color: Color(0xFFB45309)),
                                 ),
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
-                    const SizedBox(height: 20),
+                    const SizedBox(height: 16),
 
                     // Error Alert Banner
                     if (_errorMessage != null) ...[
@@ -185,9 +321,62 @@ class _DriverRegisterScreenState extends State<DriverRegisterScreen> {
                       const SizedBox(height: 16),
                     ],
 
-                    // Form Container
+                    // Direct Register Action (Requested by user)
                     Container(
-                      padding: const EdgeInsets.all(20),
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFEFF6FF),
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: const Color(0xFFBFDBFE)),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          const Row(
+                            children: [
+                              Icon(Icons.bolt_rounded, color: Color(0xFF2563EB), size: 18),
+                              SizedBox(width: 6),
+                              Text(
+                                'Quick Demo Mode (Bina Documents)',
+                                style: TextStyle(
+                                  fontSize: 12.5,
+                                  fontWeight: FontWeight.w800,
+                                  color: Color(0xFF1D4ED8),
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 4),
+                          const Text(
+                            'Testing ke liye direct aage badhein bina kisi document ko upload kiye.',
+                            style: TextStyle(fontSize: 11, color: Color(0xFF3B82F6)),
+                          ),
+                          const SizedBox(height: 10),
+                          SizedBox(
+                            height: 40,
+                            child: ElevatedButton.icon(
+                              onPressed: _isLoading ? null : _handleDirectRegister,
+                              icon: const Icon(Icons.arrow_forward_rounded, size: 16),
+                              label: const Text(
+                                '⚡ DIRECT REGISTER / QUICK PASS',
+                                style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.bold),
+                              ),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: const Color(0xFF2563EB),
+                                foregroundColor: Colors.white,
+                                elevation: 0,
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+
+                    // Standard Form Container
+                    Container(
+                      padding: const EdgeInsets.all(18),
                       decoration: BoxDecoration(
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(16),
@@ -218,7 +407,7 @@ class _DriverRegisterScreenState extends State<DriverRegisterScreen> {
                                     children: [
                                       Icon(Icons.directions_car, size: 16),
                                       SizedBox(width: 6),
-                                      Text('Driver'),
+                                      Text('Ambulance Pilot'),
                                     ],
                                   ),
                                   selected: _selectedRole == 'AMBULANCE_DRIVER',
@@ -241,7 +430,7 @@ class _DriverRegisterScreenState extends State<DriverRegisterScreen> {
                                     children: [
                                       Icon(Icons.medical_services_outlined, size: 16),
                                       SizedBox(width: 6),
-                                      Text('Paramedic'),
+                                      Text('ALS Paramedic'),
                                     ],
                                   ),
                                   selected: _selectedRole == 'PARAMEDIC',
@@ -283,7 +472,7 @@ class _DriverRegisterScreenState extends State<DriverRegisterScreen> {
 
                           // 3. Email
                           const Text(
-                            'Official Email Address *',
+                            'Pilot Email Address *',
                             style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.w600, color: SanctuaryColors.primaryDark),
                           ),
                           const SizedBox(height: 6),
@@ -292,7 +481,7 @@ class _DriverRegisterScreenState extends State<DriverRegisterScreen> {
                             keyboardType: TextInputType.emailAddress,
                             decoration: InputDecoration(
                               prefixIcon: const Icon(Icons.email_outlined, size: 20),
-                              hintText: 'e.g. vikram.driver@aarogya.ai',
+                              hintText: 'e.g. vikram.pilot@aarogya.ai',
                               border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
                               contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
                             ),
@@ -305,7 +494,7 @@ class _DriverRegisterScreenState extends State<DriverRegisterScreen> {
 
                           // 4. Phone
                           const Text(
-                            'Contact Phone Number',
+                            'Mobile Phone Number *',
                             style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.w600, color: SanctuaryColors.primaryDark),
                           ),
                           const SizedBox(height: 6),
@@ -318,10 +507,14 @@ class _DriverRegisterScreenState extends State<DriverRegisterScreen> {
                               border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
                               contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
                             ),
+                            validator: (val) {
+                              if (val == null || val.trim().isEmpty) return 'Mobile number is required';
+                              return null;
+                            },
                           ),
                           const SizedBox(height: 16),
 
-                          // 5. License Number & Vehicle
+                          // 5. License & Vehicle
                           Row(
                             children: [
                               Expanded(
@@ -329,7 +522,7 @@ class _DriverRegisterScreenState extends State<DriverRegisterScreen> {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     const Text(
-                                      'License / Reg No. *',
+                                      'License / Badge *',
                                       style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: SanctuaryColors.primaryDark),
                                     ),
                                     const SizedBox(height: 6),
@@ -355,7 +548,7 @@ class _DriverRegisterScreenState extends State<DriverRegisterScreen> {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     const Text(
-                                      'Ambulance No. *',
+                                      'Ambulance Plate *',
                                       style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: SanctuaryColors.primaryDark),
                                     ),
                                     const SizedBox(height: 6),
@@ -373,7 +566,97 @@ class _DriverRegisterScreenState extends State<DriverRegisterScreen> {
                               ),
                             ],
                           ),
-                          const SizedBox(height: 16),
+                          const SizedBox(height: 20),
+
+                          // ==========================================
+                          // 📑 COMPLIANCE DOCUMENTS UPLOAD SECTION
+                          // ==========================================
+                          Container(
+                            padding: const EdgeInsets.all(12),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFF8FAFC),
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(color: SanctuaryColors.hairlineBorder),
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    const Row(
+                                      children: [
+                                        Icon(Icons.folder_shared_outlined, color: SanctuaryColors.primaryDark, size: 18),
+                                        SizedBox(width: 6),
+                                        Text(
+                                          'Upload Compliance Documents',
+                                          style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.bold, color: SanctuaryColors.primaryDark),
+                                        ),
+                                      ],
+                                    ),
+                                    TextButton(
+                                      onPressed: _simulateAttachAllDocs,
+                                      style: TextButton.styleFrom(
+                                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                        minimumSize: Size.zero,
+                                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                      ),
+                                      child: const Text(
+                                        'Attach All (Demo)',
+                                        style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Color(0xFF2563EB)),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 4),
+                                const Text(
+                                  'Super Admin verification ke liye in documents ko upload karein ya attach karein:',
+                                  style: TextStyle(fontSize: 10.5, color: SanctuaryColors.textSecondary),
+                                ),
+                                const SizedBox(height: 10),
+
+                                // Doc 1: Driving License
+                                _buildDocumentUploadTile(
+                                  title: '1. Commercial Driving License (DL)',
+                                  subtitle: 'Heavy Vehicle / EMS Certified Badge',
+                                  icon: Icons.drive_eta_outlined,
+                                  fileName: _dlFileName,
+                                  onTap: () => _pickOrToggleDoc('DL', 'DL_Heavy_Commercial_2026.pdf'),
+                                ),
+                                const SizedBox(height: 8),
+
+                                // Doc 2: Ambulance RC
+                                _buildDocumentUploadTile(
+                                  title: '2. Ambulance Registration (RC & Fitness)',
+                                  subtitle: 'Govt. Vehicle Fitness & Siren Permit',
+                                  icon: Icons.airport_shuttle_outlined,
+                                  fileName: _rcFileName,
+                                  onTap: () => _pickOrToggleDoc('RC', 'Ambulance_RC_DL01AMB108.pdf'),
+                                ),
+                                const SizedBox(height: 8),
+
+                                // Doc 3: Paramedic / BLS Cert
+                                _buildDocumentUploadTile(
+                                  title: '3. Paramedic / ALS / BLS Certificate',
+                                  subtitle: 'Emergency Medical Technician Credential',
+                                  icon: Icons.health_and_safety_outlined,
+                                  fileName: _certFileName,
+                                  onTap: () => _pickOrToggleDoc('CERT', 'ALS_EMT_Certification.pdf'),
+                                ),
+                                const SizedBox(height: 8),
+
+                                // Doc 4: Identity Proof
+                                _buildDocumentUploadTile(
+                                  title: '4. Govt Identity Proof (Aadhaar / Voter)',
+                                  subtitle: 'National ID verification proof',
+                                  icon: Icons.badge_outlined,
+                                  fileName: _idFileName,
+                                  onTap: () => _pickOrToggleDoc('ID', 'Govt_Aadhaar_ID_Proof.pdf'),
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(height: 20),
 
                           // 6. Password
                           const Text(
@@ -423,7 +706,7 @@ class _DriverRegisterScreenState extends State<DriverRegisterScreen> {
                           ),
                           const SizedBox(height: 24),
 
-                          // Submit Button
+                          // Primary Submit Button (With Documents)
                           SizedBox(
                             width: double.infinity,
                             height: 48,
@@ -433,7 +716,7 @@ class _DriverRegisterScreenState extends State<DriverRegisterScreen> {
                                 foregroundColor: Colors.white,
                                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                               ),
-                              onPressed: _isLoading ? null : _handleRegister,
+                              onPressed: _isLoading ? null : _handleRegisterWithDocuments,
                               child: _isLoading
                                   ? const SizedBox(
                                       width: 20,
@@ -441,8 +724,8 @@ class _DriverRegisterScreenState extends State<DriverRegisterScreen> {
                                       child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
                                     )
                                   : const Text(
-                                      'Register EMS Account',
-                                      style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                                      'Submit for Super Admin Verification',
+                                      style: TextStyle(fontSize: 14.5, fontWeight: FontWeight.bold),
                                     ),
                             ),
                           ),
@@ -481,5 +764,77 @@ class _DriverRegisterScreenState extends State<DriverRegisterScreen> {
       ),
     );
   }
-}
 
+  Widget _buildDocumentUploadTile({
+    required String title,
+    required String subtitle,
+    required IconData icon,
+    required String? fileName,
+    required VoidCallback onTap,
+  }) {
+    final bool isUploaded = fileName != null;
+
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(8),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+        decoration: BoxDecoration(
+          color: isUploaded ? const Color(0xFFF0FDF4) : Colors.white,
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(
+            color: isUploaded ? const Color(0xFFBBF7D0) : SanctuaryColors.hairlineBorder,
+          ),
+        ),
+        child: Row(
+          children: [
+            Icon(
+              isUploaded ? Icons.check_circle : icon,
+              size: 20,
+              color: isUploaded ? SanctuaryColors.optimalGreen : SanctuaryColors.primaryDark,
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: TextStyle(
+                      fontSize: 11.5,
+                      fontWeight: FontWeight.bold,
+                      color: isUploaded ? SanctuaryColors.optimalGreen : SanctuaryColors.primaryDark,
+                    ),
+                  ),
+                  Text(
+                    isUploaded ? 'Attached: $fileName' : subtitle,
+                    style: TextStyle(
+                      fontSize: 10,
+                      color: isUploaded ? const Color(0xFF15803D) : SanctuaryColors.textSecondary,
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
+              ),
+            ),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
+              decoration: BoxDecoration(
+                color: isUploaded ? const Color(0xFFDCFCE7) : const Color(0xFFF1F5F9),
+                borderRadius: BorderRadius.circular(4),
+              ),
+              child: Text(
+                isUploaded ? 'Attached' : 'Upload',
+                style: TextStyle(
+                  fontSize: 10,
+                  fontWeight: FontWeight.bold,
+                  color: isUploaded ? SanctuaryColors.optimalGreen : const Color(0xFF475569),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}

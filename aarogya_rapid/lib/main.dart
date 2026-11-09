@@ -198,6 +198,27 @@ class _RapidRootNavigationHostState extends State<RapidRootNavigationHost> {
       }
     };
 
+    // Remove emergency from queue if another unit accepted it first
+    _socketService.onEmergencyClaimed = (data) {
+      final emergencyId = data['emergencyId']?.toString();
+      final claimedBy = data['driverName']?.toString() ?? 'Another Unit';
+      if (emergencyId != null && mounted) {
+        setState(() {
+          _queue.removeWhere((r) => r.id == emergencyId);
+        });
+        if (_activeTrip?.id != emergencyId) {
+          final shortId = emergencyId.length > 8 ? emergencyId.substring(0, 8) : emergencyId;
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              backgroundColor: const Color(0xFF334155),
+              content: Text('⚡ Emergency #$shortId claimed by $claimedBy'),
+              duration: const Duration(seconds: 3),
+            ),
+          );
+        }
+      }
+    };
+
     // 4. Fetch real initial dispatches from PostgreSQL
     await _refreshDispatches();
 

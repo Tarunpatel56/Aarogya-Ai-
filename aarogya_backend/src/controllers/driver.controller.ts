@@ -199,6 +199,12 @@ export const driverController = {
         estimatedMinutes: 6,
       });
 
+      // Broadcast to ALL other nearby ambulance drivers so request disappears from their queue
+      socketService.emitEmergencyClaimed(emergencyId, userId, {
+        driverName: profile.fullName,
+        vehicleNumber: updated.assignedVehicleNo,
+      });
+
       res.status(200).json({
         success: true,
         message: 'Emergency dispatch accepted successfully',

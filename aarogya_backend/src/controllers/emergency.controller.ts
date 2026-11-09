@@ -81,11 +81,6 @@ export const emergencyController = {
       // Estimated arrival time based on distance (minimum 4 mins, ~2 mins per km)
       const estimatedMinutes = Math.max(4, Math.min(18, Math.round(minDistance * 2.2)));
 
-      // Ambulance starting location ~1.5 - 2.5 km away
-      const driverLat = latitude + (Math.random() > 0.5 ? 0.012 : -0.012);
-      const driverLng = longitude + (Math.random() > 0.5 ? 0.015 : -0.015);
-      const vehicleNum = `DL-01-AMB-${Math.floor(1000 + Math.random() * 9000)}`;
-
       const emergency = await prisma.emergencyRequest.create({
         data: {
           patientProfileId: patient.id,
@@ -94,11 +89,12 @@ export const emergencyController = {
           pickupAddress: pickupAddress || 'Current GPS Patient Location',
           assignedHospitalId: nearestHospital?.id,
           hospitalName: nearestHospital?.name || 'AIIMS Emergency Trauma Bay',
-          assignedVehicleNo: vehicleNum,
+          assignedVehicleNo: null,
+          assignedDriverId: null,
           status: EmergencyStatus.REQUESTED,
-          estimatedMinutes,
-          driverLatitude: driverLat,
-          driverLongitude: driverLng,
+          estimatedMinutes: null,
+          driverLatitude: null,
+          driverLongitude: null,
           vitalsSnapshot: vitalsSnapshot || null,
         },
         include: {
@@ -117,25 +113,18 @@ export const emergencyController = {
 
       // Broadcast emergency across Socket.IO to nearby ambulances & hospitals
       socketService.emitEmergencyBroadcast(emergency);
-      socketService.emitEmergencyAccepted(emergency.id, {
-        emergency,
-        driverName: 'EMS Paramedic Lead (Ambulance Unit)',
-        driverPhone: '+91 98109 23812',
-        vehicleNumber: emergency.assignedVehicleNo,
-        estimatedMinutes: emergency.estimatedMinutes,
-      });
 
       res.status(201).json({
         success: true,
-        message: 'Emergency SOS dispatched. Ambulance assigned.',
+        message: 'Emergency SOS broadcasted. Searching for available ambulance...',
         data: {
           emergency: {
             ...emergency,
             patientName: patient.fullName,
             patientPhone: patient.user.phone,
             emergencyHotline: nearestHospital?.emergencyPhone || '102',
-            driverName: 'Vikram Singh (Paramedic Lead)',
-            driverPhone: '+91-9876543210',
+            driverName: null,
+            driverPhone: null,
           },
         },
       });

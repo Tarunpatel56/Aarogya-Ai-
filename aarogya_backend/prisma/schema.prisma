@@ -247,6 +247,7 @@ model AmbulanceStaffProfile {
   licenseNumber         String
   certificationLevel    String?
   assignedVehicleNumber String?
+  documents             Json?
   verifiedAt            DateTime?
   verifiedBy            String?
   createdAt             DateTime  @default(now())

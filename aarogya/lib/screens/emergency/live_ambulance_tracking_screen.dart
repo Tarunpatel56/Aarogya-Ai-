@@ -313,12 +313,15 @@ class _LiveAmbulanceTrackingScreenState
   }
 
   Widget _buildStatusHeader() {
+    final bool isSearching = _emergency.status == 'REQUESTED' || _emergency.status == 'SEARCHING';
     final bool isEnRoute = _emergency.status == 'EN_ROUTE';
     final Color badgeColor = _emergency.isCancelled
         ? Colors.grey
+        : isSearching
+        ? const Color(0xFFD97706)
         : isEnRoute
         ? const Color(0xFF15803D)
-        : const Color(0xFFDC2626);
+        : const Color(0xFF2563EB);
 
     return Container(
       padding: const EdgeInsets.all(16),
@@ -354,6 +357,8 @@ class _LiveAmbulanceTrackingScreenState
                 child: Icon(
                   _emergency.isCancelled
                       ? Icons.cancel_outlined
+                      : isSearching
+                      ? Icons.radar_rounded
                       : Icons.emergency_outlined,
                   color: badgeColor,
                   size: 26,
@@ -369,9 +374,11 @@ class _LiveAmbulanceTrackingScreenState
                 Text(
                   _emergency.isCancelled
                       ? 'SOS DISPATCH CANCELLED'
+                      : isSearching
+                      ? 'SEARCHING FOR NEARBY AMBULANCE'
                       : isEnRoute
                       ? 'AMBULANCE EN ROUTE'
-                      : 'AMBULANCE ASSIGNED & DISPATCHED',
+                      : 'AMBULANCE ASSIGNED & EN ROUTE',
                   style: TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.w900,
@@ -383,6 +390,8 @@ class _LiveAmbulanceTrackingScreenState
                 Text(
                   _emergency.isCancelled
                       ? 'This request was safely called off'
+                      : isSearching
+                      ? 'SOS broadcasted to all nearby ambulance pilots. Waiting for unit pickup...'
                       : 'Estimated Arrival in ~${_emergency.estimatedMinutes} minutes',
                   style: const TextStyle(
                     fontSize: 14.5,
@@ -644,6 +653,8 @@ class _LiveAmbulanceTrackingScreenState
   }
 
   Widget _buildAmbulanceDetailsCard() {
+    final bool hasAssignedDriver = _emergency.driverName != null && _emergency.driverName!.isNotEmpty;
+
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -661,9 +672,9 @@ class _LiveAmbulanceTrackingScreenState
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
-                    'ASSIGNED AMBULANCE',
-                    style: TextStyle(
+                  Text(
+                    hasAssignedDriver ? 'ASSIGNED AMBULANCE' : 'AMBULANCE SEARCH IN PROGRESS',
+                    style: const TextStyle(
                       fontSize: 9.5,
                       fontWeight: FontWeight.bold,
                       color: AppColors.textSecondary,
@@ -671,10 +682,13 @@ class _LiveAmbulanceTrackingScreenState
                   ),
                   const SizedBox(height: 2),
                   Text(
-                    _emergency.assignedVehicleNo ?? 'DL-01-AMB-2401',
-                    style: const TextStyle(
+                    hasAssignedDriver
+                        ? (_emergency.assignedVehicleNo ?? 'Ambulance Assigned')
+                        : 'Alerting Nearby Units...',
+                    style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.bold,
+                      color: hasAssignedDriver ? AppColors.textPrimary : const Color(0xFFD97706),
                     ),
                   ),
                 ],
@@ -682,15 +696,15 @@ class _LiveAmbulanceTrackingScreenState
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFF0FDF4),
+                  color: hasAssignedDriver ? const Color(0xFFF0FDF4) : const Color(0xFFFFFBEB),
                   borderRadius: BorderRadius.circular(6),
                 ),
-                child: const Text(
-                  'Advanced Life Support (ALS)',
+                child: Text(
+                  hasAssignedDriver ? 'Advanced Life Support (ALS)' : 'Nearby Fleet Broadcasting',
                   style: TextStyle(
                     fontSize: 10,
                     fontWeight: FontWeight.bold,
-                    color: Color(0xFF16A34A),
+                    color: hasAssignedDriver ? const Color(0xFF16A34A) : const Color(0xFFD97706),
                   ),
                 ),
               ),
@@ -704,13 +718,13 @@ class _LiveAmbulanceTrackingScreenState
               Container(
                 width: 38,
                 height: 38,
-                decoration: const BoxDecoration(
-                  color: Color(0xFFEFF6FF),
+                decoration: BoxDecoration(
+                  color: hasAssignedDriver ? const Color(0xFFEFF6FF) : const Color(0xFFFFF7ED),
                   shape: BoxShape.circle,
                 ),
-                child: const Icon(
-                  Icons.person,
-                  color: Color(0xFF2563EB),
+                child: Icon(
+                  hasAssignedDriver ? Icons.person : Icons.radar_rounded,
+                  color: hasAssignedDriver ? const Color(0xFF2563EB) : const Color(0xFFEA580C),
                   size: 22,
                 ),
               ),
@@ -720,7 +734,9 @@ class _LiveAmbulanceTrackingScreenState
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      _emergency.driverName ?? 'Vikram Singh (Paramedic Lead)',
+                      hasAssignedDriver
+                          ? _emergency.driverName!
+                          : 'Awaiting Ambulance Pilot Acceptance',
                       style: const TextStyle(
                         fontSize: 13,
                         fontWeight: FontWeight.bold,
@@ -728,7 +744,9 @@ class _LiveAmbulanceTrackingScreenState
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      _emergency.driverPhone ?? '+91-9876543210',
+                      hasAssignedDriver
+                          ? (_emergency.driverPhone ?? '+91-9876543210')
+                          : 'Sent to all online pilots • First to accept responds',
                       style: const TextStyle(
                         fontSize: 11.5,
                         color: AppColors.textSecondary,
@@ -737,29 +755,30 @@ class _LiveAmbulanceTrackingScreenState
                   ],
                 ),
               ),
-              ElevatedButton.icon(
-                onPressed: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(
-                        'Calling Driver: ${_emergency.driverPhone ?? "+91-9876543210"}',
+              if (hasAssignedDriver)
+                ElevatedButton.icon(
+                  onPressed: () {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(
+                          'Calling Driver: ${_emergency.driverPhone ?? "+91-9876543210"}',
+                        ),
                       ),
+                    );
+                  },
+                  icon: const Icon(Icons.call, size: 14),
+                  label: const Text('Call', style: TextStyle(fontSize: 11)),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.primaryTeal,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 6,
                     ),
-                  );
-                },
-                icon: const Icon(Icons.call, size: 14),
-                label: const Text('Call', style: TextStyle(fontSize: 11)),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.primaryTeal,
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 10,
-                    vertical: 6,
+                    minimumSize: Size.zero,
+                    elevation: 0,
                   ),
-                  minimumSize: Size.zero,
-                  elevation: 0,
                 ),
-              ),
             ],
           ),
         ],

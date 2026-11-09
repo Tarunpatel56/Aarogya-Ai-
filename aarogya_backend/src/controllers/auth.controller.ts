@@ -270,8 +270,17 @@ export const authController = {
    */
   async registerAmbulanceStaff(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
-      const { email, password, fullName, phone, staffRole, licenseNumber, certificationLevel, assignedVehicleNumber } =
-        req.body;
+      const {
+        email,
+        password,
+        fullName,
+        phone,
+        staffRole,
+        licenseNumber,
+        certificationLevel,
+        assignedVehicleNumber,
+        documents,
+      } = req.body;
 
       if (staffRole !== Role.AMBULANCE_DRIVER && staffRole !== Role.PARAMEDIC) {
         throw new BadRequestError('staffRole must be either AMBULANCE_DRIVER or PARAMEDIC');
@@ -314,6 +323,7 @@ export const authController = {
             licenseNumber: licenseNumber.trim(),
             certificationLevel: certificationLevel ? String(certificationLevel).trim() : 'EMT-Advanced',
             assignedVehicleNumber: assignedVehicleNumber ? String(assignedVehicleNumber).trim() : 'DL-01-AMB-108',
+            documents: documents ? (typeof documents === 'object' ? documents : JSON.parse(documents)) : null,
           },
         });
 

@@ -730,6 +730,65 @@ class _SuperAdminScreenState extends State<SuperAdminScreen> {
                     ],
                   ),
                 ),
+
+                // Uploaded Compliance Documents Preview for Super Admin
+                if (driver['documents'] is Map && (driver['documents'] as Map).isNotEmpty) ...[
+                  const SizedBox(height: 8),
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFF1F5F9),
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: const Color(0xFFE2E8F0)),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Row(
+                          children: [
+                            Icon(Icons.folder_shared, size: 14, color: Color(0xFF0F172A)),
+                            SizedBox(width: 4),
+                            Text(
+                              'Uploaded Compliance Documents (Super Admin Audit):',
+                              style: TextStyle(fontSize: 10.5, fontWeight: FontWeight.bold, color: Color(0xFF0F172A)),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 6),
+                        Wrap(
+                          spacing: 6,
+                          runSpacing: 4,
+                          children: (driver['documents'] as Map).entries.map((entry) {
+                            final docVal = entry.value is Map ? (entry.value as Map) : {};
+                            final fileName = docVal['fileName']?.toString() ?? entry.key.toString();
+                            return Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(4),
+                                border: Border.all(color: const Color(0xFFCBD5E1)),
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  const Icon(Icons.picture_as_pdf, size: 12, color: Color(0xFFE11D48)),
+                                  const SizedBox(width: 4),
+                                  Text(
+                                    fileName,
+                                    style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w600, color: Color(0xFF334155)),
+                                  ),
+                                  const SizedBox(width: 4),
+                                  const Icon(Icons.check_circle, size: 12, color: Color(0xFF16A34A)),
+                                ],
+                              ),
+                            );
+                          }).toList(),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
                 const SizedBox(height: 12),
 
                 // Super Admin Action Buttons

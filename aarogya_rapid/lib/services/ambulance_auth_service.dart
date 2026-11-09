@@ -56,6 +56,7 @@ class AmbulanceAuthService {
     required String licenseNumber,
     String? assignedVehicleNumber,
     String? certificationLevel,
+    Map<String, dynamic>? documents,
   }) async {
     final res = await _apiClient.post(
       '/auth/register/ambulance-staff',
@@ -72,6 +73,9 @@ class AmbulanceAuthService {
         'certificationLevel': (certificationLevel != null && certificationLevel.trim().isNotEmpty)
             ? certificationLevel.trim()
             : 'EMT-Advanced',
+        if (documents != null) ...{
+          'documents': documents,
+        },
       },
       requiresAuth: false,
     );

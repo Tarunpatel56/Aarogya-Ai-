@@ -4,6 +4,7 @@ import '../core/storage/token_storage.dart';
 
 typedef EmergencyBroadcastCallback = void Function(Map<String, dynamic> data);
 typedef DriverVerificationCallback = void Function(Map<String, dynamic> data);
+typedef EmergencyClaimedCallback = void Function(Map<String, dynamic> data);
 
 class AmbulanceSocketService {
   static final AmbulanceSocketService _instance = AmbulanceSocketService._internal();
@@ -15,6 +16,7 @@ class AmbulanceSocketService {
   final TokenStorage _tokenStorage = TokenStorage();
   EmergencyBroadcastCallback? onEmergencyBroadcast;
   DriverVerificationCallback? onDriverVerificationUpdated;
+  EmergencyClaimedCallback? onEmergencyClaimed;
 
   bool get isConnected => _socket?.connected ?? false;
 
@@ -48,6 +50,12 @@ class AmbulanceSocketService {
     _socket!.on('driver_verification_update', (data) {
       if (data is Map<String, dynamic>) {
         onDriverVerificationUpdated?.call(data);
+      }
+    });
+
+    _socket!.on('emergency_claimed', (data) {
+      if (data is Map<String, dynamic>) {
+        onEmergencyClaimed?.call(data);
       }
     });
   }
