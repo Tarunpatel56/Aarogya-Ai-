@@ -270,17 +270,26 @@ class _RapidRootNavigationHostState extends State<RapidRootNavigationHost> {
           });
         },
         onFinishTrip: () async {
+          final messenger = ScaffoldMessenger.of(context);
           final tripToComplete = _activeTrip!;
           // Update PostgreSQL status to COMPLETED
           await _dispatchService.updateMilestone(tripToComplete.id, status: 'COMPLETED');
 
+          if (!mounted) return;
           setState(() {
             _showingHandoverModal = false;
             _completedTrips.insert(0, tripToComplete);
             _activeTrip = null;
-            _currentIndex = 2; // Jump to History
+            _currentIndex = 0; // Return to Emergency Queue / Active Standby for NEXT ORDER!
           });
           _gpsStreamTimer?.cancel();
+          messenger.showSnackBar(
+            SnackBar(
+              content: Text('✓ Rescue Mission #${tripToComplete.id} Completed! Unit is on Active Standby for Next Order.'),
+              backgroundColor: SanctuaryColors.optimalGreen,
+              duration: const Duration(seconds: 4),
+            ),
+          );
         },
       );
     }

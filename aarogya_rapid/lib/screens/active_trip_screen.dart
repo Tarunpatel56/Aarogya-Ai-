@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../models/trip_model.dart';
 import '../theme/app_theme.dart';
 import '../widgets/mini_map_view.dart';
+import '../services/ambulance_dispatch_service.dart';
 
 class ActiveTripScreen extends StatefulWidget {
   final EmergencyRequest? request;
@@ -22,6 +23,7 @@ class ActiveTripScreen extends StatefulWidget {
 class _ActiveTripScreenState extends State<ActiveTripScreen> {
   int currentStep = 2; // Step 2: En Route
   bool isStrobeLogged = true;
+  final _dispatchService = AmbulanceDispatchService();
 
   @override
   Widget build(BuildContext context) {
@@ -90,15 +92,19 @@ class _ActiveTripScreenState extends State<ActiveTripScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // 1. Trip Progress Stepper (Accepted -> En Route -> Arrived)
+            // 1. Trip Progress Stepper (Accepted -> En Route -> On Scene -> Hospital)
             _buildTripStepper(),
             const SizedBox(height: 12),
 
-            // 2. Pickup Destination Card with ETA Banner
+            // 2. Live Driver GPS Telemetry Broadcast Strip
+            _buildLiveGpsBroadcastStrip(req),
+            const SizedBox(height: 12),
+
+            // 3. Pickup Destination Card with ETA Banner
             _buildPickupDestinationCard(req),
             const SizedBox(height: 12),
 
-            // 3. Simulated Live Navigation Map
+            // 4. Simulated Live Navigation Map
             MiniNavigationMapView(
               height: 220,
               vehicleNumber: req.assignedVehicleNo ?? 'DL-01-AMB-108',
@@ -240,9 +246,89 @@ class _ActiveTripScreenState extends State<ActiveTripScreen> {
     );
   }
 
+  Widget _buildLiveGpsBroadcastStrip(EmergencyRequest req) {
+    final lat = req.driverLatitude ?? req.latitude;
+    final lng = req.driverLongitude ?? req.longitude;
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+      decoration: BoxDecoration(
+        color: const Color(0xFF0F172A),
+        borderRadius: SanctuaryRadius.rLg,
+        border: Border.all(color: const Color(0xFF1E293B)),
+        boxShadow: SanctuaryColors.cardShadow,
+      ),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: const BoxDecoration(
+              color: Color(0xFF1E293B),
+              shape: BoxShape.circle,
+            ),
+            child: const Icon(Icons.satellite_alt_rounded, color: Color(0xFF38BDF8), size: 18),
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Container(
+                      width: 6,
+                      height: 6,
+                      decoration: const BoxDecoration(
+                        color: Color(0xFF10B981),
+                        shape: BoxShape.circle,
+                      ),
+                    ),
+                    const SizedBox(width: 5),
+                    const Text(
+                      'LIVE GPS BROADCASTING',
+                      style: TextStyle(
+                        color: Color(0xFF34D399),
+                        fontSize: 10,
+                        fontWeight: FontWeight.w900,
+                        letterSpacing: 0.5,
+                      ),
+                    ),
+                    const Spacer(),
+                    const Text(
+                      '42 km/h • High Priority',
+                      style: TextStyle(
+                        color: Colors.white70,
+                        fontSize: 10,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 3),
+                Text(
+                  '${lat.toStringAsFixed(5)}° N, ${lng.toStringAsFixed(5)}° E',
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w800,
+                    fontSize: 12,
+                    letterSpacing: 0.3,
+                  ),
+                ),
+                const Text(
+                  'Real-time coordinates transmitting to Patient & Trauma Bay every 2s',
+                  style: TextStyle(color: Colors.white60, fontSize: 9.5),
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildTripStepper() {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
       decoration: BoxDecoration(
         color: SanctuaryColors.surfaceContainerLowest,
         borderRadius: SanctuaryRadius.rLg,
@@ -253,38 +339,58 @@ class _ActiveTripScreenState extends State<ActiveTripScreen> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           // Step 1: Accepted
-          _buildStepItem(
-            stepNumber: '1',
-            icon: Icons.check,
-            isCompleted: true,
-            isActive: false,
-            title: '1. Accepted',
-            subtitle: '10:14 IST',
-            color: SanctuaryColors.optimalGreen,
+          Flexible(
+            child: _buildStepItem(
+              stepNumber: '1',
+              icon: Icons.check,
+              isCompleted: true,
+              isActive: false,
+              title: 'Accepted',
+              subtitle: 'Dispatched',
+              color: SanctuaryColors.optimalGreen,
+            ),
           ),
-          _buildStepDivider(isCompleted: true),
+          _buildStepDivider(isCompleted: currentStep > 2),
 
           // Step 2: En Route
-          _buildStepItem(
-            stepNumber: '2',
-            icon: Icons.emergency,
-            isCompleted: false,
-            isActive: true,
-            title: '2. En Route',
-            subtitle: 'ETA 5 mins',
-            color: SanctuaryColors.crimsonRose,
+          Flexible(
+            child: _buildStepItem(
+              stepNumber: '2',
+              icon: currentStep > 2 ? Icons.check : Icons.emergency,
+              isCompleted: currentStep > 2,
+              isActive: currentStep == 2,
+              title: 'En Route',
+              subtitle: 'Incident Scene',
+              color: SanctuaryColors.crimsonRose,
+            ),
           ),
-          _buildStepDivider(isCompleted: false),
+          _buildStepDivider(isCompleted: currentStep > 3),
 
-          // Step 3: Arrived
-          _buildStepItem(
-            stepNumber: '3',
-            icon: null,
-            isCompleted: false,
-            isActive: false,
-            title: 'Arrived',
-            subtitle: 'Pickup Pt',
-            color: SanctuaryColors.textMuted,
+          // Step 3: On Scene
+          Flexible(
+            child: _buildStepItem(
+              stepNumber: '3',
+              icon: currentStep > 3 ? Icons.check : (currentStep == 3 ? Icons.location_on : null),
+              isCompleted: currentStep > 3,
+              isActive: currentStep == 3,
+              title: 'On Scene',
+              subtitle: currentStep >= 3 ? 'Patient Boarded' : 'Pickup Pt',
+              color: currentStep >= 3 ? SanctuaryColors.optimalGreen : SanctuaryColors.textMuted,
+            ),
+          ),
+          _buildStepDivider(isCompleted: currentStep >= 4),
+
+          // Step 4: Hospital
+          Flexible(
+            child: _buildStepItem(
+              stepNumber: '4',
+              icon: currentStep >= 4 ? Icons.local_hospital : null,
+              isCompleted: false,
+              isActive: currentStep >= 4,
+              title: 'ER Bay',
+              subtitle: 'Handover',
+              color: currentStep >= 4 ? const Color(0xFF1D4ED8) : SanctuaryColors.textMuted,
+            ),
           ),
         ],
       ),
@@ -301,15 +407,16 @@ class _ActiveTripScreenState extends State<ActiveTripScreen> {
     required Color color,
   }) {
     return Row(
+      mainAxisSize: MainAxisSize.min,
       children: [
         Container(
-          width: 28,
-          height: 28,
+          width: 22,
+          height: 22,
           decoration: BoxDecoration(
             color: isCompleted
                 ? SanctuaryColors.optimalGreen
                 : isActive
-                    ? SanctuaryColors.crimsonRose
+                    ? (title == 'ER Bay' ? const Color(0xFF1D4ED8) : SanctuaryColors.crimsonRose)
                     : const Color(0xFFF1F5F9),
             shape: BoxShape.circle,
             border: Border.all(
@@ -318,58 +425,54 @@ class _ActiveTripScreenState extends State<ActiveTripScreen> {
           ),
           child: Center(
             child: icon != null
-                ? Icon(icon, color: Colors.white, size: 15)
+                ? Icon(icon, color: Colors.white, size: 12)
                 : Text(
                     stepNumber,
                     style: TextStyle(
                       color: isCompleted || isActive ? Colors.white : SanctuaryColors.textMuted,
                       fontWeight: FontWeight.bold,
-                      fontSize: 12,
+                      fontSize: 10.5,
                     ),
                   ),
           ),
         ),
-        const SizedBox(width: 8),
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                if (isActive)
-                  Container(
-                    width: 5,
-                    height: 5,
-                    margin: const EdgeInsets.only(right: 3),
-                    decoration: const BoxDecoration(
-                      color: SanctuaryColors.crimsonRose,
-                      shape: BoxShape.circle,
-                    ),
-                  ),
-                Text(
-                  title,
-                  style: SanctuaryTypography.labelSm(
-                    color: isActive ? SanctuaryColors.crimsonRose : SanctuaryColors.deepSlateNavy,
-                  ).copyWith(fontSize: 11),
+        const SizedBox(width: 4),
+        Flexible(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                title,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  color: isActive
+                      ? (title == 'ER Bay' ? const Color(0xFF1D4ED8) : SanctuaryColors.crimsonRose)
+                      : (isCompleted ? SanctuaryColors.optimalGreen : SanctuaryColors.deepSlateNavy),
+                  fontWeight: FontWeight.w800,
+                  fontSize: 10,
                 ),
-              ],
-            ),
-            Text(
-              subtitle,
-              style: SanctuaryTypography.bodySm(color: SanctuaryColors.textSecondary).copyWith(fontSize: 10),
-            ),
-          ],
+              ),
+              Text(
+                subtitle,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(color: SanctuaryColors.textSecondary, fontSize: 8.5),
+              ),
+            ],
+          ),
         ),
       ],
     );
   }
 
   Widget _buildStepDivider({required bool isCompleted}) {
-    return Expanded(
-      child: Container(
-        height: 1.5,
-        margin: const EdgeInsets.symmetric(horizontal: 6),
-        color: isCompleted ? SanctuaryColors.optimalGreen : SanctuaryColors.hairlineBorder,
-      ),
+    return Container(
+      width: 8,
+      height: 1.5,
+      margin: const EdgeInsets.symmetric(horizontal: 2),
+      color: isCompleted ? SanctuaryColors.optimalGreen : SanctuaryColors.hairlineBorder,
     );
   }
 
@@ -561,11 +664,14 @@ class _ActiveTripScreenState extends State<ActiveTripScreen> {
                   children: [
                     Row(
                       children: [
-                        Text(
-                          req.patientName,
-                          style: SanctuaryTypography.headlineSm(color: SanctuaryColors.deepSlateNavy).copyWith(
-                            fontWeight: FontWeight.w800,
-                            fontSize: 18,
+                        Flexible(
+                          child: Text(
+                            req.patientName,
+                            style: SanctuaryTypography.headlineSm(color: SanctuaryColors.deepSlateNavy).copyWith(
+                              fontWeight: FontWeight.w800,
+                              fontSize: 18,
+                            ),
+                            overflow: TextOverflow.ellipsis,
                           ),
                         ),
                         const SizedBox(width: 8),
@@ -696,32 +802,42 @@ class _ActiveTripScreenState extends State<ActiveTripScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Row(
-                children: [
-                  const Icon(Icons.watch_outlined, size: 14, color: SanctuaryColors.primaryTeal),
-                  const SizedBox(width: 4),
-                  Text(
-                    'LIVE WEARABLE TELEMETRY',
-                    style: SanctuaryTypography.labelSm(color: SanctuaryColors.primaryTeal).copyWith(
-                      fontSize: 10.5,
-                      letterSpacing: 0.3,
+              Flexible(
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(Icons.watch_outlined, size: 14, color: SanctuaryColors.primaryTeal),
+                    const SizedBox(width: 4),
+                    Text(
+                      'LIVE WEARABLE TELEMETRY',
+                      style: SanctuaryTypography.labelSm(color: SanctuaryColors.primaryTeal).copyWith(
+                        fontSize: 10,
+                        letterSpacing: 0.3,
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-              Row(
-                children: [
-                  Container(
-                    width: 6,
-                    height: 6,
-                    decoration: const BoxDecoration(color: SanctuaryColors.optimalGreen, shape: BoxShape.circle),
-                  ),
-                  const SizedBox(width: 4),
-                  Text(
-                    '${req.wearableDevice} • Live Synced',
-                    style: SanctuaryTypography.bodySm(color: SanctuaryColors.textSecondary).copyWith(fontSize: 10.5),
-                  ),
-                ],
+              const SizedBox(width: 6),
+              Flexible(
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      width: 6,
+                      height: 6,
+                      decoration: const BoxDecoration(color: SanctuaryColors.optimalGreen, shape: BoxShape.circle),
+                    ),
+                    const SizedBox(width: 4),
+                    Flexible(
+                      child: Text(
+                        '${req.wearableDevice} • Live Synced',
+                        overflow: TextOverflow.ellipsis,
+                        style: SanctuaryTypography.bodySm(color: SanctuaryColors.textSecondary).copyWith(fontSize: 10),
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ],
           ),
@@ -1008,28 +1124,48 @@ class _ActiveTripScreenState extends State<ActiveTripScreen> {
         children: [
           SizedBox(
             width: double.infinity,
-            height: 54,
+            height: 52,
             child: ElevatedButton.icon(
-              onPressed: () {
+              onPressed: () async {
                 final req = widget.request;
                 if (req != null) {
                   if (currentStep == 2) {
                     setState(() => currentStep = 3);
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Status: Ambulance Arrived at Pickup Scene!'),
-                        backgroundColor: Color(0xFF15803D),
-                      ),
+                    await _dispatchService.updateMilestone(
+                      req.id,
+                      status: 'EN_ROUTE',
+                      latitude: req.driverLatitude ?? req.latitude,
+                      longitude: req.driverLongitude ?? req.longitude,
                     );
+                    if (mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('✓ Ambulance Arrived at Pickup Scene! Real-time update sent to Patient.'),
+                          backgroundColor: Color(0xFF15803D),
+                        ),
+                      );
+                    }
                   } else if (currentStep == 3) {
                     setState(() => currentStep = 4);
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Status: Patient on Board • Green Corridor Rush to Hospital'),
-                        backgroundColor: Color(0xFF1D4ED8),
-                      ),
+                    await _dispatchService.updateMilestone(
+                      req.id,
+                      status: 'PATIENT_ON_BOARD',
+                      destinationHospitalName: req.receivingHospital,
                     );
+                    if (mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text('✓ Patient on Board! Green Corridor rushing to ${req.receivingHospital}.'),
+                          backgroundColor: const Color(0xFF1D4ED8),
+                        ),
+                      );
+                    }
                   } else {
+                    await _dispatchService.updateMilestone(
+                      req.id,
+                      status: 'REACHED_HOSPITAL',
+                      destinationHospitalName: req.receivingHospital,
+                    );
                     widget.onOpenHandoverReport();
                   }
                 } else {
@@ -1050,12 +1186,14 @@ class _ActiveTripScreenState extends State<ActiveTripScreen> {
                     ? 'CONFIRM: ARRIVED AT PICKUP SCENE'
                     : currentStep == 3
                         ? 'CONFIRM: PATIENT ON BOARD • RUSH TO HOSPITAL'
-                        : 'OPEN CLINICAL HANDOVER REPORT',
+                        : 'ARRIVED AT HOSPITAL • OPEN HANDOVER REPORT',
                 textAlign: TextAlign.center,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
                 style: const TextStyle(
                   color: Colors.white,
                   fontWeight: FontWeight.w800,
-                  fontSize: 13,
+                  fontSize: 12.5,
                   letterSpacing: 0.3,
                 ),
               ),
@@ -1076,7 +1214,7 @@ class _ActiveTripScreenState extends State<ActiveTripScreen> {
                 ? 'Step 1 of 3: Signals arrival at incident site to patient & hospital'
                 : currentStep == 3
                     ? 'Step 2 of 3: Engages emergency trauma bay preparation'
-                    : 'Step 3 of 3: Finalizes digital clinical handover report',
+                    : 'Step 3 of 3: Finalizes digital clinical handover report & mission completion',
             style: SanctuaryTypography.bodySm(color: SanctuaryColors.textMuted).copyWith(fontSize: 10.5),
           ),
         ],

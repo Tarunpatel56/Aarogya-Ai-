@@ -672,16 +672,20 @@ class _RequestsQueueScreenState extends State<RequestsQueueScreen>
                   ),
                 ),
                 const SizedBox(width: 6),
-                Text(
-                  req.isCritical ? 'CRITICAL TIER 1 • IMMEDIATE DISPATCH' : 'TIER 2 • URGENT EMERGENCY',
-                  style: TextStyle(
-                    color: req.isCritical ? SanctuaryColors.crimsonRose : SanctuaryColors.optimalGreen,
-                    fontWeight: FontWeight.w900,
-                    fontSize: 11,
-                    letterSpacing: 0.4,
+                Expanded(
+                  child: Text(
+                    req.isCritical ? 'CRITICAL TIER 1 • IMMEDIATE DISPATCH' : 'TIER 2 • URGENT EMERGENCY',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      color: req.isCritical ? SanctuaryColors.crimsonRose : SanctuaryColors.optimalGreen,
+                      fontWeight: FontWeight.w900,
+                      fontSize: 11,
+                      letterSpacing: 0.4,
+                    ),
                   ),
                 ),
-                const Spacer(),
+                const SizedBox(width: 6),
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                   decoration: BoxDecoration(
@@ -719,13 +723,15 @@ class _RequestsQueueScreenState extends State<RequestsQueueScreen>
                             ),
                           ),
                           const SizedBox(height: 2),
-                          Row(
+                          Wrap(
+                            spacing: 6,
+                            runSpacing: 4,
+                            crossAxisAlignment: WrapCrossAlignment.center,
                             children: [
                               Text(
                                 '${req.patientGender}, ${req.patientAge}y',
                                 style: const TextStyle(fontSize: 11.5, color: SanctuaryColors.textSecondary, fontWeight: FontWeight.w600),
                               ),
-                              const SizedBox(width: 8),
                               Container(
                                 padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
                                 decoration: BoxDecoration(
@@ -737,8 +743,7 @@ class _RequestsQueueScreenState extends State<RequestsQueueScreen>
                                   style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Color(0xFF1D4ED8)),
                                 ),
                               ),
-                              if (req.allergyName != 'None' && req.allergyName != 'None reported') ...[
-                                const SizedBox(width: 6),
+                              if (req.allergyName != 'None' && req.allergyName != 'None reported')
                                 Container(
                                   padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
                                   decoration: BoxDecoration(
@@ -750,7 +755,6 @@ class _RequestsQueueScreenState extends State<RequestsQueueScreen>
                                     style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Color(0xFFDC2626)),
                                   ),
                                 ),
-                              ],
                             ],
                           ),
                         ],
@@ -789,19 +793,30 @@ class _RequestsQueueScreenState extends State<RequestsQueueScreen>
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Row(
-                            children: [
-                              const Icon(Icons.watch_outlined, color: Color(0xFF38BDF8), size: 14),
-                              const SizedBox(width: 4),
-                              Text(
-                                req.wearableDevice,
-                                style: const TextStyle(color: Color(0xFF38BDF8), fontSize: 10, fontWeight: FontWeight.bold),
-                              ),
-                            ],
+                          Flexible(
+                            child: Row(
+                              children: [
+                                const Icon(Icons.watch_outlined, color: Color(0xFF38BDF8), size: 14),
+                                const SizedBox(width: 4),
+                                Flexible(
+                                  child: Text(
+                                    req.wearableDevice,
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: const TextStyle(color: Color(0xFF38BDF8), fontSize: 10, fontWeight: FontWeight.bold),
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
-                          Text(
-                            'ECG: ${req.ecgObservation}',
-                            style: const TextStyle(color: Colors.white70, fontSize: 10),
+                          const SizedBox(width: 6),
+                          Flexible(
+                            child: Text(
+                              'ECG: ${req.ecgObservation}',
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(color: Colors.white70, fontSize: 10),
+                            ),
                           ),
                         ],
                       ),

@@ -248,38 +248,78 @@ class _MiniNavigationMapViewState extends State<MiniNavigationMapView>
               ),
             ),
 
-            // Bottom Strobe Beacon Pill
+            // Bottom Telemetry & Strobe Bar (Combined & Overflow Safe)
             Positioned(
-              bottom: 10,
-              right: 14,
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
-                decoration: BoxDecoration(
-                  color: const Color(0xCC0A1120),
-                  borderRadius: BorderRadius.circular(20),
-                  border: Border.all(color: const Color(0x4010B981)),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Container(
-                      width: 6,
-                      height: 6,
-                      decoration: const BoxDecoration(
-                        color: Color(0xFF34D399),
-                        shape: BoxShape.circle,
+              bottom: 8,
+              left: 10,
+              right: 10,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  // Live GPS Coordinates Pill
+                  Flexible(
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: const Color(0xEB0A1120),
+                        borderRadius: BorderRadius.circular(20),
+                        border: Border.all(color: const Color(0x5038BDF8)),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Icon(Icons.satellite_alt_rounded, color: Color(0xFF38BDF8), size: 12),
+                          const SizedBox(width: 4),
+                          Flexible(
+                            child: Text(
+                              'GPS: ${(widget.latitude ?? 28.5672).toStringAsFixed(4)}°, ${(widget.longitude ?? 77.2100).toStringAsFixed(4)}°',
+                              overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(
+                                color: Color(0xFF38BDF8),
+                                fontSize: 9.5,
+                                fontWeight: FontWeight.bold,
+                                letterSpacing: 0.2,
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                    const SizedBox(width: 6),
-                    Text(
-                      'Strobe Beacon Transmitting',
-                      style: SanctuaryTypography.labelSm(color: const Color(0xFF34D399)).copyWith(
-                        fontSize: 9,
-                        letterSpacing: 0.2,
-                      ),
+                  ),
+                  const SizedBox(width: 8),
+
+                  // Strobe Beacon Pill
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: const Color(0xEB0A1120),
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(color: const Color(0x4010B981)),
                     ),
-                  ],
-                ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Container(
+                          width: 6,
+                          height: 6,
+                          decoration: const BoxDecoration(
+                            color: Color(0xFF34D399),
+                            shape: BoxShape.circle,
+                          ),
+                        ),
+                        const SizedBox(width: 5),
+                        Text(
+                          'Strobe Active',
+                          style: SanctuaryTypography.labelSm(color: const Color(0xFF34D399)).copyWith(
+                            fontSize: 9,
+                            fontWeight: FontWeight.bold,
+                            letterSpacing: 0.2,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
               ),
             ),
           ],

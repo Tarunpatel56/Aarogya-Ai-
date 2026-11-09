@@ -86,37 +86,41 @@ class _HandoverReportScreenState extends State<HandoverReportScreen> {
         children: [
           const Icon(Icons.emergency_outlined, color: SanctuaryColors.crimsonRose, size: 20),
           const SizedBox(width: 6),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Aarogya Rapid',
-                style: SanctuaryTypography.headlineSm(color: SanctuaryColors.deepSlateNavy).copyWith(
-                  fontWeight: FontWeight.w800,
-                  fontSize: 15,
+          Flexible(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Aarogya Rapid',
+                  style: SanctuaryTypography.headlineSm(color: SanctuaryColors.deepSlateNavy).copyWith(
+                    fontWeight: FontWeight.w800,
+                    fontSize: 15,
+                  ),
+                  overflow: TextOverflow.ellipsis,
                 ),
-              ),
-              Text(
-                'Incident #${widget.request.id}',
-                style: SanctuaryTypography.bodySm(color: SanctuaryColors.textSecondary).copyWith(fontSize: 10),
-              ),
-            ],
+                Text(
+                  'Incident #${widget.request.id}',
+                  style: SanctuaryTypography.bodySm(color: SanctuaryColors.textSecondary).copyWith(fontSize: 10),
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ],
+            ),
           ),
         ],
       ),
       actions: [
         Container(
-          margin: const EdgeInsets.symmetric(vertical: 12, horizontal: 12),
+          margin: const EdgeInsets.symmetric(vertical: 12, horizontal: 10),
           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
           decoration: BoxDecoration(
-            color: SanctuaryColors.errorWash,
+            color: SanctuaryColors.optimalGreenBg,
             borderRadius: SanctuaryRadius.rFull,
-            border: Border.all(color: SanctuaryColors.errorBorder),
+            border: Border.all(color: SanctuaryColors.optimalGreenBorder),
           ),
           child: const Text(
-            'PATIENT RESCUE/HANDOVER REPORT',
+            'HANDOVER REPORT',
             style: TextStyle(
-              color: SanctuaryColors.crimsonRose,
+              color: SanctuaryColors.optimalGreen,
               fontWeight: FontWeight.w800,
               fontSize: 9.5,
               letterSpacing: 0.3,
@@ -800,13 +804,24 @@ class _HandoverReportScreenState extends State<HandoverReportScreen> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(med.name, style: const TextStyle(color: SanctuaryColors.deepSlateNavy, fontWeight: FontWeight.bold, fontSize: 12)),
-                        Text(med.timing, style: const TextStyle(color: SanctuaryColors.textSecondary, fontSize: 10.5)),
-                      ],
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            med.name,
+                            style: const TextStyle(color: SanctuaryColors.deepSlateNavy, fontWeight: FontWeight.bold, fontSize: 12),
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          Text(
+                            med.timing,
+                            style: const TextStyle(color: SanctuaryColors.textSecondary, fontSize: 10.5),
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ],
+                      ),
                     ),
+                    const SizedBox(width: 8),
                     Text(
                       med.category,
                       style: const TextStyle(color: SanctuaryColors.primaryTeal, fontWeight: FontWeight.w600, fontSize: 11),
@@ -998,35 +1013,151 @@ class _HandoverReportScreenState extends State<HandoverReportScreen> {
     );
   }
 
+  void _showMissionAccomplishedDialog(EmergencyRequest req) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        contentPadding: const EdgeInsets.all(20),
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Celebratory Green Checkmark Badge
+              Container(
+                width: 72,
+                height: 72,
+                decoration: BoxDecoration(
+                  color: const Color(0xFFDCFCE7),
+                  shape: BoxShape.circle,
+                  boxShadow: [
+                    BoxShadow(
+                      color: const Color(0xFF16A34A).withValues(alpha: 0.28),
+                      blurRadius: 18,
+                      spreadRadius: 2,
+                    ),
+                  ],
+                ),
+                child: const Icon(Icons.check_circle_rounded, color: Color(0xFF16A34A), size: 48),
+              ),
+              const SizedBox(height: 16),
+              const Text(
+                '🎉 Emergency Mission Accomplished!',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontWeight: FontWeight.w900,
+                  fontSize: 17.5,
+                  color: SanctuaryColors.deepSlateNavy,
+                ),
+              ),
+              const SizedBox(height: 6),
+              const Text(
+                'Thank you for your life-saving service! Patient has been safely handed over to the ER Trauma Team.',
+                textAlign: TextAlign.center,
+                style: TextStyle(fontSize: 12, color: SanctuaryColors.textSecondary, height: 1.4),
+              ),
+              const SizedBox(height: 16),
+
+              // Summary Details Box
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF8FAFC),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: SanctuaryColors.hairlineBorder),
+                ),
+                child: Column(
+                  children: [
+                    _buildDialogRow('Patient Name:', '${req.patientName} (${req.patientGender}, ${req.patientAge}y)'),
+                    const SizedBox(height: 6),
+                    _buildDialogRow('Blood Group:', req.bloodGroup),
+                    const SizedBox(height: 6),
+                    _buildDialogRow('Receiving ER:', '${req.receivingHospital} • ${req.hospitalBay}'),
+                    const SizedBox(height: 6),
+                    _buildDialogRow('Doctor in Charge:', req.assignedDoctor),
+                    const SizedBox(height: 6),
+                    _buildDialogRow('Vitals Synced:', 'HR: ${req.heartRate} bpm • SpO2: ${req.spo2}%'),
+                    const SizedBox(height: 6),
+                    _buildDialogRow('ABDM Handover:', '✓ Signed & Cryptographically Encrypted'),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 20),
+
+              // Big Action Button: READY FOR NEXT ORDER
+              SizedBox(
+                width: double.infinity,
+                height: 50,
+                child: ElevatedButton.icon(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF16A34A),
+                    foregroundColor: Colors.white,
+                    elevation: 0,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  ),
+                  onPressed: () {
+                    Navigator.of(ctx).pop();
+                    widget.onFinishTrip();
+                  },
+                  icon: const Icon(Icons.radar_rounded, size: 20),
+                  label: const Text(
+                    'READY FOR NEXT ORDER / STANDBY',
+                    style: TextStyle(fontWeight: FontWeight.w900, fontSize: 13, letterSpacing: 0.3),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDialogRow(String label, String value) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 11, color: SanctuaryColors.textMuted),
+        ),
+        const SizedBox(width: 8),
+        Expanded(
+          child: Text(
+            value,
+            textAlign: TextAlign.right,
+            style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 11, color: SanctuaryColors.deepSlateNavy),
+          ),
+        ),
+      ],
+    );
+  }
+
   Widget _buildHandoverActionButtons() {
+    final req = widget.request;
     return Column(
       children: [
         SizedBox(
           width: double.infinity,
-          height: 50,
+          height: 52,
           child: ElevatedButton.icon(
-            onPressed: () {
-              setState(() {
-                isTransmitted = true;
-              });
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Handover successfully transmitted to Apollo Emergency Bay!'),
-                  backgroundColor: SanctuaryColors.primaryTeal,
-                ),
-              );
-            },
-            icon: const Icon(Icons.local_hospital, color: Colors.white, size: 18),
-            label: Text(
-              isTransmitted ? '✓ HANDOVER TRANSMITTED TO HOSPITAL' : 'Trans. ARRIVED AT HOSPITAL (ER Bay Reserved)',
-              style: const TextStyle(
+            onPressed: () => _showMissionAccomplishedDialog(req),
+            icon: const Icon(Icons.check_circle_outline_rounded, color: Colors.white, size: 20),
+            label: const Text(
+              'COMPLETE RESCUE & HANDOVER TO HOSPITAL',
+              textAlign: TextAlign.center,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
                 color: Colors.white,
                 fontWeight: FontWeight.w800,
                 fontSize: 12.5,
+                letterSpacing: 0.3,
               ),
             ),
             style: ElevatedButton.styleFrom(
-              backgroundColor: isTransmitted ? SanctuaryColors.optimalGreen : const Color(0xFF00685F),
+              backgroundColor: const Color(0xFF16A34A),
               elevation: 0,
               shape: RoundedRectangleBorder(borderRadius: SanctuaryRadius.rBase),
             ),
@@ -1038,14 +1169,20 @@ class _HandoverReportScreenState extends State<HandoverReportScreen> {
           height: 44,
           child: OutlinedButton.icon(
             onPressed: () {
+              setState(() {
+                isTransmitted = true;
+              });
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Printing & transmitting encrypted ABDM Handover sheet...')),
+                const SnackBar(
+                  content: Text('ABDM Handover sheet transmitted to Hospital ER & printed!'),
+                  backgroundColor: SanctuaryColors.primaryTeal,
+                ),
               );
             },
             icon: const Icon(Icons.print_outlined, size: 17, color: SanctuaryColors.deepSlateNavy),
-            label: const Text(
-              'Print / Transmit Handover Sheet',
-              style: TextStyle(color: SanctuaryColors.deepSlateNavy, fontSize: 12.5, fontWeight: FontWeight.w700),
+            label: Text(
+              isTransmitted ? '✓ Handover Sheet Transmitted' : 'Print / Transmit Handover Sheet',
+              style: const TextStyle(color: SanctuaryColors.deepSlateNavy, fontSize: 12.5, fontWeight: FontWeight.w700),
             ),
             style: OutlinedButton.styleFrom(
               side: const BorderSide(color: SanctuaryColors.hairlineBorder),
