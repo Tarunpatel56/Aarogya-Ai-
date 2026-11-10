@@ -129,7 +129,7 @@ class _EyeAnalysisScreenState extends State<EyeAnalysisScreen> {
       backgroundColor: AppColors.scaffoldBg,
       appBar: AppBar(
         title: Text(
-          _isHindi ? 'नेत्र रोग विश्लेषण' : 'Ocular & Eye Disease Analysis',
+          _isHindi ? 'नेत्र रोग विश्लेषण' : 'Eye Disease AI',
           style: const TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
         ),
         backgroundColor: Colors.white,

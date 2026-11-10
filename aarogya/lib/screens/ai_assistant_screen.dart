@@ -258,6 +258,9 @@ class _AIAssistantScreenState extends State<AIAssistantScreen> {
                       child: Row(
                         children: [
                           Container(
+                            constraints: BoxConstraints(
+                              maxWidth: MediaQuery.of(context).size.width * 0.82,
+                            ),
                             padding: const EdgeInsets.symmetric(
                               horizontal: 14,
                               vertical: 10,
@@ -282,13 +285,16 @@ class _AIAssistantScreenState extends State<AIAssistantScreen> {
                                   ),
                                 ),
                                 const SizedBox(width: 8),
-                                Text(
-                                  _isHindi
-                                      ? 'आरोग्य एआई उत्तर तैयार कर रहा है...'
-                                      : 'Aarogya AI is thinking...',
-                                  style: const TextStyle(
-                                    fontSize: 11.5,
-                                    color: AppColors.textSecondary,
+                                Flexible(
+                                  child: Text(
+                                    _isHindi
+                                        ? 'आरोग्य एआई उत्तर तैयार कर रहा है...'
+                                        : 'Aarogya AI is thinking...',
+                                    overflow: TextOverflow.ellipsis,
+                                    style: const TextStyle(
+                                      fontSize: 11.5,
+                                      color: AppColors.textSecondary,
+                                    ),
                                   ),
                                 ),
                               ],
@@ -717,7 +723,11 @@ class _AIAssistantScreenState extends State<AIAssistantScreen> {
                   const SizedBox(height: 12),
                   const Divider(height: 1),
                   const SizedBox(height: 8),
-                  Row(
+                  Wrap(
+                    alignment: WrapAlignment.spaceBetween,
+                    crossAxisAlignment: WrapCrossAlignment.center,
+                    spacing: 8,
+                    runSpacing: 6,
                     children: [
                       GestureDetector(
                         onTap: () {
@@ -736,7 +746,7 @@ class _AIAssistantScreenState extends State<AIAssistantScreen> {
                         },
                         child: Container(
                           padding: const EdgeInsets.symmetric(
-                            horizontal: 10,
+                            horizontal: 8,
                             vertical: 4,
                           ),
                           decoration: BoxDecoration(
@@ -756,8 +766,8 @@ class _AIAssistantScreenState extends State<AIAssistantScreen> {
                               const SizedBox(width: 4),
                               Text(
                                 _playingAudioMessageId == (msg['id']?.toString() ?? 'guidance')
-                                    ? 'Playing (0:08)'
-                                    : 'Listen (${_isHindi ? 'Hindi' : 'English'} • 0:14)',
+                                    ? 'Playing'
+                                    : (_isHindi ? 'सुनें (Audio)' : 'Listen (Audio)'),
                                 style: const TextStyle(
                                   fontSize: 11,
                                   fontWeight: FontWeight.w600,
@@ -768,56 +778,60 @@ class _AIAssistantScreenState extends State<AIAssistantScreen> {
                           ),
                         ),
                       ),
-                      const Spacer(),
-                      IconButton(
-                        icon: const Icon(
-                          Icons.translate_rounded,
-                          size: 18,
-                          color: AppColors.textSecondary,
-                        ),
-                        padding: EdgeInsets.zero,
-                        constraints: const BoxConstraints(),
-                        onPressed: () {
-                          setState(() {
-                            _isHindi = !_isHindi;
-                          });
-                        },
-                      ),
-                      const SizedBox(width: 12),
-                      IconButton(
-                        icon: Icon(
-                          _bookmarkedMessageIds.contains(msg['id']?.toString() ?? 'guidance')
-                              ? Icons.bookmark_rounded
-                              : Icons.bookmark_border_rounded,
-                          size: 18,
-                          color: _bookmarkedMessageIds.contains(msg['id']?.toString() ?? 'guidance')
-                              ? AppColors.primaryTeal
-                              : AppColors.textSecondary,
-                        ),
-                        padding: EdgeInsets.zero,
-                        constraints: const BoxConstraints(),
-                        onPressed: () {
-                          final msgId = msg['id']?.toString() ?? 'guidance';
-                          final isBookmarked = _bookmarkedMessageIds.contains(msgId);
-                          setState(() {
-                            if (isBookmarked) {
-                              _bookmarkedMessageIds.remove(msgId);
-                            } else {
-                              _bookmarkedMessageIds.add(msgId);
-                            }
-                          });
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text(
-                                !isBookmarked
-                                    ? 'Saved to health notes.'
-                                    : 'Removed bookmark.',
-                              ),
-                              backgroundColor: AppColors.primaryTeal,
-                              duration: const Duration(seconds: 1),
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          IconButton(
+                            icon: const Icon(
+                              Icons.translate_rounded,
+                              size: 18,
+                              color: AppColors.textSecondary,
                             ),
-                          );
-                        },
+                            padding: const EdgeInsets.all(4),
+                            constraints: const BoxConstraints(),
+                            onPressed: () {
+                              setState(() {
+                                _isHindi = !_isHindi;
+                              });
+                            },
+                          ),
+                          const SizedBox(width: 8),
+                          IconButton(
+                            icon: Icon(
+                              _bookmarkedMessageIds.contains(msg['id']?.toString() ?? 'guidance')
+                                  ? Icons.bookmark_rounded
+                                  : Icons.bookmark_border_rounded,
+                              size: 18,
+                              color: _bookmarkedMessageIds.contains(msg['id']?.toString() ?? 'guidance')
+                                  ? AppColors.primaryTeal
+                                  : AppColors.textSecondary,
+                            ),
+                            padding: const EdgeInsets.all(4),
+                            constraints: const BoxConstraints(),
+                            onPressed: () {
+                              final msgId = msg['id']?.toString() ?? 'guidance';
+                              final isBookmarked = _bookmarkedMessageIds.contains(msgId);
+                              setState(() {
+                                if (isBookmarked) {
+                                  _bookmarkedMessageIds.remove(msgId);
+                                } else {
+                                  _bookmarkedMessageIds.add(msgId);
+                                }
+                              });
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(
+                                    !isBookmarked
+                                        ? 'Saved to health notes.'
+                                        : 'Removed bookmark.',
+                                  ),
+                                  backgroundColor: AppColors.primaryTeal,
+                                  duration: const Duration(seconds: 1),
+                                ),
+                              );
+                            },
+                          ),
+                        ],
                       ),
                     ],
                   ),
@@ -1645,14 +1659,16 @@ class _AIAssistantScreenState extends State<AIAssistantScreen> {
                       const Icon(Icons.psychology_alt_outlined,
                           size: 14, color: Color(0xFF2563EB)),
                       const SizedBox(width: 6),
-                      Text(
-                        _isHindi
-                            ? 'लेने से शरीर में क्या असर होगा (How it acts):'
-                            : 'What Happens When Taken:',
-                        style: const TextStyle(
-                            fontSize: 11,
-                            fontWeight: FontWeight.bold,
-                            color: Color(0xFF1D4ED8)),
+                      Expanded(
+                        child: Text(
+                          _isHindi
+                              ? 'लेने से शरीर में क्या असर होगा (How it acts):'
+                              : 'What Happens When Taken:',
+                          style: const TextStyle(
+                              fontSize: 11,
+                              fontWeight: FontWeight.bold,
+                              color: Color(0xFF1D4ED8)),
+                        ),
                       ),
                     ],
                   ),

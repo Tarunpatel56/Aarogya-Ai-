@@ -8,14 +8,17 @@ class MediaPipePoseService {
   bool _isProcessingFrame = false;
   String _activeDelegate = 'NONE';
   int _lastInferenceTimeMs = 0;
+  String _lastError = '';
 
   bool get isInitialized => _isInitialized;
   String get activeDelegate => _activeDelegate;
   int get lastInferenceTimeMs => _lastInferenceTimeMs;
+  String get lastError => _lastError;
 
   /// Initializes MediaPipe Pose Landmarker Lite on device
   Future<bool> init({bool preferGpu = true, double minConfidence = 0.5}) async {
     try {
+      _lastError = '';
       final res = await _channel.invokeMethod<Map>('initPoseLandmarker', {
         'preferGpu': preferGpu,
         'minConfidence': minConfidence,
@@ -26,9 +29,11 @@ class MediaPipePoseService {
         _activeDelegate = res['delegate']?.toString() ?? 'CPU';
         return true;
       }
+      _lastError = res?['message']?.toString() ?? 'Failed to initialize pose landmarker.';
       return false;
     } catch (e) {
       _isInitialized = false;
+      _lastError = e.toString();
       return false;
     }
   }

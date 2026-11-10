@@ -129,7 +129,7 @@ class _BrainMriScreenState extends State<BrainMriScreen> {
       backgroundColor: AppColors.scaffoldBg,
       appBar: AppBar(
         title: Text(
-          _isHindi ? 'मस्तिष्क एमआरआई विश्लेषण' : 'Brain MRI Tumor Analysis',
+          _isHindi ? 'मस्तिष्क एमआरआई' : 'Brain MRI AI',
           style: const TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
         ),
         backgroundColor: Colors.white,
@@ -164,8 +164,6 @@ class _BrainMriScreenState extends State<BrainMriScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            _buildIntroductionCard(),
-            const SizedBox(height: 16),
             _buildImagePickerCard(),
             const SizedBox(height: 16),
             if (_isLoading) _buildLoadingCard(),
@@ -174,64 +172,6 @@ class _BrainMriScreenState extends State<BrainMriScreen> {
             const SizedBox(height: 24),
           ],
         ),
-      ),
-    );
-  }
-
-  Widget _buildIntroductionCard() {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.cardBorder),
-        boxShadow: AppColors.cardShadow,
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFE0F2F1),
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: const Icon(Icons.psychology_outlined, color: AppColors.primaryTeal, size: 24),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      _isHindi ? 'मस्तिष्क एमआरआई विश्लेषण' : 'Brain MRI Analysis',
-                      style: const TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.bold,
-                        color: AppColors.textPrimary,
-                      ),
-                    ),
-                    Text(
-                      _isHindi
-                          ? 'ग्लिओमा, मेनिन्जियोमा, पिट्यूटरी और सामान्य ऊतक का मूल्यांकन'
-                          : 'Evaluates Glioma, Meningioma, Pituitary, and Normal Tissue',
-                      style: const TextStyle(fontSize: 11.5, color: AppColors.textSecondary),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          Text(
-            _isHindi
-                ? 'तत्काल संगणकीय विश्लेषण प्राप्त करने के लिए अक्षीय (axial), धनु (sagittal) या कोरोनल T1/T2 एमआरआई स्कैन (PNG, JPEG, WebP 10 MB तक) अपलोड करें।'
-                : 'Upload an axial, sagittal, or coronal T1/T2 MRI brain scan (PNG, JPEG, WebP up to 10 MB) to obtain instant computational classification.',
-            style: const TextStyle(fontSize: 12.5, color: AppColors.textSecondary, height: 1.4),
-          ),
-        ],
       ),
     );
   }

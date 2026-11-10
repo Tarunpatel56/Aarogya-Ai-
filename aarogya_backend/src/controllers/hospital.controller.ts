@@ -290,16 +290,20 @@ export const hospitalController = {
                 : 0,
           };
         })
-        .filter((h) => h.distanceKm <= radiusKm)
         .sort((a, b) => a.distanceKm - b.distanceKm);
+
+      const withinRadius = mapped.filter((h) => h.distanceKm <= radiusKm);
+      const results = withinRadius.length > 0 ? withinRadius : mapped.slice(0, 10);
+      const isExpandedSearch = withinRadius.length === 0;
 
       res.status(200).json({
         success: true,
         data: {
-          count: mapped.length,
+          count: results.length,
           userCoordinates: { latitude: userLat, longitude: userLng },
           radiusKm,
-          hospitals: mapped,
+          isExpandedSearch,
+          hospitals: results,
         },
       });
     } catch (error) {

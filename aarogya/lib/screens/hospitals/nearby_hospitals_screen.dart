@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import '../../theme/app_theme.dart';
 import '../../models/hospital_model.dart';
 import '../../services/hospital_service.dart';
+import '../../services/device_location_service.dart';
 import '../../core/api/api_exception.dart';
 
 class NearbyHospitalsScreen extends StatefulWidget {
@@ -19,6 +21,7 @@ class _NearbyHospitalsScreenState extends State<NearbyHospitalsScreen> {
   List<HospitalModel> _filteredHospitals = [];
   bool _isLoading = true;
   String? _errorMessage;
+  DeviceLocation? _currentLocation;
 
   String _selectedFilter = 'ALL';
   final TextEditingController _searchController = TextEditingController();
@@ -43,10 +46,19 @@ class _NearbyHospitalsScreenState extends State<NearbyHospitalsScreen> {
     });
 
     try {
+      // 1. Fetch user's real live coordinates (Device GPS or IP Geolocation)
+      final loc = await DeviceLocationService.getCurrentLocation();
+      if (mounted) {
+        setState(() {
+          _currentLocation = loc;
+        });
+      }
+
+      // 2. Fetch verified hospitals ranked by proximity to user
       final list = await _service.getNearbyHospitals(
-        latitude: 28.5672,
-        longitude: 77.2100,
-        radiusKm: 30,
+        latitude: loc.latitude,
+        longitude: loc.longitude,
+        radiusKm: 50,
       );
 
       if (!mounted) return;
@@ -92,24 +104,46 @@ class _NearbyHospitalsScreenState extends State<NearbyHospitalsScreen> {
     });
   }
 
-  void _callHospital(HospitalModel hospital) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Dialing ${hospital.name} emergency: ${hospital.emergencyPhone}'),
-        backgroundColor: AppColors.primaryTeal,
-        duration: const Duration(seconds: 3),
-      ),
-    );
+  static const MethodChannel _platformChannel = MethodChannel('io.aarogya.mediapipe/pose');
+
+  Future<void> _callHospital(HospitalModel hospital) async {
+    final phone = hospital.emergencyPhone.isNotEmpty
+        ? hospital.emergencyPhone
+        : (hospital.contactPhone.isNotEmpty ? hospital.contactPhone : '108');
+
+    try {
+      await _platformChannel.invokeMethod('launchDialer', {'phoneNumber': phone});
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Dialing ${hospital.name} emergency: $phone'),
+            backgroundColor: const Color(0xFFDC2626),
+            duration: const Duration(seconds: 3),
+          ),
+        );
+      }
+    }
   }
 
-  void _openDirections(HospitalModel hospital) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Opening navigation to ${hospital.name} (${hospital.distanceKm ?? 0} km)'),
-        backgroundColor: const Color(0xFF1D4ED8),
-        duration: const Duration(seconds: 2),
-      ),
-    );
+  Future<void> _openDirections(HospitalModel hospital) async {
+    try {
+      await _platformChannel.invokeMethod('launchMapDirections', {
+        'latitude': hospital.latitude,
+        'longitude': hospital.longitude,
+        'label': hospital.name,
+      });
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Opening navigation to ${hospital.name} (${hospital.distanceKm ?? 0} km)'),
+            backgroundColor: const Color(0xFF1D4ED8),
+            duration: const Duration(seconds: 2),
+          ),
+        );
+      }
+    }
   }
 
   @override
@@ -131,6 +165,48 @@ class _NearbyHospitalsScreenState extends State<NearbyHospitalsScreen> {
       ),
       body: Column(
         children: [
+          // Live GPS Location Indicator Strip
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            color: const Color(0xFFF0FDF4),
+            child: Row(
+              children: [
+                const Icon(Icons.my_location_rounded, size: 15, color: Color(0xFF16A34A)),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    _currentLocation != null
+                        ? 'Near ${_currentLocation!.cityName} (${_currentLocation!.latitude.toStringAsFixed(3)}°, ${_currentLocation!.longitude.toStringAsFixed(3)}°) • Auto-Sorted by Proximity'
+                        : 'Detecting live location...',
+                    style: const TextStyle(
+                      fontSize: 11.5,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF15803D),
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+                InkWell(
+                  onTap: _loadHospitals,
+                  child: const Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                    child: Text(
+                      'GPS Sync',
+                      style: TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xFF16A34A),
+                        decoration: TextDecoration.underline,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const Divider(height: 1, color: Color(0xFFBBF7D0)),
+
           // Search & Filter Header
           Container(
             color: Colors.white,
@@ -394,7 +470,9 @@ class _NearbyHospitalsScreenState extends State<NearbyHospitalsScreen> {
                   onPressed: () => _callHospital(h),
                   icon: const Icon(Icons.call, size: 16, color: Color(0xFFDC2626)),
                   label: Text(
-                    'Emergency: ${h.emergencyPhone}',
+                    h.emergencyPhone.isNotEmpty
+                        ? 'Emergency: ${h.emergencyPhone}'
+                        : 'Call: ${h.contactPhone.isNotEmpty ? h.contactPhone : "108"}',
                     style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.bold, color: Color(0xFFDC2626)),
                     overflow: TextOverflow.ellipsis,
                   ),

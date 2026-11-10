@@ -129,7 +129,7 @@ class _SkinAnalysisScreenState extends State<SkinAnalysisScreen> {
       backgroundColor: AppColors.scaffoldBg,
       appBar: AppBar(
         title: Text(
-          _isHindi ? 'त्वचा विश्लेषण' : 'Dermatological Analysis',
+          _isHindi ? 'त्वचा विश्लेषण' : 'Skin Disease AI',
           style: const TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
         ),
         backgroundColor: Colors.white,
@@ -164,8 +164,6 @@ class _SkinAnalysisScreenState extends State<SkinAnalysisScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            _buildIntroductionCard(),
-            const SizedBox(height: 16),
             _buildImagePickerCard(),
             const SizedBox(height: 16),
             if (_isLoading) _buildLoadingCard(),
@@ -174,60 +172,6 @@ class _SkinAnalysisScreenState extends State<SkinAnalysisScreen> {
             const SizedBox(height: 24),
           ],
         ),
-      ),
-    );
-  }
-
-  Widget _buildIntroductionCard() {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.cardBorder),
-        boxShadow: AppColors.cardShadow,
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFFAF5FF),
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: const Icon(Icons.face_retouching_natural, color: Color(0xFF9333EA), size: 24),
-              ),
-              const SizedBox(width: 12),
-              const Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Dermatological AI Screening',
-                      style: TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.bold,
-                        color: AppColors.textPrimary,
-                      ),
-                    ),
-                    Text(
-                      'Identifies patterns for Eczema, Acne, Psoriasis, Vitiligo, etc.',
-                      style: TextStyle(fontSize: 11.5, color: AppColors.textSecondary),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          const Text(
-            'Upload a well-lit, focused macro photograph of the skin lesion or rash to receive preliminary pattern classification.',
-            style: TextStyle(fontSize: 12.5, color: AppColors.textSecondary, height: 1.4),
-          ),
-        ],
       ),
     );
   }

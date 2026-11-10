@@ -163,36 +163,48 @@ class _LivePoseExerciseScreenState extends State<LivePoseExerciseScreen> {
                       ],
                     ),
                   ),
-                  // Delegate Switcher Chip (GPU / CPU)
+                  // Delegate Switcher Pill (GPU / CPU)
                   Obx(
-                    () => ActionChip(
-                      backgroundColor: Colors.black54,
-                      side: BorderSide(
-                        color: poseCtrl.activeDelegate.value == 'GPU'
-                            ? const Color(0xFF00E676)
-                            : Colors.white30,
-                      ),
-                      labelPadding: const EdgeInsets.symmetric(horizontal: 4),
-                      avatar: Icon(
-                        poseCtrl.activeDelegate.value == 'GPU'
-                            ? Icons.bolt
-                            : Icons.memory,
-                        size: 14,
-                        color: poseCtrl.activeDelegate.value == 'GPU'
-                            ? const Color(0xFF00E676)
-                            : Colors.white70,
-                      ),
-                      label: Text(
-                        poseCtrl.activeDelegate.value,
-                        style: TextStyle(
-                          fontSize: 10.5,
-                          fontWeight: FontWeight.bold,
-                          color: poseCtrl.activeDelegate.value == 'GPU'
-                              ? const Color(0xFF00E676)
-                              : Colors.white70,
+                    () => InkWell(
+                      onTap: () => poseCtrl.toggleDelegate(),
+                      borderRadius: BorderRadius.circular(20),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
+                        decoration: BoxDecoration(
+                          color: Colors.black.withValues(alpha: 0.6),
+                          borderRadius: BorderRadius.circular(20),
+                          border: Border.all(
+                            color: poseCtrl.activeDelegate.value == 'GPU'
+                                ? const Color(0xFF00E676)
+                                : Colors.white24,
+                          ),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              poseCtrl.activeDelegate.value == 'GPU'
+                                  ? Icons.bolt
+                                  : Icons.memory,
+                              size: 13,
+                              color: poseCtrl.activeDelegate.value == 'GPU'
+                                  ? const Color(0xFF00E676)
+                                  : Colors.white70,
+                            ),
+                            const SizedBox(width: 4),
+                            Text(
+                              poseCtrl.activeDelegate.value,
+                              style: TextStyle(
+                                fontSize: 10,
+                                fontWeight: FontWeight.bold,
+                                color: poseCtrl.activeDelegate.value == 'GPU'
+                                    ? const Color(0xFF00E676)
+                                    : Colors.white70,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
-                      onPressed: () => poseCtrl.toggleDelegate(),
                     ),
                   ),
                   const SizedBox(width: 6),

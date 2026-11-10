@@ -40,7 +40,9 @@ class PoseEstimationController extends GetxController {
       isModelLoaded.value = true;
       activeDelegate.value = _poseService.activeDelegate;
     } else {
-      guidanceMessage.value = 'Error initializing pose engine.';
+      guidanceMessage.value = _poseService.lastError.isNotEmpty
+          ? 'Pose Error: ${_poseService.lastError}'
+          : 'Error initializing pose engine.';
       return;
     }
 

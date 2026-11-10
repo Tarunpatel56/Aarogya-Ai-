@@ -77,6 +77,11 @@ class _HealthMonitoringScreenState extends State<HealthMonitoringScreen> {
         timer.cancel();
         return;
       }
+      if (_bleWatchService.isConnected) {
+        // Mobile BLE is actively streaming live telemetry from the watch.
+        // Do not overwrite with laptop bridge!
+        return;
+      }
       if (_connectionState == WatchConnectionState.connected && !_isLoading) {
         _watchService.fetchTelemetry().catchError((_) => _telemetry ?? WatchTelemetryModel.disconnected());
       }
@@ -88,8 +93,10 @@ class _HealthMonitoringScreenState extends State<HealthMonitoringScreen> {
     if (mounted) {
       setState(() {
         _isPromptDismissed = _watchService.isPromptDismissed;
-        _connectionState = _watchService.connectionState;
-        _telemetry = _watchService.currentTelemetry;
+        _connectionState = _bleWatchService.isConnected
+            ? WatchConnectionState.connected
+            : _watchService.connectionState;
+        _telemetry = _bleWatchService.telemetryNotifier.value ?? _watchService.currentTelemetry;
       });
     }
   }
@@ -97,11 +104,13 @@ class _HealthMonitoringScreenState extends State<HealthMonitoringScreen> {
   void _onWatchStateChanged() {
     if (mounted) {
       setState(() {
-        _connectionState = _watchService.connectionState;
-        if (_connectionState == WatchConnectionState.connecting) {
-          _isLoading = true;
-        } else {
-          _isLoading = false;
+        if (!_bleWatchService.isConnected) {
+          _connectionState = _watchService.connectionState;
+          if (_connectionState == WatchConnectionState.connecting) {
+            _isLoading = true;
+          } else {
+            _isLoading = false;
+          }
         }
       });
     }
@@ -109,9 +118,11 @@ class _HealthMonitoringScreenState extends State<HealthMonitoringScreen> {
 
   void _onWatchTelemetryChanged() {
     if (mounted) {
-      setState(() {
-        _telemetry = _watchService.currentTelemetry;
-      });
+      if (!_bleWatchService.isConnected) {
+        setState(() {
+          _telemetry = _watchService.currentTelemetry;
+        });
+      }
     }
   }
 
@@ -138,6 +149,7 @@ class _HealthMonitoringScreenState extends State<HealthMonitoringScreen> {
           _connectionState = WatchConnectionState.connected;
           _isPromptDismissed = true;
           _isLoading = false;
+          _telemetry = _bleWatchService.telemetryNotifier.value ?? _telemetry;
         } else if (_bleWatchService.connectionStateNotifier.value == WatchConnectionState.connecting) {
           _isLoading = true;
         } else if (_bleWatchService.connectionStateNotifier.value == WatchConnectionState.disconnected) {

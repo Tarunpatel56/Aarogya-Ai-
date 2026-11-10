@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-import '../core/config/api_config.dart';
 import '../theme/app_theme.dart';
 import '../widgets/common_widgets.dart';
 import '../services/auth_service.dart';
@@ -250,186 +248,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  void _showServerHostDialog() {
-    final controller = TextEditingController(text: ApiConfig.baseUrl);
-    bool testing = false;
-    String? statusMessage;
-    bool isSuccess = false;
-
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (ctx) => StatefulBuilder(
-        builder: (context, setSheetState) => Padding(
-          padding: EdgeInsets.only(
-            bottom: MediaQuery.of(context).viewInsets.bottom,
-          ),
-          child: Container(
-            padding: const EdgeInsets.all(20),
-            decoration: const BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-            ),
-            child: Material(
-              color: Colors.transparent,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Center(
-                    child: Container(
-                      width: 40,
-                      height: 4,
-                      decoration: BoxDecoration(
-                        color: Colors.grey.shade300,
-                        borderRadius: BorderRadius.circular(2),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  Row(
-                    children: const [
-                      Icon(Icons.cloud_sync_outlined, color: AppColors.primaryTeal, size: 22),
-                      SizedBox(width: 8),
-                      Text(
-                        'Backend Server Host',
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w800,
-                          color: AppColors.textPrimary,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 4),
-                  const Text(
-                    'Connects phone to local PC backend over Wi-Fi or USB.',
-                    style: TextStyle(fontSize: 12, color: AppColors.textSecondary),
-                  ),
-                  const Divider(height: 24),
-                  TextField(
-                    controller: controller,
-                    decoration: InputDecoration(
-                      labelText: 'API Base URL',
-                      hintText: 'http://10.16.36.46:5000/api/v1',
-                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  if (statusMessage != null)
-                    Container(
-                      margin: const EdgeInsets.only(bottom: 12),
-                      padding: const EdgeInsets.all(10),
-                      decoration: BoxDecoration(
-                        color: isSuccess ? const Color(0xFFECFDF5) : const Color(0xFFFEF2F2),
-                        borderRadius: BorderRadius.circular(8),
-                        border: Border.all(
-                          color: isSuccess ? const Color(0xFFA7F3D0) : const Color(0xFFFCA5A5),
-                        ),
-                      ),
-                      child: Row(
-                        children: [
-                          Icon(
-                            isSuccess ? Icons.check_circle_outline : Icons.error_outline,
-                            size: 16,
-                            color: isSuccess ? const Color(0xFF059669) : const Color(0xFFDC2626),
-                          ),
-                          const SizedBox(width: 8),
-                          Expanded(
-                            child: Text(
-                              statusMessage!,
-                              style: TextStyle(
-                                fontSize: 11.5,
-                                color: isSuccess ? const Color(0xFF065F46) : const Color(0xFF991B1B),
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: OutlinedButton.icon(
-                          onPressed: testing
-                              ? null
-                              : () async {
-                                  setSheetState(() {
-                                    testing = true;
-                                    statusMessage = 'Probing candidate servers...';
-                                    isSuccess = false;
-                                  });
-                                  final detected = await ApiConfig.autoDetectBaseUrl();
-                                  setSheetState(() {
-                                    testing = false;
-                                    controller.text = detected;
-                                    statusMessage = 'Connected: $detected';
-                                    isSuccess = true;
-                                  });
-                                  setState(() {});
-                                },
-                          icon: const Icon(Icons.autorenew_rounded, size: 16),
-                          label: const Text('Auto-Detect', style: TextStyle(fontSize: 12)),
-                        ),
-                      ),
-                      const SizedBox(width: 10),
-                      Expanded(
-                        child: ElevatedButton.icon(
-                          onPressed: testing
-                              ? null
-                              : () async {
-                                  setSheetState(() {
-                                    testing = true;
-                                    statusMessage = 'Pinging host...';
-                                    isSuccess = false;
-                                  });
-                                  final url = controller.text.trim();
-                                  try {
-                                    final healthUri = Uri.parse(url.replaceAll('/api/v1', '/health'));
-                                    final res = await http.get(healthUri).timeout(const Duration(seconds: 3));
-                                    if (res.statusCode == 200) {
-                                      ApiConfig.setBaseUrl(url);
-                                      setSheetState(() {
-                                        testing = false;
-                                        statusMessage = 'Server online! Status: 200 OK';
-                                        isSuccess = true;
-                                      });
-                                      setState(() {});
-                                    } else {
-                                      setSheetState(() {
-                                        testing = false;
-                                        statusMessage = 'Server returned HTTP ${res.statusCode}';
-                                        isSuccess = false;
-                                      });
-                                    }
-                                  } catch (err) {
-                                    setSheetState(() {
-                                      testing = false;
-                                      statusMessage = 'Connection failed: $err';
-                                      isSuccess = false;
-                                    });
-                                  }
-                                },
-                          icon: const Icon(Icons.check_rounded, size: 16),
-                          label: const Text('Save & Test', style: TextStyle(fontSize: 12)),
-                          style: ElevatedButton.styleFrom(backgroundColor: AppColors.primaryTeal),
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 12),
-                ],
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
   void _handleLogout() async {
     final confirm = await showDialog<bool>(
       context: context,
@@ -448,7 +266,35 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
 
     if (confirm == true) {
-      await widget.authService?.logout();
+      final auth = widget.authService ?? AuthService();
+      await auth.logout();
+      if (!mounted) return;
+      Navigator.of(context).popUntil((route) => route.isFirst);
+    }
+  }
+
+  void _handleLogoutAll() async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Log Out Everywhere'),
+        content: const Text('This will terminate all active sessions across all devices.'),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Cancel')),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFDC2626)),
+            child: const Text('Log Out All', style: TextStyle(color: Colors.white)),
+          ),
+        ],
+      ),
+    );
+
+    if (confirm == true) {
+      final auth = widget.authService ?? AuthService();
+      await auth.logoutAll();
+      if (!mounted) return;
+      Navigator.of(context).popUntil((route) => route.isFirst);
     }
   }
 
@@ -810,33 +656,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ),
 
                     const SizedBox(height: 22),
-                    const Text('Backend & Server Connectivity', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: AppColors.textPrimary)),
-                    const SizedBox(height: 10),
-
-                    Material(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(14),
-                      clipBehavior: Clip.antiAlias,
-                      child: Container(
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(14),
-                          border: Border.all(color: AppColors.cardBorder),
-                          boxShadow: AppColors.cardShadow,
-                        ),
-                        child: ListTile(
-                          leading: const Icon(Icons.cloud_sync_outlined, color: AppColors.primaryTeal),
-                          title: const Text('Server Connection (LAN/Wi-Fi)', style: TextStyle(fontWeight: FontWeight.w600)),
-                          subtitle: Text(
-                            ApiConfig.baseUrl,
-                            style: const TextStyle(fontSize: 11.5, color: AppColors.textSecondary),
-                          ),
-                          trailing: const Icon(Icons.chevron_right, size: 18),
-                          onTap: _showServerHostDialog,
-                        ),
-                      ),
-                    ),
-
-                    const SizedBox(height: 22),
                     const Text('Account & Sessions', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: AppColors.textPrimary)),
                     const SizedBox(height: 10),
 
@@ -865,27 +684,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               title: const Text('Log Out Everywhere', style: TextStyle(fontWeight: FontWeight.w600, color: Color(0xFF991B1B))),
                               subtitle: const Text('Revoke all refresh tokens and sessions', style: TextStyle(fontSize: 11.5)),
                               trailing: const Icon(Icons.chevron_right, size: 18),
-                              onTap: () async {
-                              final confirm = await showDialog<bool>(
-                                context: context,
-                                builder: (ctx) => AlertDialog(
-                                  title: const Text('Log Out Everywhere'),
-                                  content: const Text('This will terminate all active sessions across all devices.'),
-                                  actions: [
-                                    TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Cancel')),
-                                    ElevatedButton(
-                                      onPressed: () => Navigator.pop(ctx, true),
-                                      style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFDC2626)),
-                                      child: const Text('Log Out All', style: TextStyle(color: Colors.white)),
-                                    ),
-                                  ],
-                                ),
-                              );
-                              if (confirm == true) {
-                                await widget.authService?.logoutAll();
-                              }
-                            },
-                          ),
+                              onTap: _handleLogoutAll,
+                            ),
                         ],
                       ),
                     ),

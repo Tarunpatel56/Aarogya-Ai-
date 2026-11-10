@@ -7,7 +7,7 @@ const router = Router();
 
 // 1. Specific static sub-paths first
 // Public / Authenticated nearby hospital directory with live verified ICU beds
-router.get('/nearby', authenticate, hospitalController.getNearbyHospitals);
+router.get('/nearby', hospitalController.getNearbyHospitals);
 
 // Gated strictly for HOSPITAL_ADMIN authority
 router.get('/me', authenticate, requireRoles(Role.HOSPITAL_ADMIN), hospitalController.getProfile);

@@ -47,24 +47,33 @@ class PoseLandmarkerManager(
         )
     }
 
+    private var lastInitErrorMessage: String? = null
+
     /**
      * Initializes PoseLandmarker with GPU delegate and automatic CPU fallback
      */
     fun setupPoseLandmarker(preferGpu: Boolean = true, minPoseDetectionConfidence: Float = 0.5f): Map<String, Any> {
         close()
+        lastInitErrorMessage = null
 
         val delegateToTry = if (preferGpu) Delegate.GPU else Delegate.CPU
         val success = tryInit(delegateToTry, minPoseDetectionConfidence)
 
         if (!success && preferGpu) {
             // Automatic graceful fallback to CPU
+            android.util.Log.w("MediaPipePose", "GPU delegate failed ($lastInitErrorMessage), falling back to CPU")
             val cpuSuccess = tryInit(Delegate.CPU, minPoseDetectionConfidence)
             if (!cpuSuccess) {
                 return mapOf(
                     "status" to "error",
-                    "message" to "Failed to initialize MediaPipe Pose Landmarker Lite on both GPU and CPU delegates."
+                    "message" to (lastInitErrorMessage ?: "Failed to initialize MediaPipe Pose Landmarker Lite on both GPU and CPU delegates.")
                 )
             }
+        } else if (!success) {
+            return mapOf(
+                "status" to "error",
+                "message" to (lastInitErrorMessage ?: "Failed to initialize MediaPipe Pose Landmarker Lite.")
+            )
         }
 
         return mapOf(
@@ -91,7 +100,9 @@ class PoseLandmarkerManager(
             poseLandmarker = PoseLandmarker.createFromOptions(context, optionsBuilder.build())
             activeDelegate = if (delegate == Delegate.GPU) "GPU" else "CPU"
             true
-        } catch (e: Exception) {
+        } catch (t: Throwable) {
+            lastInitErrorMessage = "${t.javaClass.simpleName}: ${t.message}"
+            android.util.Log.e("MediaPipePose", "tryInit failed for delegate $delegate: $lastInitErrorMessage", t)
             poseLandmarker = null
             false
         }

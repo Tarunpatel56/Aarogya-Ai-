@@ -1,6 +1,13 @@
 package com.example.aarogya
 
 import android.os.Bundle
+import android.content.Context
+import android.content.Intent
+import android.net.Uri
+import android.location.Location
+import android.location.LocationManager
+import android.content.pm.PackageManager
+import android.Manifest
 import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodChannel
@@ -78,6 +85,97 @@ class MainActivity : FlutterActivity() {
                 "closePoseLandmarker" -> {
                     poseManager?.close()
                     result.success(mapOf("status" to "closed"))
+                }
+
+                "getCurrentLocation" -> {
+                    try {
+                        val locationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
+                        var location: Location? = null
+
+                        if (checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED ||
+                            checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+                            
+                            val providers = locationManager.getProviders(true)
+                            for (provider in listOf(LocationManager.GPS_PROVIDER, LocationManager.NETWORK_PROVIDER, LocationManager.PASSIVE_PROVIDER)) {
+                                if (providers.contains(provider)) {
+                                    val loc = locationManager.getLastKnownLocation(provider)
+                                    if (loc != null && (location == null || loc.accuracy < location.accuracy)) {
+                                        location = loc
+                                    }
+                                }
+                            }
+                        }
+
+                        if (location != null) {
+                            result.success(mapOf(
+                                "status" to "success",
+                                "latitude" to location.latitude,
+                                "longitude" to location.longitude,
+                                "accuracy" to location.accuracy.toDouble()
+                            ))
+                        } else {
+                            result.success(mapOf(
+                                "status" to "unavailable"
+                            ))
+                        }
+                    } catch (e: Exception) {
+                        result.success(mapOf(
+                            "status" to "error",
+                            "message" to (e.message ?: "Location error")
+                        ))
+                    }
+                }
+
+                "launchDialer" -> {
+                    val phone = call.argument<String>("phoneNumber") ?: ""
+                    try {
+                        val dialIntent = Intent(Intent.ACTION_DIAL).apply {
+                            data = Uri.parse("tel:${phone.trim()}")
+                            flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                        }
+                        startActivity(dialIntent)
+                        result.success(true)
+                    } catch (e: Exception) {
+                        result.error("DIALER_ERROR", e.message ?: "Could not open dialer", null)
+                    }
+                }
+
+                "launchMapDirections" -> {
+                    val lat = call.argument<Double>("latitude") ?: 0.0
+                    val lng = call.argument<Double>("longitude") ?: 0.0
+                    val label = call.argument<String>("label") ?: "Hospital"
+                    try {
+                        // First attempt Google Maps navigation intent
+                        val navUri = Uri.parse("google.navigation:q=$lat,$lng")
+                        val navIntent = Intent(Intent.ACTION_VIEW, navUri).apply {
+                            setPackage("com.google.android.apps.maps")
+                            flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                        }
+                        startActivity(navIntent)
+                        result.success(true)
+                    } catch (e1: Exception) {
+                        try {
+                            // Fallback to geo: intent
+                            val geoUri = Uri.parse("geo:$lat,$lng?q=$lat,$lng($label)")
+                            val geoIntent = Intent(Intent.ACTION_VIEW, geoUri).apply {
+                                flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                            }
+                            startActivity(geoIntent)
+                            result.success(true)
+                        } catch (e2: Exception) {
+                            try {
+                                // Web Google Maps fallback
+                                val webUri = Uri.parse("https://www.google.com/maps/dir/?api=1&destination=$lat,$lng")
+                                val webIntent = Intent(Intent.ACTION_VIEW, webUri).apply {
+                                    flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                                }
+                                startActivity(webIntent)
+                                result.success(true)
+                            } catch (e3: Exception) {
+                                result.error("MAPS_ERROR", e3.message ?: "Could not launch maps", null)
+                            }
+                        }
+                    }
                 }
 
                 else -> {

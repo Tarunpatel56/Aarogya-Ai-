@@ -6,7 +6,7 @@ import 'screens/health_monitoring_screen.dart';
 import 'screens/ai_assistant_screen.dart';
 import 'screens/records_screen.dart';
 import 'screens/profile_screen.dart';
-// import 'screens/auth/patient_login_screen.dart';
+import 'screens/auth/patient_login_screen.dart';
 import 'core/config/api_config.dart';
 import 'services/auth_service.dart';
 import 'services/watch_service.dart';
@@ -52,8 +52,8 @@ class _AarogyaAiAppState extends State<AarogyaAiApp> {
       title: 'Aarogya AI 2.0',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.lightTheme,
-      // Auth commented out for now — navigate directly to Home screen
-      home: widget.home ?? MainNavigationShell(authService: _authService),
+      // Managed authentication gate with session persistence
+      home: widget.home ?? AuthGate(authService: _authService),
     );
   }
 }
@@ -68,6 +68,8 @@ class AuthGate extends StatefulWidget {
 }
 
 class _AuthGateState extends State<AuthGate> {
+  bool _isRestoring = true;
+
   @override
   void initState() {
     super.initState();
@@ -86,16 +88,19 @@ class _AuthGateState extends State<AuthGate> {
   }
 
   Future<void> _restore() async {
-    await widget.authService.restoreSession();
-    await WatchService().loadPreferences();
+    try {
+      await widget.authService.restoreSession();
+      await WatchService().loadPreferences();
+    } catch (_) {}
+    if (mounted) {
+      setState(() {
+        _isRestoring = false;
+      });
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    // Auth check commented out — navigate directly to Home screen
-    return MainNavigationShell(authService: widget.authService);
-
-    /*
     if (_isRestoring) {
       return Scaffold(
         backgroundColor: AppColors.scaffoldBg,
@@ -127,7 +132,6 @@ class _AuthGateState extends State<AuthGate> {
         setState(() {});
       },
     );
-    */
   }
 }
 
