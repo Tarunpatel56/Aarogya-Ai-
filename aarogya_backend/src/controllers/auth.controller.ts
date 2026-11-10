@@ -35,6 +35,12 @@ export const authController = {
       });
 
       if (existingUser) {
+        if (email && existingUser.email.toLowerCase() === email.toLowerCase()) {
+          throw new ConflictError(`Email '${email}' is already registered. Please sign in instead.`);
+        }
+        if (phone && existingUser.phone === phone) {
+          throw new ConflictError(`Phone number '${phone}' is already registered with another account. Please use a unique mobile number.`);
+        }
         throw new ConflictError('An account with this email or phone number already exists');
       }
 
@@ -131,6 +137,12 @@ export const authController = {
       });
 
       if (existingUser) {
+        if (email && existingUser.email.toLowerCase() === email.toLowerCase()) {
+          throw new ConflictError(`Email '${email}' is already registered. Please sign in instead.`);
+        }
+        if (effectivePhone && existingUser.phone === effectivePhone) {
+          throw new ConflictError(`Phone number '${effectivePhone}' is already registered with another account. Please use a unique mobile number.`);
+        }
         throw new ConflictError('An account with this email or phone number already exists');
       }
 
@@ -211,6 +223,12 @@ export const authController = {
       });
 
       if (existingUser) {
+        if (email && existingUser.email.toLowerCase() === email.toLowerCase()) {
+          throw new ConflictError(`Email '${email}' is already registered. Please sign in instead.`);
+        }
+        if (phone && existingUser.phone === phone) {
+          throw new ConflictError(`Phone number '${phone}' is already registered with another account. Please use a unique mobile number.`);
+        }
         throw new ConflictError('An account with this email or phone number already exists');
       }
 
@@ -300,6 +318,12 @@ export const authController = {
       });
 
       if (existingUser) {
+        if (email && existingUser.email.toLowerCase() === email.toLowerCase()) {
+          throw new ConflictError(`Email '${email}' is already registered. Please sign in instead.`);
+        }
+        if (phone && existingUser.phone === phone) {
+          throw new ConflictError(`Phone number '${phone}' is already registered with another account. Please use a unique mobile number.`);
+        }
         throw new ConflictError('An account with this email or phone number already exists');
       }
 
