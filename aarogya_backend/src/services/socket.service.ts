@@ -27,11 +27,9 @@ class SocketService {
       return this.io;
     }
 
-    const allowedOrigins = env.CORS_ORIGIN === '*' ? '*' : env.CORS_ORIGIN.split(',').map((o) => o.trim());
-
     this.io = new Server(httpServer, {
       cors: {
-        origin: allowedOrigins,
+        origin: (origin, callback) => callback(null, true),
         credentials: true,
         methods: ['GET', 'POST'],
       },

@@ -11,19 +11,37 @@ import { errorHandler } from './middleware/errorHandler';
 export function createApp(): Application {
   const app = express();
 
-  // Security headers middleware
-  app.use(helmet());
-
-  // CORS configuration
-  const allowedOrigins = env.CORS_ORIGIN === '*' ? '*' : env.CORS_ORIGIN.split(',').map((o) => o.trim());
+  // Security headers middleware configured for cross-origin web client compatibility
   app.use(
-    cors({
-      origin: allowedOrigins,
-      credentials: true,
-      methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-      allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+    helmet({
+      crossOriginResourcePolicy: { policy: 'cross-origin' },
+      crossOriginEmbedderPolicy: false,
     })
   );
+
+  // CORS configuration: Dynamically reflect origin to satisfy credentials + allow web clients on localhost / mobile
+  app.use(
+    cors({
+      origin: (origin, callback) => {
+        // Allow requests with no origin (curl, mobile apps) and all incoming web origins
+        callback(null, true);
+      },
+      credentials: true,
+      methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+      allowedHeaders: [
+        'Content-Type',
+        'Authorization',
+        'X-Requested-With',
+        'Accept',
+        'Origin',
+        'ngrok-skip-browser-warning',
+      ],
+      exposedHeaders: ['Content-Range', 'X-Content-Range'],
+    })
+  );
+
+  // Pre-flight handling for all routes
+  app.options('*', cors());
 
   // Request parsing middleware
   app.use(express.json({ limit: '10mb' }));

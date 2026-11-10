@@ -161,10 +161,10 @@ export const doctorController = {
           verificationStatus: { in: [VerificationStatus.VERIFIED, VerificationStatus.PENDING] },
           isActive: true,
         },
-        ...(specialization
+        ...(specialization && specialization !== 'All' && String(specialization).toLowerCase() !== 'all'
           ? {
               specialization: {
-                contains: specialization,
+                contains: String(specialization).trim(),
                 mode: 'insensitive',
               },
             }

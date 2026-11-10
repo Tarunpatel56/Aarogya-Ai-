@@ -18,7 +18,9 @@ class DoctorService {
       'limit': limit,
       'offset': offset,
     };
-    if (specialization != null && specialization.trim().isNotEmpty) {
+    if (specialization != null &&
+        specialization.trim().isNotEmpty &&
+        specialization.trim().toLowerCase() != 'all') {
       query['specialization'] = specialization.trim();
     }
     if (consultationMode != null && consultationMode.trim().isNotEmpty) {
