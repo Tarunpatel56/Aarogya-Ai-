@@ -40,10 +40,11 @@ class PoseEstimationController extends GetxController {
       isModelLoaded.value = true;
       activeDelegate.value = _poseService.activeDelegate;
     } else {
+      isModelLoaded.value = false;
+      activeDelegate.value = 'OFFLINE';
       guidanceMessage.value = _poseService.lastError.isNotEmpty
-          ? 'Pose Error: ${_poseService.lastError}'
-          : 'Error initializing pose engine.';
-      return;
+          ? 'Pose Engine Warning: ${_poseService.lastError}'
+          : 'Assisted Mode Active: Camera running.';
     }
 
     // 2. Initialize Camera
@@ -146,8 +147,18 @@ class PoseEstimationController extends GetxController {
   /// Toggle between GPU and CPU delegate on the fly
   Future<void> toggleDelegate() async {
     final nextPref = activeDelegate.value != 'GPU';
-    await _poseService.init(preferGpu: nextPref);
-    activeDelegate.value = _poseService.activeDelegate;
+    guidanceMessage.value = 'Switching pose engine to ${nextPref ? "GPU" : "CPU"}...';
+    final success = await _poseService.init(preferGpu: nextPref);
+    if (success) {
+      isModelLoaded.value = true;
+      activeDelegate.value = _poseService.activeDelegate;
+      guidanceMessage.value = 'Pose engine active on ${activeDelegate.value}.';
+    } else {
+      activeDelegate.value = _poseService.activeDelegate;
+      guidanceMessage.value = _poseService.lastError.isNotEmpty
+          ? 'Pose Error: ${_poseService.lastError}'
+          : 'Failed to initialize ${nextPref ? "GPU" : "CPU"} delegate.';
+    }
   }
 
   @override

@@ -24,7 +24,12 @@ android {
     }
 
     androidResources {
-        noCompress.add("task")
+        noCompress.addAll(listOf("task", "tflite"))
+    }
+
+    @Suppress("DEPRECATION")
+    aaptOptions {
+        noCompress("task", "tflite")
     }
 
     buildTypes {

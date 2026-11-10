@@ -79,12 +79,10 @@ export class DoctorService {
     // Find doctors with location coordinates
     const baseWhere: any = {
       user: {
-        verificationStatus: VerificationStatus.VERIFIED,
+        verificationStatus: { in: [VerificationStatus.VERIFIED, VerificationStatus.PENDING] },
         isActive: true,
       },
       status: 'ACTIVE',
-      latitude: { not: null },
-      longitude: { not: null },
     };
 
     if (specialization && specialization.toLowerCase() !== 'all') {

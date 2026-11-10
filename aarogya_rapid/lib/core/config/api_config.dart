@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:io' show Platform;
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:http/http.dart' as http;
 
@@ -16,16 +15,7 @@ class ApiConfig {
       return fromEnv;
     }
 
-    if (kIsWeb) {
-      return 'http://localhost:5000/api/v1';
-    }
-
-    try {
-      if (Platform.isAndroid) {
-        return '$publicTunnelUrl/api/v1';
-      }
-    } catch (_) {}
-
+    // Connect directly to unified cloud backend across both Web and Mobile
     return '$publicTunnelUrl/api/v1';
   }
 
@@ -57,6 +47,12 @@ class ApiConfig {
     if (fromEnv.isNotEmpty) {
       _customBaseUrl = fromEnv;
       return fromEnv;
+    }
+
+    // On Web, use unified cloud backend directly without triggering browser CORS probes
+    if (kIsWeb) {
+      _customBaseUrl = defaultBaseUrl;
+      return _customBaseUrl!;
     }
 
     // Candidate endpoints:

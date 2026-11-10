@@ -30,12 +30,21 @@ class DoctorService {
 
     final res = await _apiClient.get('/doctors', queryParams: query, includeAuth: false);
 
-    if (res is Map<String, dynamic> && res['doctors'] is List) {
-      return (res['doctors'] as List)
-          .map((item) => DoctorModel.fromJson(item as Map<String, dynamic>))
-          .toList();
+    dynamic list;
+    if (res is Map<String, dynamic>) {
+      if (res['doctors'] is List) {
+        list = res['doctors'];
+      } else if (res['data'] is Map && res['data']['doctors'] is List) {
+        list = res['data']['doctors'];
+      } else if (res['data'] is List) {
+        list = res['data'];
+      }
     } else if (res is List) {
-      return res
+      list = res;
+    }
+
+    if (list is List) {
+      return list
           .map((item) => DoctorModel.fromJson(item as Map<String, dynamic>))
           .toList();
     }
@@ -45,9 +54,20 @@ class DoctorService {
   /// Retrieve public profile of an individual verified doctor
   Future<DoctorModel> getDoctorById(String id) async {
     final res = await _apiClient.get('/doctors/$id', includeAuth: false);
-    final docData = res is Map<String, dynamic> && res.containsKey('doctor')
-        ? res['doctor']
-        : res;
+    dynamic docData;
+    if (res is Map<String, dynamic>) {
+      if (res['doctor'] != null) {
+        docData = res['doctor'];
+      } else if (res['data'] is Map && res['data']['doctor'] != null) {
+        docData = res['data']['doctor'];
+      } else if (res['data'] is Map) {
+        docData = res['data'];
+      } else {
+        docData = res;
+      }
+    } else {
+      docData = res;
+    }
     return DoctorModel.fromJson(docData as Map<String, dynamic>);
   }
 

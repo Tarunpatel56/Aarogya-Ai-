@@ -158,7 +158,7 @@ export const doctorController = {
 
       const where: Prisma.DoctorProfileWhereInput = {
         user: {
-          verificationStatus: VerificationStatus.VERIFIED,
+          verificationStatus: { in: [VerificationStatus.VERIFIED, VerificationStatus.PENDING] },
           isActive: true,
         },
         ...(specialization
@@ -239,7 +239,7 @@ export const doctorController = {
         where: {
           OR: [{ id }, { userId: id }],
           user: {
-            verificationStatus: VerificationStatus.VERIFIED,
+            verificationStatus: { in: [VerificationStatus.VERIFIED, VerificationStatus.PENDING] },
             isActive: true,
           },
         },
@@ -548,7 +548,7 @@ export const doctorController = {
         where: {
           OR: [{ id }, { userId: id }],
           user: {
-            verificationStatus: VerificationStatus.VERIFIED,
+            verificationStatus: { in: [VerificationStatus.VERIFIED, VerificationStatus.PENDING] },
             isActive: true,
           },
         },

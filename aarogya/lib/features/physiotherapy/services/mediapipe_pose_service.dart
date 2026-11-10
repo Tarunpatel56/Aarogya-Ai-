@@ -19,7 +19,7 @@ class MediaPipePoseService {
   Future<bool> init({bool preferGpu = true, double minConfidence = 0.5}) async {
     try {
       _lastError = '';
-      final res = await _channel.invokeMethod<Map>('initPoseLandmarker', {
+      var res = await _channel.invokeMethod<Map>('initPoseLandmarker', {
         'preferGpu': preferGpu,
         'minConfidence': minConfidence,
       });
@@ -29,9 +29,36 @@ class MediaPipePoseService {
         _activeDelegate = res['delegate']?.toString() ?? 'CPU';
         return true;
       }
+
+      // If GPU failed, retry with CPU explicitly
+      if (preferGpu) {
+        res = await _channel.invokeMethod<Map>('initPoseLandmarker', {
+          'preferGpu': false,
+          'minConfidence': minConfidence,
+        });
+        if (res != null && res['status'] == 'success') {
+          _isInitialized = true;
+          _activeDelegate = 'CPU';
+          return true;
+        }
+      }
+
       _lastError = res?['message']?.toString() ?? 'Failed to initialize pose landmarker.';
       return false;
     } catch (e) {
+      if (preferGpu) {
+        try {
+          final res = await _channel.invokeMethod<Map>('initPoseLandmarker', {
+            'preferGpu': false,
+            'minConfidence': minConfidence,
+          });
+          if (res != null && res['status'] == 'success') {
+            _isInitialized = true;
+            _activeDelegate = 'CPU';
+            return true;
+          }
+        } catch (_) {}
+      }
       _isInitialized = false;
       _lastError = e.toString();
       return false;

@@ -84,10 +84,48 @@ class PoseLandmarkerManager(
         )
     }
 
+    private fun getModelPath(): String {
+        val targetFile = java.io.File(context.filesDir, MODEL_PATH)
+        if (targetFile.exists() && targetFile.length() > 1000000) {
+            return targetFile.absolutePath
+        }
+
+        val assetCandidates = listOf(
+            MODEL_PATH,
+            "flutter_assets/assets/models/$MODEL_PATH",
+            "assets/models/$MODEL_PATH"
+        )
+
+        for (candidate in assetCandidates) {
+            try {
+                context.assets.open(candidate).use { input ->
+                    java.io.FileOutputStream(targetFile).use { output ->
+                        input.copyTo(output)
+                    }
+                }
+                if (targetFile.exists() && targetFile.length() > 1000000) {
+                    android.util.Log.i("MediaPipePose", "Extracted model to ${targetFile.absolutePath} from $candidate (${targetFile.length()} bytes)")
+                    return targetFile.absolutePath
+                }
+            } catch (e: Exception) {
+                android.util.Log.d("MediaPipePose", "Candidate $candidate not found: ${e.message}")
+            }
+        }
+
+        if (targetFile.exists() && targetFile.length() > 0) {
+            return targetFile.absolutePath
+        }
+
+        return MODEL_PATH
+    }
+
     private fun tryInit(delegate: Delegate, minConfidence: Float): Boolean {
         return try {
+            val resolvedModelPath = getModelPath()
+            android.util.Log.i("MediaPipePose", "Initializing PoseLandmarker with model path: $resolvedModelPath, delegate: $delegate")
+
             val baseOptionsBuilder = BaseOptions.builder()
-                .setModelAssetPath(MODEL_PATH)
+                .setModelAssetPath(resolvedModelPath)
                 .setDelegate(delegate)
 
             val optionsBuilder = PoseLandmarker.PoseLandmarkerOptions.builder()
