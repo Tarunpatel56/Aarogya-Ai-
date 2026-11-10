@@ -37,4 +37,7 @@ router.patch('/doctors/:id/verify', validateRequest(adminVerifyDoctorSchema), do
 router.get('/drivers', adminController.getAmbulanceStaffList);
 router.patch('/drivers/:id/verify', validateRequest(adminVerifyDriverSchema), adminController.verifyAmbulanceStaff);
 
+// Super Admin Live SOS Emergency Radar & Dispatches
+router.get('/emergencies', adminController.getEmergencies);
+
 export const adminRoutes = router;

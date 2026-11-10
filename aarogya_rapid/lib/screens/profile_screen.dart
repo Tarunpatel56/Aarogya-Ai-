@@ -6,9 +6,8 @@ import '../theme/app_theme.dart';
 
 class ProfileScreen extends StatefulWidget {
   final VoidCallback? onLogout;
-  final VoidCallback? onOpenSuperAdmin;
 
-  const ProfileScreen({super.key, this.onLogout, this.onOpenSuperAdmin});
+  const ProfileScreen({super.key, this.onLogout});
 
   @override
   State<ProfileScreen> createState() => _ProfileScreenState();
@@ -238,28 +237,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   ),
                   const SizedBox(height: 16),
 
-                  // Super Admin Portal Button if Super Admin role or callback
-                  if (widget.onOpenSuperAdmin != null || role == 'PLATFORM_ADMIN' || role == 'SUPER_ADMIN') ...[
-                    SizedBox(
-                      width: double.infinity,
-                      height: 48,
-                      child: ElevatedButton.icon(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: SanctuaryColors.crimsonRose,
-                          foregroundColor: Colors.white,
-                          elevation: 0,
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                        ),
-                        onPressed: widget.onOpenSuperAdmin,
-                        icon: const Icon(Icons.admin_panel_settings, size: 20),
-                        label: const Text(
-                          'OPEN SUPER ADMIN FLEET PORTAL',
-                          style: TextStyle(fontWeight: FontWeight.w900, fontSize: 12.5, letterSpacing: 0.4),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                  ],
+
 
                   // Active EMS Readiness Card
                   _buildSectionHeader('EMERGENCY STANDBY STATUS'),

@@ -10,7 +10,6 @@ class RequestsQueueScreen extends StatefulWidget {
   final EmergencyRequest? activeTrip;
   final Function(EmergencyRequest) onAcceptDispatch;
   final VoidCallback onOpenTrip;
-  final VoidCallback? onOpenSuperAdmin;
 
   const RequestsQueueScreen({
     super.key,
@@ -18,7 +17,6 @@ class RequestsQueueScreen extends StatefulWidget {
     this.activeTrip,
     required this.onAcceptDispatch,
     required this.onOpenTrip,
-    this.onOpenSuperAdmin,
   });
 
   @override
@@ -386,12 +384,6 @@ class _RequestsQueueScreenState extends State<RequestsQueueScreen>
         ],
       ),
       actions: [
-        if (widget.onOpenSuperAdmin != null || _role == 'PLATFORM_ADMIN' || _role == 'SUPER_ADMIN')
-          IconButton(
-            icon: const Icon(Icons.admin_panel_settings, color: SanctuaryColors.crimsonRose, size: 22),
-            onPressed: widget.onOpenSuperAdmin,
-            tooltip: 'Open Super Admin Verification Command',
-          ),
         const Padding(
           padding: EdgeInsets.only(right: 16),
           child: Tooltip(

@@ -124,7 +124,7 @@ class _DriverLoginScreenState extends State<DriverLoginScreen> {
                     ),
                   ),
 
-                // Quick Fill Role Selector (Driver / Super Admin)
+                // Quick Demo Login Fill
                 Wrap(
                   spacing: 8,
                   runSpacing: 8,
@@ -132,7 +132,7 @@ class _DriverLoginScreenState extends State<DriverLoginScreen> {
                   children: [
                     ActionChip(
                       avatar: const Icon(Icons.airport_shuttle, size: 14, color: SanctuaryColors.primaryTeal),
-                      label: const Text('Lead Driver Login', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
+                      label: const Text('Lead Driver (Demo)', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
                       backgroundColor: const Color(0xFFEFF6FF),
                       side: const BorderSide(color: Color(0xFFBFDBFE)),
                       onPressed: () {
@@ -143,14 +143,14 @@ class _DriverLoginScreenState extends State<DriverLoginScreen> {
                       },
                     ),
                     ActionChip(
-                      avatar: const Icon(Icons.admin_panel_settings, size: 14, color: SanctuaryColors.crimsonRose),
-                      label: const Text('Super Admin Command', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: SanctuaryColors.crimsonRose)),
-                      backgroundColor: const Color(0xFFFEF2F2),
-                      side: const BorderSide(color: Color(0xFFFECACA)),
+                      avatar: const Icon(Icons.medical_services_outlined, size: 14, color: Color(0xFF0284C7)),
+                      label: const Text('Paramedic (Demo)', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Color(0xFF0284C7))),
+                      backgroundColor: const Color(0xFFF0F9FF),
+                      side: const BorderSide(color: Color(0xFFBAE6FD)),
                       onPressed: () {
                         setState(() {
-                          _emailController.text = 'superadmin@aarogya.ai';
-                          _passwordController.text = 'Admin@12345';
+                          _emailController.text = 'testparamedic@aarogya.ai';
+                          _passwordController.text = 'Driver@123';
                         });
                       },
                     ),

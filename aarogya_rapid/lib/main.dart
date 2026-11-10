@@ -1,12 +1,9 @@
 import 'dart:async';
-import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'core/config/api_config.dart';
-import 'core/storage/token_storage.dart';
 import 'models/trip_model.dart';
 import 'screens/active_trip_screen.dart';
-import 'screens/admin/super_admin_screen.dart';
 import 'screens/auth/driver_login_screen.dart';
 import 'screens/handover_report_screen.dart';
 import 'screens/history_screen.dart';
@@ -124,11 +121,9 @@ class _RapidRootNavigationHostState extends State<RapidRootNavigationHost> {
   final List<EmergencyRequest> _queue = [];
   final List<EmergencyRequest> _completedTrips = [];
   bool _showingHandoverModal = false;
-  bool _showingAdminPortal = false;
 
   final _dispatchService = AmbulanceDispatchService();
   final _socketService = AmbulanceSocketService();
-  final _tokenStorage = TokenStorage();
   Timer? _pollingTimer;
   Timer? _gpsStreamTimer;
 
@@ -163,21 +158,7 @@ class _RapidRootNavigationHostState extends State<RapidRootNavigationHost> {
       }
     };
 
-    // 3. Check if logged-in user is Super Admin
-    try {
-      final infoStr = await _tokenStorage.getDriverInfo();
-      if (infoStr != null) {
-        final decoded = jsonDecode(infoStr) as Map<String, dynamic>;
-        final role = (decoded['role'] ?? '').toString().toUpperCase();
-        if (role == 'PLATFORM_ADMIN' || role == 'SUPER_ADMIN') {
-          if (mounted) {
-            setState(() {
-              _showingAdminPortal = true;
-            });
-          }
-        }
-      }
-    } catch (_) {}
+
 
     _socketService.onEmergencyBroadcast = (data) {
       final emergency = data['emergency'];
@@ -325,17 +306,6 @@ class _RapidRootNavigationHostState extends State<RapidRootNavigationHost> {
 
   @override
   Widget build(BuildContext context) {
-    if (_showingAdminPortal) {
-      return SuperAdminScreen(
-        onLogout: widget.onLogout,
-        onSwitchToDriverMode: () {
-          setState(() {
-            _showingAdminPortal = false;
-          });
-        },
-      );
-    }
-
     if (_showingHandoverModal && _activeTrip != null) {
       return HandoverReportScreen(
         request: _activeTrip!,
@@ -378,11 +348,6 @@ class _RapidRootNavigationHostState extends State<RapidRootNavigationHost> {
           RequestsQueueScreen(
             requests: _queue,
             activeTrip: _activeTrip,
-            onOpenSuperAdmin: () {
-              setState(() {
-                _showingAdminPortal = true;
-              });
-            },
             onAcceptDispatch: (req) async {
               final messenger = ScaffoldMessenger.of(context);
               // 1. Accept dispatch in real PostgreSQL database
@@ -439,11 +404,6 @@ class _RapidRootNavigationHostState extends State<RapidRootNavigationHost> {
           // Screen 4: Paramedic & Terminal Profile
           ProfileScreen(
             onLogout: widget.onLogout,
-            onOpenSuperAdmin: () {
-              setState(() {
-                _showingAdminPortal = true;
-              });
-            },
           ),
         ],
       ),

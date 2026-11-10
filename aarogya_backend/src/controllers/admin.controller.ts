@@ -671,5 +671,47 @@ export const adminController = {
       next(error);
     }
   },
+
+  /**
+   * Super Admin real-time emergency overview (all SOS incidents, active radar, assigned units)
+   */
+  async getEmergencies(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const { status, limit = 50 } = req.query as any;
+      const where: Prisma.EmergencyRequestWhereInput = {};
+      if (status && status !== 'ALL') {
+        where.status = status;
+      }
+
+      const emergencies = await prisma.emergencyRequest.findMany({
+        where,
+        take: Number(limit),
+        orderBy: { createdAt: 'desc' },
+        include: {
+          patientProfile: {
+            include: {
+              user: {
+                select: {
+                  email: true,
+                  phone: true,
+                },
+              },
+            },
+          },
+          selectedAmbulance: true,
+        },
+      });
+
+      res.status(200).json({
+        success: true,
+        data: {
+          emergencies,
+          count: emergencies.length,
+        },
+      });
+    } catch (error) {
+      next(error);
+    }
+  },
 };
 

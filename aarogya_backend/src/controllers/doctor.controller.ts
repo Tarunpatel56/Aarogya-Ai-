@@ -158,7 +158,7 @@ export const doctorController = {
 
       const where: Prisma.DoctorProfileWhereInput = {
         user: {
-          verificationStatus: { in: [VerificationStatus.VERIFIED, VerificationStatus.PENDING] },
+          verificationStatus: VerificationStatus.VERIFIED, // Only Super Admin approved doctors are displayed to patients
           isActive: true,
         },
         ...(specialization && specialization !== 'All' && String(specialization).toLowerCase() !== 'all'

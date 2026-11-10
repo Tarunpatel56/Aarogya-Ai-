@@ -151,7 +151,7 @@ export const authController = {
             phone: effectivePhone,
             passwordHash,
             role: Role.DOCTOR,
-            verificationStatus: VerificationStatus.VERIFIED, // Verified immediately so doctor is discoverable
+            verificationStatus: VerificationStatus.PENDING, // PENDING until Super Admin verifies in Superadmin app
           },
         });
 
@@ -164,7 +164,7 @@ export const authController = {
             qualifications,
             experienceYears: experienceYears || 0,
             hospitalAffiliation,
-            verifiedAt: new Date(),
+            verifiedAt: null,
           },
         });
 
@@ -312,7 +312,7 @@ export const authController = {
             phone: cleanPhone,
             passwordHash,
             role: staffRole,
-            verificationStatus: VerificationStatus.VERIFIED, // Auto-verified for active duty
+            verificationStatus: VerificationStatus.PENDING, // Strictly PENDING until Super Admin approves in Superadmin app
           },
         });
 
