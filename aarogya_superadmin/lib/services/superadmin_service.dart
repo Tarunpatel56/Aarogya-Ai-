@@ -58,8 +58,7 @@ class SuperAdminService {
     try {
       final res = await _apiClient.get('/admin/stats');
       if (res is Map<String, dynamic> && res['success'] == true) {
-        final data = res['data'] as Map<String, dynamic>? ?? {};
-        return data['stats'] as Map<String, dynamic>? ?? data;
+        return res['data']?['stats'] as Map<String, dynamic>? ?? {};
       }
     } catch (_) {}
     return {};
@@ -118,8 +117,7 @@ class SuperAdminService {
       final url = '/admin/drivers${queryParams.isNotEmpty ? "?${queryParams.join('&')}" : ""}';
       final res = await _apiClient.get(url);
       if (res is Map<String, dynamic> && res['success'] == true) {
-        final data = res['data'] as Map<String, dynamic>? ?? {};
-        final staff = (data['staff'] ?? data['ambulanceStaff']) as List<dynamic>? ?? [];
+        final staff = (res['data']?['ambulanceStaff'] as List<dynamic>?) ?? [];
         return staff.cast<Map<String, dynamic>>();
       }
     } catch (_) {}
@@ -145,13 +143,6 @@ class SuperAdminService {
 
   /// Retrieve active SOS emergencies and live dispatches
   Future<List<Map<String, dynamic>>> getActiveEmergencies() async {
-    try {
-      final res = await _apiClient.get('/admin/emergencies');
-      if (res is Map<String, dynamic> && res['success'] == true) {
-        final list = (res['data']?['emergencies'] as List<dynamic>?) ?? [];
-        return list.cast<Map<String, dynamic>>();
-      }
-    } catch (_) {}
     try {
       final res = await _apiClient.get('/drivers/dispatches');
       if (res is Map<String, dynamic> && res['success'] == true) {
@@ -182,3 +173,4 @@ class SuperAdminService {
     return [];
   }
 }
+
