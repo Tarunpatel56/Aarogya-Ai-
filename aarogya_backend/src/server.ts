@@ -4,6 +4,7 @@ import { env } from './config/env';
 import { prisma } from './config/prisma';
 import { logger } from './utils/logger';
 import { ensureVerifiedHospitalsSeeded } from './services/hospital-seed.service';
+import { ensureSuperAdminAndDefaultAccounts } from './services/admin-seed.service';
 import { socketService } from './services/socket.service';
 
 const server = http.createServer(app);
@@ -22,6 +23,9 @@ server.listen(env.PORT, async () => {
 
   // Ensure verified hospitals directory is populated with live ICU bed telemetry
   await ensureVerifiedHospitalsSeeded();
+
+  // Guarantee Super Admin and verified Ambulance Pilot accounts exist across local & cloud deployments
+  await ensureSuperAdminAndDefaultAccounts();
 });
 
 // Graceful shutdown handling

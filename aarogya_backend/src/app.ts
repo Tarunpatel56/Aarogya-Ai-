@@ -20,28 +20,29 @@ export function createApp(): Application {
   );
 
   // CORS configuration: Dynamically reflect origin to satisfy credentials + allow web clients on localhost / mobile
-  app.use(
-    cors({
-      origin: (origin, callback) => {
-        // Allow requests with no origin (curl, mobile apps) and all incoming web origins
-        callback(null, true);
-      },
-      credentials: true,
-      methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-      allowedHeaders: [
-        'Content-Type',
-        'Authorization',
-        'X-Requested-With',
-        'Accept',
-        'Origin',
-        'ngrok-skip-browser-warning',
-      ],
-      exposedHeaders: ['Content-Range', 'X-Content-Range'],
-    })
-  );
+  const corsOptions: cors.CorsOptions = {
+    origin: (origin, callback) => {
+      // Allow requests with no origin (curl, mobile apps) and all incoming web origins
+      callback(null, true);
+    },
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: [
+      'Content-Type',
+      'Authorization',
+      'X-Requested-With',
+      'Accept',
+      'Origin',
+      'ngrok-skip-browser-warning',
+    ],
+    exposedHeaders: ['Content-Range', 'X-Content-Range'],
+  };
+
+  const corsMiddleware = cors(corsOptions);
+  app.use(corsMiddleware);
 
   // Pre-flight handling for all routes
-  app.options('*', cors());
+  app.options('*', corsMiddleware);
 
   // Request parsing middleware
   app.use(express.json({ limit: '10mb' }));

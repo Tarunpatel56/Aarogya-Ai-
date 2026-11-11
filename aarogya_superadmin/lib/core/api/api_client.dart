@@ -38,7 +38,7 @@ class ApiClient {
       final uri = Uri.parse('${ApiConfig.baseUrl}$endpoint');
       final headers = await _buildHeaders(requiresAuth: requiresAuth);
       return await _httpClient.get(uri, headers: headers).timeout(ApiConfig.timeout);
-    });
+    }, requiresAuth: requiresAuth);
   }
 
   Future<dynamic> post(String endpoint, {Map<String, dynamic>? body, bool requiresAuth = true}) async {
@@ -48,7 +48,7 @@ class ApiClient {
       return await _httpClient
           .post(uri, headers: headers, body: body != null ? jsonEncode(body) : null)
           .timeout(ApiConfig.timeout);
-    });
+    }, requiresAuth: requiresAuth);
   }
 
   Future<dynamic> patch(String endpoint, {Map<String, dynamic>? body, bool requiresAuth = true}) async {
@@ -58,7 +58,7 @@ class ApiClient {
       return await _httpClient
           .patch(uri, headers: headers, body: body != null ? jsonEncode(body) : null)
           .timeout(ApiConfig.timeout);
-    });
+    }, requiresAuth: requiresAuth);
   }
 
   Future<dynamic> delete(String endpoint, {bool requiresAuth = true}) async {
@@ -66,25 +66,38 @@ class ApiClient {
       final uri = Uri.parse('${ApiConfig.baseUrl}$endpoint');
       final headers = await _buildHeaders(requiresAuth: requiresAuth);
       return await _httpClient.delete(uri, headers: headers).timeout(ApiConfig.timeout);
-    });
+    }, requiresAuth: requiresAuth);
   }
 
-  Future<dynamic> _sendWithRetry(Future<http.Response> Function() requestFn) async {
+  Future<dynamic> _sendWithRetry(
+    Future<http.Response> Function() requestFn, {
+    bool requiresAuth = true,
+  }) async {
     try {
       var response = await requestFn();
-      if (response.statusCode == 401) {
+
+      // Only attempt refresh or handle session expiry for authenticated requests
+      if (requiresAuth && response.statusCode == 401) {
         // Attempt silent token refresh before declaring session expired
         final refreshed = await _tryRefreshToken();
         if (refreshed) {
           response = await requestFn();
         }
+
+        if (response.statusCode == 401) {
+          // Check if we still have a token
+          final token = await _tokenStorage.getAccessToken();
+          if (token != null && token.isNotEmpty) {
+            // Do not aggressively wipe out session on temporary network or refresh glitch
+            // Return error response directly so user can retry
+            return _handleResponse(response);
+          }
+          await _tokenStorage.clearAll();
+          onSessionExpired?.call();
+          throw const ApiException(statusCode: 401, message: 'Super Admin session expired.');
+        }
       }
 
-      if (response.statusCode == 401) {
-        await _tokenStorage.clearAll();
-        onSessionExpired?.call();
-        throw const ApiException(statusCode: 401, message: 'Super Admin session expired.');
-      }
       return _handleResponse(response);
     } on ApiException {
       rethrow;
