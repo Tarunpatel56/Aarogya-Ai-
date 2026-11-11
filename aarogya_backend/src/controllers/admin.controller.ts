@@ -439,6 +439,26 @@ export const adminController = {
       res.status(200).json({
         success: true,
         data: {
+          stats: {
+            users: {
+              total: totalUsers,
+              active: activeUsers,
+              byRole: {
+                PATIENT: patientCount,
+                DOCTOR: doctorCount,
+                HOSPITAL_ADMIN: hospitalAdminCount,
+                DRIVER: driverCount,
+                SUPER_ADMIN: superAdminCount,
+              },
+              pendingVerification: pendingVerificationCount,
+            },
+            operations: {
+              totalAppointments,
+              totalMedicalRecords,
+              systemHealth: 'OPERATIONAL',
+              timestamp: new Date().toISOString(),
+            },
+          },
           users: {
             total: totalUsers,
             active: activeUsers,
@@ -567,6 +587,7 @@ export const adminController = {
         success: true,
         data: {
           staff,
+          ambulanceStaff: staff,
           count: staff.length,
         },
       });

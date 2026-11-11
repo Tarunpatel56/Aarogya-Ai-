@@ -58,7 +58,10 @@ class SuperAdminService {
     try {
       final res = await _apiClient.get('/admin/stats');
       if (res is Map<String, dynamic> && res['success'] == true) {
-        return res['data']?['stats'] as Map<String, dynamic>? ?? {};
+        final data = res['data'];
+        if (data is Map<String, dynamic>) {
+          return data['stats'] as Map<String, dynamic>? ?? data;
+        }
       }
     } catch (_) {}
     return {};
@@ -80,8 +83,10 @@ class SuperAdminService {
       final url = '/admin/users?${queryParams.join('&')}';
       final res = await _apiClient.get(url);
       if (res is Map<String, dynamic> && res['success'] == true) {
-        final users = (res['data']?['users'] as List<dynamic>?) ?? [];
-        return users.cast<Map<String, dynamic>>();
+        final raw = res['data']?['users'] ?? res['data']?['doctors'] ?? res['data'];
+        if (raw is List) {
+          return raw.cast<Map<String, dynamic>>();
+        }
       }
     } catch (_) {}
     return [];
@@ -117,8 +122,11 @@ class SuperAdminService {
       final url = '/admin/drivers${queryParams.isNotEmpty ? "?${queryParams.join('&')}" : ""}';
       final res = await _apiClient.get(url);
       if (res is Map<String, dynamic> && res['success'] == true) {
-        final staff = (res['data']?['ambulanceStaff'] as List<dynamic>?) ?? [];
-        return staff.cast<Map<String, dynamic>>();
+        // Robust fallback checking both 'ambulanceStaff', 'staff', or root list
+        final raw = res['data']?['ambulanceStaff'] ?? res['data']?['staff'] ?? res['data'];
+        if (raw is List) {
+          return raw.cast<Map<String, dynamic>>();
+        }
       }
     } catch (_) {}
     return [];
@@ -144,10 +152,12 @@ class SuperAdminService {
   /// Retrieve active SOS emergencies and live dispatches
   Future<List<Map<String, dynamic>>> getActiveEmergencies() async {
     try {
-      final res = await _apiClient.get('/drivers/dispatches');
+      final res = await _apiClient.get('/admin/emergencies');
       if (res is Map<String, dynamic> && res['success'] == true) {
-        final list = (res['data']?['dispatches'] as List<dynamic>?) ?? [];
-        return list.cast<Map<String, dynamic>>();
+        final raw = res['data']?['emergencies'] ?? res['data']?['dispatches'] ?? res['data'];
+        if (raw is List) {
+          return raw.cast<Map<String, dynamic>>();
+        }
       }
     } catch (_) {}
     return [];
@@ -166,8 +176,10 @@ class SuperAdminService {
       final url = '/admin/users?${queryParams.join('&')}';
       final res = await _apiClient.get(url);
       if (res is Map<String, dynamic> && res['success'] == true) {
-        final users = (res['data']?['users'] as List<dynamic>?) ?? [];
-        return users.cast<Map<String, dynamic>>();
+        final raw = res['data']?['users'] ?? res['data']?['patients'] ?? res['data'];
+        if (raw is List) {
+          return raw.cast<Map<String, dynamic>>();
+        }
       }
     } catch (_) {}
     return [];
