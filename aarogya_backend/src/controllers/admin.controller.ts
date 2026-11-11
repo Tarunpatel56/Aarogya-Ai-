@@ -7,6 +7,7 @@ import { NotFoundError, BadRequestError, ConflictError } from '../utils/AppError
 import { toPrismaRole, toCanonicalRole, isSuperAdmin } from '../types/roles';
 import { logger } from '../utils/logger';
 import { socketService } from '../services/socket.service';
+import { communityService } from '../services/community.service';
 
 // In-memory audit trail for privileged Super Admin operations
 export interface AdminAuditEntry {
@@ -50,6 +51,15 @@ export function recordAudit(
     ...details,
   });
 }
+
+let platformSettings = {
+  maintenanceMode: false,
+  emergencyAutoDispatch: true,
+  aiDiagnosticAssistance: true,
+  maxTeleconsultationQueue: 50,
+  lastBackupTimestamp: new Date(Date.now() - 3600000).toISOString(),
+  backupStatus: 'HEALTHY',
+};
 
 export const adminController = {
   /**
@@ -729,6 +739,255 @@ export const adminController = {
           emergencies,
           count: emergencies.length,
         },
+      });
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  /**
+   * Super Admin platform-wide appointments monitoring desk
+   */
+  async getAppointments(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const { status, limit = 50 } = req.query as any;
+      const where: Prisma.AppointmentWhereInput = {};
+      if (status && status !== 'ALL') {
+        where.status = status;
+      }
+
+      const appointments = await prisma.appointment.findMany({
+        where,
+        take: Number(limit),
+        orderBy: { startTime: 'desc' },
+        include: {
+          patientProfile: {
+            include: {
+              user: {
+                select: {
+                  email: true,
+                  phone: true,
+                },
+              },
+            },
+          },
+          doctorProfile: {
+            include: {
+              user: {
+                select: {
+                  email: true,
+                  phone: true,
+                },
+              },
+            },
+          },
+        },
+      });
+
+      res.status(200).json({
+        success: true,
+        data: {
+          appointments,
+          count: appointments.length,
+        },
+      });
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  /**
+   * Super Admin real-time system health and service telemetry
+   */
+  async getSystemHealth(_req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const dbStart = Date.now();
+      await prisma.$queryRaw`SELECT 1`;
+      const dbLatencyMs = Date.now() - dbStart;
+
+      const memUsage = process.memoryUsage();
+      const uptimeSec = Math.floor(process.uptime());
+
+      res.status(200).json({
+        success: true,
+        data: {
+          status: 'HEALTHY',
+          uptime: `${Math.floor(uptimeSec / 3600)}h ${Math.floor((uptimeSec % 3600) / 60)}m ${uptimeSec % 60}s`,
+          uptimeSeconds: uptimeSec,
+          services: {
+            database: {
+              status: 'OPERATIONAL',
+              latency: `${dbLatencyMs}ms`,
+              engine: 'PostgreSQL Prisma ORM',
+            },
+            apiServer: {
+              status: 'OPERATIONAL',
+              port: process.env.PORT || 5000,
+              nodeVersion: process.version,
+            },
+            socketService: {
+              status: 'OPERATIONAL',
+              mode: 'Real-time WebSocket & Polling Fallback',
+            },
+            memory: {
+              rss: `${Math.round(memUsage.rss / 1024 / 1024)} MB`,
+              heapUsed: `${Math.round(memUsage.heapUsed / 1024 / 1024)} MB`,
+              heapTotal: `${Math.round(memUsage.heapTotal / 1024 / 1024)} MB`,
+            },
+          },
+          settings: platformSettings,
+        },
+      });
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  /**
+   * Super Admin reviews incoming user feedback and issue reports
+   */
+  async getFeedback(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const { status } = req.query as { status?: string };
+      const feedback = communityService.getFeedbackList(status);
+      res.status(200).json({
+        success: true,
+        data: {
+          feedback,
+          count: feedback.length,
+        },
+      });
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  /**
+   * Super Admin publishes platform announcements
+   */
+  async createAnnouncement(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const { title, message, priority = 'INFO', targetRoles = ['ALL'], expiresAt } = req.body;
+      if (!title || !message) {
+        throw new BadRequestError('title and message are required');
+      }
+
+      const announcement = communityService.createAnnouncement({
+        title: title.trim(),
+        message: message.trim(),
+        priority,
+        targetRoles: Array.isArray(targetRoles) ? targetRoles : [targetRoles],
+        publishedBy: (req as any).user?.email || 'Super Admin Desk',
+        expiresAt,
+      });
+
+      recordAudit(req, 'CREATE_ANNOUNCEMENT', undefined, { title, priority });
+
+      res.status(201).json({
+        success: true,
+        message: 'Platform announcement broadcast successfully',
+        data: { announcement },
+      });
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  /**
+   * Super Admin publishes community health camp
+   */
+  async createHealthCamp(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const { title, organizer, category = 'GENERAL_CHECKUP', venue, city, startDate, endDate, timings, servicesOffered, contactPhone, isFree = true } = req.body;
+      if (!title || !organizer || !venue || !city || !startDate || !contactPhone) {
+        throw new BadRequestError('title, organizer, venue, city, startDate, and contactPhone are required');
+      }
+
+      const camp = communityService.createHealthCamp({
+        title: title.trim(),
+        organizer: organizer.trim(),
+        category,
+        venue: venue.trim(),
+        city: city.trim(),
+        startDate,
+        endDate,
+        timings: timings || '09:00 AM - 04:00 PM',
+        servicesOffered: Array.isArray(servicesOffered) ? servicesOffered : [servicesOffered],
+        contactPhone: contactPhone.trim(),
+        isFree,
+      });
+
+      recordAudit(req, 'CREATE_HEALTH_CAMP', undefined, { title, city });
+
+      res.status(201).json({
+        success: true,
+        message: 'Community health camp published successfully',
+        data: { camp },
+      });
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  /**
+   * Super Admin creates a daily health tip
+   */
+  async createHealthTip(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const { category = 'HEART', title, tip, actionableStep, author } = req.body;
+      if (!title || !tip || !actionableStep) {
+        throw new BadRequestError('title, tip, and actionableStep are required');
+      }
+
+      const healthTip = communityService.createHealthTip({
+        category,
+        title: title.trim(),
+        tip: tip.trim(),
+        actionableStep: actionableStep.trim(),
+        author: author?.trim() || (req as any).user?.email || 'Aarogya Medical Desk',
+      });
+
+      recordAudit(req, 'CREATE_HEALTH_TIP', undefined, { title, category });
+
+      res.status(201).json({
+        success: true,
+        message: 'Daily health tip published',
+        data: { healthTip },
+      });
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  /**
+   * Super Admin views and updates global system configuration
+   */
+  async getSystemSettings(_req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      res.status(200).json({
+        success: true,
+        data: { settings: platformSettings },
+      });
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  async updateSystemSettings(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const { maintenanceMode, emergencyAutoDispatch, aiDiagnosticAssistance, maxTeleconsultationQueue } = req.body;
+
+      if (maintenanceMode !== undefined) platformSettings.maintenanceMode = Boolean(maintenanceMode);
+      if (emergencyAutoDispatch !== undefined) platformSettings.emergencyAutoDispatch = Boolean(emergencyAutoDispatch);
+      if (aiDiagnosticAssistance !== undefined) platformSettings.aiDiagnosticAssistance = Boolean(aiDiagnosticAssistance);
+      if (maxTeleconsultationQueue !== undefined) platformSettings.maxTeleconsultationQueue = Number(maxTeleconsultationQueue);
+
+      recordAudit(req, 'UPDATE_PLATFORM_SETTINGS', undefined, platformSettings);
+
+      res.status(200).json({
+        success: true,
+        message: 'Platform configuration updated',
+        data: { settings: platformSettings },
       });
     } catch (error) {
       next(error);

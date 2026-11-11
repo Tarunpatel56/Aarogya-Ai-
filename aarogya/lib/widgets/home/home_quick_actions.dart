@@ -150,34 +150,39 @@ class HomeQuickActions extends StatelessWidget {
                     onTap: onOpenLungXray!,
                   ),
                 ),
-              if (onOpenLungXray != null && onOpenSkinAnalysis != null)
-                const SizedBox(width: 8),
-              if (onOpenSkinAnalysis != null)
-                Expanded(
-                  child: _buildActionTile(
-                    icon: Icons.face_retouching_natural,
-                    iconBg: const Color(0xFFFAF5FF),
-                    iconColor: const Color(0xFF9333EA),
-                    title: 'Skin Lesion',
-                    subtitle: 'Derma AI',
-                    onTap: onOpenSkinAnalysis!,
-                  ),
-                ),
-              if (onOpenSkinAnalysis != null && onOpenEyeAnalysis != null)
-                const SizedBox(width: 8),
-              if (onOpenEyeAnalysis != null)
-                Expanded(
-                  child: _buildActionTile(
-                    icon: Icons.remove_red_eye_outlined,
-                    iconBg: const Color(0xFFE0F2F1),
-                    iconColor: const Color(0xFF00897B),
-                    title: 'Eye AI',
-                    subtitle: 'Ocular Scan',
-                    onTap: onOpenEyeAnalysis!,
-                  ),
-                ),
             ],
           ),
+          if (onOpenSkinAnalysis != null || onOpenEyeAnalysis != null) ...[
+            const SizedBox(height: 10),
+            Row(
+              children: [
+                if (onOpenSkinAnalysis != null)
+                  Expanded(
+                    child: _buildActionTile(
+                      icon: Icons.face_retouching_natural,
+                      iconBg: const Color(0xFFFAF5FF),
+                      iconColor: const Color(0xFF9333EA),
+                      title: 'Skin Lesion',
+                      subtitle: 'Derma AI',
+                      onTap: onOpenSkinAnalysis!,
+                    ),
+                  ),
+                if (onOpenSkinAnalysis != null && onOpenEyeAnalysis != null)
+                  const SizedBox(width: 8),
+                if (onOpenEyeAnalysis != null)
+                  Expanded(
+                    child: _buildActionTile(
+                      icon: Icons.remove_red_eye_outlined,
+                      iconBg: const Color(0xFFE0F2F1),
+                      iconColor: const Color(0xFF00897B),
+                      title: 'Eye AI',
+                      subtitle: 'Ocular Scan',
+                      onTap: onOpenEyeAnalysis!,
+                    ),
+                  ),
+              ],
+            ),
+          ],
           if (onOpenSymptomChecker != null ||
               onOpenReportAnalyzer != null ||
               onOpenPhysio != null) ...[

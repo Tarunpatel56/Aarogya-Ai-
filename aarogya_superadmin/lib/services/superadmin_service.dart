@@ -196,5 +196,88 @@ class SuperAdminService {
     } catch (_) {}
     return [];
   }
+
+  /// Retrieve all platform appointments (Feature 87)
+  Future<List<Map<String, dynamic>>> getAppointments({String? status}) async {
+    try {
+      final query = (status != null && status != 'ALL') ? '?status=$status' : '';
+      final res = await _apiClient.get('/admin/appointments$query');
+      if (res is Map<String, dynamic> && res['success'] == true) {
+        final raw = res['data']?['appointments'];
+        if (raw is List) return raw.cast<Map<String, dynamic>>();
+      }
+    } catch (_) {}
+    return [];
+  }
+
+  /// Retrieve real-time system health telemetry (Feature 94)
+  Future<Map<String, dynamic>> getSystemHealth() async {
+    try {
+      final res = await _apiClient.get('/admin/system/health');
+      if (res is Map<String, dynamic> && res['success'] == true) {
+        return res['data'] as Map<String, dynamic>? ?? {};
+      }
+    } catch (_) {}
+    return {};
+  }
+
+  /// Retrieve privileged audit logs (Feature 95)
+  Future<List<Map<String, dynamic>>> getAuditLogs() async {
+    try {
+      final res = await _apiClient.get('/admin/audit-logs');
+      if (res is Map<String, dynamic> && res['success'] == true) {
+        final raw = res['data']?['auditLogs'] ?? res['data'];
+        if (raw is List) return raw.cast<Map<String, dynamic>>();
+      }
+    } catch (_) {}
+    return [];
+  }
+
+  /// Retrieve user feedback & issue reports (Feature 91)
+  Future<List<Map<String, dynamic>>> getFeedback() async {
+    try {
+      final res = await _apiClient.get('/admin/feedback');
+      if (res is Map<String, dynamic> && res['success'] == true) {
+        final raw = res['data']?['feedback'];
+        if (raw is List) return raw.cast<Map<String, dynamic>>();
+      }
+    } catch (_) {}
+    return [];
+  }
+
+  /// Post platform announcement (Feature 90)
+  Future<bool> postAnnouncement({required String title, required String message, String priority = 'INFO'}) async {
+    try {
+      final res = await _apiClient.post('/admin/announcements', body: {
+        'title': title,
+        'message': message,
+        'priority': priority,
+      });
+      return res is Map<String, dynamic> && res['success'] == true;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  /// Retrieve global platform configuration & backup status (Features 97, 100)
+  Future<Map<String, dynamic>> getSystemSettings() async {
+    try {
+      final res = await _apiClient.get('/admin/system/settings');
+      if (res is Map<String, dynamic> && res['success'] == true) {
+        return res['data']?['settings'] as Map<String, dynamic>? ?? {};
+      }
+    } catch (_) {}
+    return {};
+  }
+
+  /// Update platform settings
+  Future<bool> updateSystemSettings(Map<String, dynamic> settings) async {
+    try {
+      final res = await _apiClient.patch('/admin/system/settings', body: settings);
+      return res is Map<String, dynamic> && res['success'] == true;
+    } catch (_) {
+      return false;
+    }
+  }
 }
 

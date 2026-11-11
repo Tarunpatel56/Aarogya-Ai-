@@ -29,6 +29,8 @@ class MedicineReminder {
   final bool isActive;
   final DoseStatus status;
   final DateTime? lastTakenAt;
+  final int remainingPills;
+  final int refillThreshold;
 
   const MedicineReminder({
     required this.id,
@@ -41,6 +43,8 @@ class MedicineReminder {
     this.isActive = true,
     this.status = DoseStatus.pending,
     this.lastTakenAt,
+    this.remainingPills = 28,
+    this.refillThreshold = 5,
   });
 
   String get doseTimeLabel {
@@ -78,6 +82,8 @@ class MedicineReminder {
     bool? isActive,
     DoseStatus? status,
     DateTime? lastTakenAt,
+    int? remainingPills,
+    int? refillThreshold,
   }) {
     return MedicineReminder(
       id: id ?? this.id,
@@ -90,6 +96,8 @@ class MedicineReminder {
       isActive: isActive ?? this.isActive,
       status: status ?? this.status,
       lastTakenAt: lastTakenAt ?? this.lastTakenAt,
+      remainingPills: remainingPills ?? this.remainingPills,
+      refillThreshold: refillThreshold ?? this.refillThreshold,
     );
   }
 
@@ -116,6 +124,8 @@ class MedicineReminder {
       lastTakenAt: json['lastTakenAt'] != null
           ? DateTime.tryParse(json['lastTakenAt'].toString())
           : null,
+      remainingPills: json['remainingPills'] as int? ?? 28,
+      refillThreshold: json['refillThreshold'] as int? ?? 5,
     );
   }
 
@@ -131,6 +141,8 @@ class MedicineReminder {
       'isActive': isActive,
       'status': status.name,
       if (lastTakenAt != null) 'lastTakenAt': lastTakenAt!.toIso8601String(),
+      'remainingPills': remainingPills,
+      'refillThreshold': refillThreshold,
     };
   }
 }

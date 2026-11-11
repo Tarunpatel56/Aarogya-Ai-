@@ -14,6 +14,7 @@ import { emergencyRoutes } from './emergency.routes';
 import { prescriptionRoutes } from './prescription.routes';
 import { vitalsRoutes, deviceRoutes } from './vitals.routes';
 import { physiotherapyRoutes } from './physiotherapy.routes';
+import { communityRoutes } from './community.routes';
 
 const router = Router();
 
@@ -71,6 +72,9 @@ router.use('/emergency', emergencyRoutes);
 
 // Real-time on-device MediaPipe Physiotherapy AI & Clinical ROM Tracking
 router.use('/physiotherapy', physiotherapyRoutes);
+
+// Community, Government Schemes, Blood Donors, Vaccine Tracker, Health Camps & Medicine Safety
+router.use('/community', communityRoutes);
 
 // Administrative authority & verification workflows
 router.use('/admin', adminRoutes);

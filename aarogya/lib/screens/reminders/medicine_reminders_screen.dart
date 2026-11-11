@@ -204,6 +204,8 @@ class _MedicineRemindersScreenState extends State<MedicineRemindersScreen> {
         builder: (context, reminders, _) {
           final stats = _service.getAdherenceStats();
 
+          final lowStockItems = reminders.where((r) => r.remainingPills <= r.refillThreshold).toList();
+
           return SingleChildScrollView(
             physics: const BouncingScrollPhysics(),
             padding: const EdgeInsets.all(16.0),
@@ -211,6 +213,39 @@ class _MedicineRemindersScreenState extends State<MedicineRemindersScreen> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 _buildAdherenceCard(stats),
+                if (lowStockItems.isNotEmpty) ...[
+                  const SizedBox(height: 14),
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFFEF2F2),
+                      borderRadius: BorderRadius.circular(14),
+                      border: Border.all(color: const Color(0xFFFECACA)),
+                    ),
+                    child: Row(
+                      children: [
+                        const Icon(Icons.inventory_2_outlined, color: Color(0xFFDC2626), size: 22),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text(
+                                'Low Medicine Stock Alert',
+                                style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: Color(0xFFDC2626)),
+                              ),
+                              const SizedBox(height: 2),
+                              Text(
+                                '${lowStockItems.map((m) => "${m.medicineName} (${m.remainingPills} left)").join(", ")} running low. Refill soon!',
+                                style: const TextStyle(fontSize: 11, color: Color(0xFF991B1B)),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
                 const SizedBox(height: 18),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -366,6 +401,42 @@ class _MedicineRemindersScreenState extends State<MedicineRemindersScreen> {
                     Text(
                       '${rem.dosage} • ${rem.timeString} (${rem.mealTimingLabel})',
                       style: const TextStyle(fontSize: 11.5, color: AppColors.textSecondary),
+                    ),
+                    const SizedBox(height: 4),
+                    Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                          decoration: BoxDecoration(
+                            color: rem.remainingPills <= rem.refillThreshold
+                                ? const Color(0xFFFEE2E2)
+                                : const Color(0xFFF1F5F9),
+                            borderRadius: BorderRadius.circular(6),
+                          ),
+                          child: Text(
+                            'Supply: ${rem.remainingPills} pills left',
+                            style: TextStyle(
+                              fontSize: 10,
+                              fontWeight: FontWeight.bold,
+                              color: rem.remainingPills <= rem.refillThreshold
+                                  ? const Color(0xFFDC2626)
+                                  : const Color(0xFF475569),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        GestureDetector(
+                          onTap: () => _service.refillPills(rem.id, 30),
+                          child: const Text(
+                            '+ Refill 30',
+                            style: TextStyle(
+                              fontSize: 10.5,
+                              fontWeight: FontWeight.bold,
+                              color: AppColors.primaryTeal,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ),

@@ -159,9 +159,25 @@ class MedicineReminderService {
     final list = List<MedicineReminder>.from(remindersNotifier.value);
     final idx = list.indexWhere((r) => r.id == id);
     if (idx != -1) {
-      list[idx] = list[idx].copyWith(
+      final current = list[idx];
+      final newRemaining = (current.remainingPills > 0) ? current.remainingPills - 1 : 0;
+      list[idx] = current.copyWith(
         status: DoseStatus.taken,
         lastTakenAt: DateTime.now(),
+        remainingPills: newRemaining,
+      );
+      remindersNotifier.value = list;
+      await _storage.saveReminders(list);
+    }
+  }
+
+  Future<void> refillPills(String id, int addedCount) async {
+    final list = List<MedicineReminder>.from(remindersNotifier.value);
+    final idx = list.indexWhere((r) => r.id == id);
+    if (idx != -1) {
+      final current = list[idx];
+      list[idx] = current.copyWith(
+        remainingPills: current.remainingPills + addedCount,
       );
       remindersNotifier.value = list;
       await _storage.saveReminders(list);
