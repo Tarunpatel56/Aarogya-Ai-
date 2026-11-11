@@ -29,6 +29,8 @@ import 'wellness/vaccination_tracker_screen.dart';
 import 'wellness/wellness_dashboard_screen.dart';
 import 'ai/medical_report_comparison_screen.dart';
 import 'medicines/medicine_safety_screen.dart';
+import 'voice/talk_to_talk_voice_assistant_screen.dart';
+import '../services/ai_service.dart';
 import '../services/community_service.dart';
 import '../services/medicine_reminder_service.dart';
 import '../services/physiotherapy_service.dart';
@@ -353,6 +355,17 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
     );
   }
 
+  void _openVoiceAssistant() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => TalkToTalkVoiceAssistantScreen(
+          aiService: AiService(apiClient: widget.authService?.apiClient),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -384,6 +397,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                 // 3. Quick AI & Doctor Actions
                 HomeQuickActions(
                   onNavigateToAI: widget.onNavigateToAI ?? () {},
+                  onOpenVoiceAssistant: _openVoiceAssistant,
                   onOpenOcrScanner: _openOcrScanner,
                   onOpenDoctorDirectory: _openDoctorDirectory,
                   onOpenBrainMri: _openBrainMri,

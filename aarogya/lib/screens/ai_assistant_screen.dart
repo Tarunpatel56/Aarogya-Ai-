@@ -12,6 +12,7 @@ import 'ai/skin_analysis_screen.dart';
 import 'ai/eye_analysis_screen.dart';
 import 'ai/symptom_checker_screen.dart';
 import 'ai/medical_report_analyzer_screen.dart';
+import 'voice/talk_to_talk_voice_assistant_screen.dart';
 
 class AIAssistantScreen extends StatefulWidget {
   final AiService? aiService;
@@ -221,6 +222,28 @@ class _AIAssistantScreenState extends State<AIAssistantScreen> {
                         color: AppColors.textPrimary,
                       ),
                     ),
+                  ),
+                  const SizedBox(width: 8),
+                  ElevatedButton.icon(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF0F766E),
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                      elevation: 0,
+                    ),
+                    icon: const Icon(Icons.mic_rounded, size: 16, color: Color(0xFF5EEAD4)),
+                    label: const Text('Live Voice', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => TalkToTalkVoiceAssistantScreen(
+                            aiService: _aiService,
+                          ),
+                        ),
+                      );
+                    },
                   ),
                   const SizedBox(width: 8),
                   _buildLanguageToggle(),

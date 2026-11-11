@@ -19,9 +19,22 @@ class VoiceAssistantService {
   bool _isTtsInitialized = false;
   bool _isListening = false;
   bool _isPlayingAudio = false;
+  VoidCallback? _onTtsCompleteCallback;
 
   bool get isListening => _isListening;
   bool get isPlayingAudio => _isPlayingAudio;
+
+  /// Helper to detect if user is speaking in Hindi or Hinglish
+  bool isHindi(String text) {
+    if (RegExp(r'[\u0900-\u097F]').hasMatch(text)) return true;
+    final lower = text.toLowerCase();
+    final hindiKeywords = [
+      'dard', 'bukhar', 'khansi', 'dawa', 'dawakhana', 'ilaj', 'pet', 'sar', 'gala',
+      'kya', 'kaise', 'kyu', 'hai', 'hain', 'mujhe', 'mera', 'meri', 'batao', 'karo',
+      'chahiye', 'hoga', 'hogi', 'doctor', 'tabiyat', 'kharab', 'ulti', 'chakkar'
+    ];
+    return hindiKeywords.any((k) => lower.contains(k));
+  }
 
   /// Initialize TTS engine
   Future<void> initTts() async {
@@ -33,6 +46,7 @@ class VoiceAssistantService {
 
       _flutterTts.setCompletionHandler(() {
         _isPlayingAudio = false;
+        _onTtsCompleteCallback?.call();
       });
 
       _flutterTts.setErrorHandler((_) {
@@ -117,10 +131,11 @@ class VoiceAssistantService {
   }
 
   /// Speak clinical advice aloud using Text-to-Speech
-  Future<void> speak(String text, {String language = 'en'}) async {
+  Future<void> speak(String text, {String language = 'en', VoidCallback? onComplete}) async {
     if (text.trim().isEmpty) return;
     try {
       await initTts();
+      _onTtsCompleteCallback = onComplete;
 
       // Clean markdown symbols from speech text (remove asterisks, brackets, hash)
       final cleanText = text
@@ -136,6 +151,7 @@ class VoiceAssistantService {
     } catch (e) {
       _isPlayingAudio = false;
       debugPrint('TTS speak warning: $e');
+      onComplete?.call();
     }
   }
 

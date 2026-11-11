@@ -271,3 +271,4 @@ class _MedicineSafetyScreenState extends State<MedicineSafetyScreen> {
     );
   }
 }
+

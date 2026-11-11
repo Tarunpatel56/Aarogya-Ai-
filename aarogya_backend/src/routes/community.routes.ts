@@ -19,3 +19,4 @@ router.post('/feedback', communityController.submitFeedback);
 router.get('/health-tips', communityController.getHealthTips);
 
 export const communityRoutes = router;
+

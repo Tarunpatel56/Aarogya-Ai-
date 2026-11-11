@@ -6,6 +6,7 @@ class HomeQuickActions extends StatelessWidget {
   final VoidCallback onNavigateToAI;
   final VoidCallback onOpenOcrScanner;
   final VoidCallback onOpenDoctorDirectory;
+  final VoidCallback? onOpenVoiceAssistant;
   final VoidCallback? onOpenBrainMri;
   final VoidCallback? onOpenLungXray;
   final VoidCallback? onOpenSkinAnalysis;
@@ -21,6 +22,7 @@ class HomeQuickActions extends StatelessWidget {
     required this.onNavigateToAI,
     required this.onOpenOcrScanner,
     required this.onOpenDoctorDirectory,
+    this.onOpenVoiceAssistant,
     this.onOpenBrainMri,
     this.onOpenLungXray,
     this.onOpenSkinAnalysis,
@@ -75,6 +77,65 @@ class HomeQuickActions extends StatelessWidget {
           ],
         ),
         const SizedBox(height: 12),
+        if (onOpenVoiceAssistant != null) ...[
+          GestureDetector(
+            onTap: onOpenVoiceAssistant,
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              decoration: BoxDecoration(
+                gradient: const LinearGradient(
+                  colors: [Color(0xFF042F2C), Color(0xFF0F766E)],
+                  begin: Alignment.centerLeft,
+                  end: Alignment.centerRight,
+                ),
+                borderRadius: BorderRadius.circular(16),
+                boxShadow: AppColors.elevatedShadow,
+              ),
+              child: Row(
+                children: [
+                  Container(
+                    width: 44,
+                    height: 44,
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF00BFA5).withValues(alpha: 0.25),
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(Icons.mic_rounded, color: Color(0xFF5EEAD4), size: 24),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: const [
+                        Text(
+                          'Talk-to-Talk Voice Assistant',
+                          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: Colors.white),
+                        ),
+                        SizedBox(height: 2),
+                        Text(
+                          'Bol ke baat karein • Hindi & English voice mode',
+                          style: TextStyle(fontSize: 11, color: Color(0xFFCCFBF1)),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF00BFA5),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: const Text(
+                      'Live Voice',
+                      style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Color(0xFF042F2C)),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(height: 10),
+        ],
         Row(
           children: [
             // Tile 1: Ask Aarogya
