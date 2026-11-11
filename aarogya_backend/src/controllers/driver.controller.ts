@@ -142,7 +142,7 @@ export const driverController = {
 
       if (profile.user.verificationStatus !== VerificationStatus.VERIFIED) {
         throw new ForbiddenError(
-          'Driver account is pending Super Admin verification. You cannot accept emergency dispatches until approved by Super Admin.'
+          'Driver account is pending verification. You cannot accept emergency dispatches until credentials are verified.'
         );
       }
 

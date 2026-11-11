@@ -14,7 +14,6 @@ import 'notifications/doctor_notifications_screen.dart';
 import 'doctor_imaging_review_screen.dart';
 import 'prescriptions/prescription_authoring_screen.dart';
 import 'hospital/hospital_beds_screen.dart';
-import 'admin/superadmin_console_screen.dart';
 import '../services/doctor_notification_service.dart';
 import '../services/doctor_socket_service.dart';
 import '../core/api/api_exception.dart';
@@ -521,7 +520,7 @@ class _DoctorDashboardScreenState extends State<DoctorDashboardScreen> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: const [
                               Text(
-                                'Verification Pending Super Admin Approval',
+                                'Verification Pending',
                                 style: TextStyle(
                                   fontWeight: FontWeight.bold,
                                   color: Color(0xFF92400E),
@@ -530,7 +529,7 @@ class _DoctorDashboardScreenState extends State<DoctorDashboardScreen> {
                               ),
                               SizedBox(height: 2),
                               Text(
-                                'Aapka doctor account Super Admin ke verification queue mein hai. Super Admin ke approve karte hi aap Patient App par visible ho jayenge.',
+                                'Aapka doctor account verification queue mein hai. Verification complete hote hi aap Patient App par visible ho jayenge.',
                                 style: TextStyle(color: Color(0xFFB45309), fontSize: 11),
                               ),
                             ],
@@ -581,72 +580,7 @@ class _DoctorDashboardScreenState extends State<DoctorDashboardScreen> {
                     ),
                   ),
                 ],
-                if (_authService.currentUser?.role == 'PLATFORM_ADMIN') ...[
-                  Container(
-                    margin: const EdgeInsets.only(bottom: 14),
-                    decoration: BoxDecoration(
-                      gradient: const LinearGradient(
-                        colors: [Color(0xFF4338CA), Color(0xFF6D28D9)],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                      ),
-                      borderRadius: BorderRadius.circular(14),
-                      boxShadow: const [
-                        BoxShadow(color: Color(0x334338CA), blurRadius: 8, offset: Offset(0, 3)),
-                      ],
-                    ),
-                    child: Material(
-                      color: Colors.transparent,
-                      child: InkWell(
-                        borderRadius: BorderRadius.circular(14),
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(builder: (_) => const SuperAdminConsoleScreen()),
-                          );
-                        },
-                        child: Padding(
-                          padding: const EdgeInsets.all(14),
-                          child: Row(
-                            children: [
-                              Container(
-                                padding: const EdgeInsets.all(8),
-                                decoration: BoxDecoration(
-                                  color: Colors.white.withValues(alpha: 0.2),
-                                  borderRadius: BorderRadius.circular(10),
-                                ),
-                                child: const Icon(Icons.admin_panel_settings, color: Colors.white, size: 24),
-                              ),
-                              const SizedBox(width: 12),
-                              const Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      'SUPERADMIN ECOSYSTEM CONSOLE',
-                                      style: TextStyle(
-                                        color: Colors.white,
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 13,
-                                        letterSpacing: 0.5,
-                                      ),
-                                    ),
-                                    SizedBox(height: 2),
-                                    Text(
-                                      'Manage all accounts, verify doctors, delete/suspend users',
-                                      style: TextStyle(color: Color(0xFFE0E7FF), fontSize: 11),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              const Icon(Icons.arrow_forward_ios, color: Colors.white, size: 14),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
+
                 DoctorHeader(
                   profile: profile,
                   onNotificationTap: () {

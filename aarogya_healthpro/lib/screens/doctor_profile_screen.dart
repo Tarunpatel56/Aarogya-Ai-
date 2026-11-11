@@ -8,7 +8,6 @@ import '../services/doctor_appointment_service.dart';
 import '../services/doctor_notification_service.dart';
 import 'appointments/doctor_appointments_screen.dart';
 import 'notifications/doctor_notifications_screen.dart';
-import 'admin/superadmin_console_screen.dart';
 
 class DoctorProfileScreen extends StatefulWidget {
   final DoctorAuthService? authService;
@@ -1017,63 +1016,6 @@ class _DoctorProfileScreenState extends State<DoctorProfileScreen> {
                       ),
                       const SizedBox(height: 20),
 
-                      // SuperAdmin Access Entry (Visible if user is PLATFORM_ADMIN)
-                      if (widget.authService?.currentUser?.role == 'PLATFORM_ADMIN') ...[
-                        Container(
-                          width: double.infinity,
-                          margin: const EdgeInsets.only(bottom: 16),
-                          decoration: BoxDecoration(
-                            gradient: const LinearGradient(
-                              colors: [Color(0xFF1E1B4B), Color(0xFF312E81)],
-                              begin: Alignment.topLeft,
-                              end: Alignment.bottomRight,
-                            ),
-                            borderRadius: BorderRadius.circular(16),
-                          ),
-                          child: Material(
-                            color: Colors.transparent,
-                            child: InkWell(
-                              borderRadius: BorderRadius.circular(16),
-                              onTap: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(builder: (_) => const SuperAdminConsoleScreen()),
-                                );
-                              },
-                              child: const Padding(
-                                padding: EdgeInsets.all(16),
-                                child: Row(
-                                  children: [
-                                    Icon(Icons.shield_rounded, color: Color(0xFFA5B4FC), size: 28),
-                                    SizedBox(width: 14),
-                                    Expanded(
-                                      child: Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            'SuperAdmin Management Console',
-                                            style: TextStyle(
-                                              color: Colors.white,
-                                              fontSize: 14,
-                                              fontWeight: FontWeight.bold,
-                                            ),
-                                          ),
-                                          SizedBox(height: 2),
-                                          Text(
-                                            'Full ecosystem access • Verify, suspend, or delete users',
-                                            style: TextStyle(color: Color(0xFFC7D2FE), fontSize: 11),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                    Icon(Icons.arrow_forward_ios, color: Colors.white, size: 14),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
 
                       // Logout buttons
                       SizedBox(

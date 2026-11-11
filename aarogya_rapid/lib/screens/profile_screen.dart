@@ -226,10 +226,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         const Divider(height: 1, color: SanctuaryColors.hairlineBorder),
                         _buildInfoTile(
                           icon: Icons.shield_outlined,
-                          title: 'Super Admin Compliance Verification',
+                          title: 'Compliance Verification',
                           value: status == 'VERIFIED'
                               ? 'Verified & Approved (Active EMS Duty)'
-                              : 'Pending Review by Super Admin',
+                              : 'Pending Verification',
                           isHighlight: status != 'VERIFIED',
                         ),
                       ],

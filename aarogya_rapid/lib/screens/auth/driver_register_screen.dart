@@ -152,7 +152,7 @@ class _DriverRegisterScreenState extends State<DriverRegisterScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('✓ EMS Account & Documents registered! Pending Super Admin Approval.'),
+            content: Text('✓ Registration submitted! Verification in progress.'),
             backgroundColor: Color(0xFF15803D),
           ),
         );
@@ -216,7 +216,7 @@ class _DriverRegisterScreenState extends State<DriverRegisterScreen> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  'Super Admin Verification Enforced',
+                                  'Compliance Verification',
                                   style: TextStyle(
                                     fontWeight: FontWeight.bold,
                                     fontSize: 13,
@@ -225,7 +225,7 @@ class _DriverRegisterScreenState extends State<DriverRegisterScreen> {
                                 ),
                                 SizedBox(height: 2),
                                 Text(
-                                  'New pilots must upload compliance documents or use Quick Pass. Duty activates upon Super Admin approval.',
+                                  'New pilots must upload compliance documents. Live emergency duty activates upon verification.',
                                   style: TextStyle(fontSize: 11, color: Color(0xFFB45309)),
                                 ),
                               ],
@@ -497,7 +497,7 @@ class _DriverRegisterScreenState extends State<DriverRegisterScreen> {
                                 ),
                                 const SizedBox(height: 4),
                                 const Text(
-                                  'Super Admin verification ke liye in documents ko upload karein ya attach karein:',
+                                  'Verification ke liye in documents ko attach karein:',
                                   style: TextStyle(fontSize: 10.5, color: SanctuaryColors.textSecondary),
                                 ),
                                 const SizedBox(height: 10),
@@ -611,7 +611,7 @@ class _DriverRegisterScreenState extends State<DriverRegisterScreen> {
                                       child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
                                     )
                                   : const Text(
-                                      'Submit for Super Admin Verification',
+                                      'Submit for Verification',
                                       style: TextStyle(fontSize: 14.5, fontWeight: FontWeight.bold),
                                     ),
                             ),

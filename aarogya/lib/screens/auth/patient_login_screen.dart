@@ -71,7 +71,7 @@ class _PatientLoginScreenState extends State<PatientLoginScreen> {
         if (mounted) {
           setState(() {
             _errorMessage =
-                'Account has ${user.canonicalRole} administrative privileges. Please log in through the appropriate portal (Doctor/Hospital App for HOSPITAL_ADMIN, Rapid App for DRIVER, or Super Admin Dashboard).';
+                'This account is registered as ${user.canonicalRole}. Please sign in through your designated staff application.';
           });
           await _authService.logout();
         }

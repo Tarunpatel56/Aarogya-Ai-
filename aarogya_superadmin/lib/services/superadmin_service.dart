@@ -99,7 +99,7 @@ class SuperAdminService {
         '/admin/doctors/$doctorId/verify',
         body: {
           'status': status,
-          'notes': notes ?? (status == 'VERIFIED' ? 'Approved by Super Admin' : 'Rejected by Super Admin'),
+          'notes': notes ?? (status == 'VERIFIED' ? 'Verified & Activated' : 'Rejected'),
         },
       );
       return res is Map<String, dynamic> && res['success'] == true;
@@ -140,7 +140,7 @@ class SuperAdminService {
         body: {
           'status': status,
           'rejectionReason': rejectionReason,
-          'notes': notes ?? (status == 'VERIFIED' ? 'Approved by Super Admin' : 'Rejected by Super Admin'),
+          'notes': notes ?? (status == 'VERIFIED' ? 'Verified & Activated' : 'Rejected'),
         },
       );
       return res is Map<String, dynamic> && res['success'] == true;

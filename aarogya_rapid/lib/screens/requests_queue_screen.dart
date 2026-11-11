@@ -446,7 +446,7 @@ class _RequestsQueueScreenState extends State<RequestsQueueScreen>
                         borderRadius: BorderRadius.circular(4),
                       ),
                       child: Text(
-                        _verificationStatus == 'VERIFIED' ? 'ALS Unit • Verified' : 'Pending Super Admin',
+                        _verificationStatus == 'VERIFIED' ? 'ALS Unit • Verified' : 'Verification Pending',
                         style: TextStyle(
                           color: _verificationStatus == 'VERIFIED'
                               ? SanctuaryColors.optimalGreen
@@ -481,7 +481,7 @@ class _RequestsQueueScreenState extends State<RequestsQueueScreen>
                 if (_verificationStatus != 'VERIFIED') {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
-                      content: Text('Cannot go On Duty: Super Admin verification required.'),
+                      content: Text('Cannot go On Duty: Verification in progress.'),
                       backgroundColor: Color(0xFFD97706),
                     ),
                   );
@@ -951,7 +951,7 @@ class _RequestsQueueScreenState extends State<RequestsQueueScreen>
                     ),
                     label: Text(
                       _verificationStatus != 'VERIFIED'
-                          ? 'VERIFICATION PENDING (SUPER ADMIN REQUIRED)'
+                          ? 'VERIFICATION PENDING'
                           : 'ACCEPT DISPATCH & ENGAGE UNIT',
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
@@ -978,14 +978,14 @@ class _RequestsQueueScreenState extends State<RequestsQueueScreen>
             SizedBox(width: 8),
             Flexible(
               child: Text(
-                'Super Admin Verification Required',
+                'Verification Required',
                 style: TextStyle(fontWeight: FontWeight.w800, fontSize: 16),
               ),
             ),
           ],
         ),
         content: const Text(
-          'Your driving license and EMS credentials must be verified and approved by the Super Admin before you can go on duty or accept live emergency dispatches.\n\nPlease wait for Super Admin approval or contact your fleet supervisor.',
+          'Your driving license and EMS credentials are currently undergoing verification before you can go on duty or accept live emergency dispatches.\n\nPlease wait while your credentials are being verified.',
           style: TextStyle(fontSize: 13, height: 1.45, color: SanctuaryColors.deepSlateNavy),
         ),
         actions: [
@@ -1034,7 +1034,7 @@ class _RequestsQueueScreenState extends State<RequestsQueueScreen>
                   children: [
                     const Flexible(
                       child: Text(
-                        'AWAITING SUPER ADMIN VERIFICATION',
+                        'VERIFICATION IN PROGRESS',
                         overflow: TextOverflow.ellipsis,
                         style: TextStyle(
                           color: Color(0xFF92400E),
@@ -1064,7 +1064,7 @@ class _RequestsQueueScreenState extends State<RequestsQueueScreen>
                 ),
                 const SizedBox(height: 4),
                 const Text(
-                  'Your driving license & EMS credentials are submitted and pending compliance review by Super Admin. You will be activated automatically once approved.',
+                  'Your driving license & EMS credentials are submitted and undergoing compliance review. You will be activated automatically once verified.',
                   style: TextStyle(color: Color(0xFFB45309), fontSize: 11, height: 1.35),
                 ),
               ],

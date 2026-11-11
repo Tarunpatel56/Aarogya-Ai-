@@ -674,7 +674,7 @@ export const adminController = {
 
       res.status(200).json({
         success: true,
-        message: `Driver ${staffProfile.fullName} verification status updated to ${status} by Super Admin`,
+        message: `Driver ${staffProfile.fullName} verification status updated to ${status}`,
         data: {
           driver: {
             id: updatedProfile.id,

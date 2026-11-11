@@ -148,7 +148,7 @@ class _RapidRootNavigationHostState extends State<RapidRootNavigationHost> {
             backgroundColor: isVerified ? SanctuaryColors.optimalGreen : SanctuaryColors.crimsonRose,
             content: Text(
               isVerified
-                  ? '🛡️ Super Admin APPROVED your Driver & Ambulance credentials! Duty mode is unlocked.'
+                  ? '✓ Your Driver & Ambulance credentials have been verified! Duty mode is unlocked.'
                   : '⚠️ Driver verification updated: $status ${reason.isNotEmpty ? "($reason)" : ""}',
             ),
             duration: const Duration(seconds: 5),
