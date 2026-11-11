@@ -53,7 +53,7 @@ class SocketService {
 
         const decoded = jwt.verify(rawToken, env.JWT_ACCESS_SECRET) as any;
         socket.user = {
-          id: decoded.userId || decoded.id,
+          id: decoded.sub || decoded.userId || decoded.id,
           email: decoded.email,
           role: decoded.role,
           verificationStatus: decoded.verificationStatus,

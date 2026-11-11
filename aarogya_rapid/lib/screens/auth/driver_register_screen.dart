@@ -120,66 +120,6 @@ class _DriverRegisterScreenState extends State<DriverRegisterScreen> {
     });
   }
 
-  /// ⚡ DIRECT REGISTER / DEMO PASS:
-  /// Instant registration without filling documents or typing full details
-  Future<void> _handleDirectRegister() async {
-    final tag = DateTime.now().millisecondsSinceEpoch % 10000;
-    final fullName = _fullNameController.text.trim().isNotEmpty
-        ? _fullNameController.text.trim()
-        : 'Pilot Vikram #$tag';
-    final email = _emailController.text.trim().isNotEmpty
-        ? _emailController.text.trim()
-        : 'pilot$tag@aarogya.ai';
-    final password = _passwordController.text.isNotEmpty
-        ? _passwordController.text
-        : 'Driver@123';
-    final phone = _phoneController.text.trim().isNotEmpty
-        ? _phoneController.text.trim()
-        : '98${tag}12345'.padRight(10, '0');
-    final license = _licenseController.text.trim().isNotEmpty
-        ? _licenseController.text.trim()
-        : 'DL-DIRECT-$tag';
-    final vehicle = _vehicleController.text.trim().isNotEmpty
-        ? _vehicleController.text.trim()
-        : 'DL-01-AMB-$tag';
-
-    setState(() {
-      _isLoading = true;
-      _errorMessage = null;
-    });
-
-    try {
-      await _authService.register(
-        fullName: fullName,
-        email: email,
-        phone: phone,
-        staffRole: _selectedRole,
-        licenseNumber: license,
-        assignedVehicleNumber: vehicle,
-        certificationLevel: _selectedRole == 'PARAMEDIC' ? 'EMT-Critical Care' : 'Commercial Heavy EMS',
-        password: password,
-        documents: null, // Direct pass - no documents required
-      );
-
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('⚡ Direct Registration Successful: $email (Pending Super Admin)'),
-            backgroundColor: SanctuaryColors.optimalGreen,
-          ),
-        );
-        widget.onRegisterSuccess();
-      }
-    } catch (e) {
-      if (mounted) {
-        setState(() {
-          _errorMessage = e.toString().replaceAll('ApiException: ', '');
-          _isLoading = false;
-        });
-      }
-    }
-  }
-
   Future<void> _handleRegisterWithDocuments() async {
     if (!_formKey.currentState!.validate()) return;
 
@@ -320,59 +260,6 @@ class _DriverRegisterScreenState extends State<DriverRegisterScreen> {
                       ),
                       const SizedBox(height: 16),
                     ],
-
-                    // Direct Register Action (Requested by user)
-                    Container(
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFEFF6FF),
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: const Color(0xFFBFDBFE)),
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          const Row(
-                            children: [
-                              Icon(Icons.bolt_rounded, color: Color(0xFF2563EB), size: 18),
-                              SizedBox(width: 6),
-                              Text(
-                                'Quick Demo Mode (Bina Documents)',
-                                style: TextStyle(
-                                  fontSize: 12.5,
-                                  fontWeight: FontWeight.w800,
-                                  color: Color(0xFF1D4ED8),
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 4),
-                          const Text(
-                            'Testing ke liye direct aage badhein bina kisi document ko upload kiye.',
-                            style: TextStyle(fontSize: 11, color: Color(0xFF3B82F6)),
-                          ),
-                          const SizedBox(height: 10),
-                          SizedBox(
-                            height: 40,
-                            child: ElevatedButton.icon(
-                              onPressed: _isLoading ? null : _handleDirectRegister,
-                              icon: const Icon(Icons.arrow_forward_rounded, size: 16),
-                              label: const Text(
-                                '⚡ DIRECT REGISTER / QUICK PASS',
-                                style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.bold),
-                              ),
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: const Color(0xFF2563EB),
-                                foregroundColor: Colors.white,
-                                elevation: 0,
-                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: 16),
 
                     // Standard Form Container
                     Container(

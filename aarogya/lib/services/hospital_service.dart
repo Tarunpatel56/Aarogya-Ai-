@@ -37,25 +37,12 @@ class HospitalService {
         final list = (data['hospitals'] as List)
             .map((item) => HospitalModel.fromJson(item as Map<String, dynamic>))
             .toList();
-
-        if (list.isNotEmpty) {
-          return list;
-        }
+        return list;
       }
 
-      // If backend database is unseeded or returns 0 hospitals, return verified regional directory
-      return _getVerifiedHospitalsFallback(
-        userLat: userLat,
-        userLng: userLng,
-        emergencyOnly: emergencyBay ?? false,
-      );
+      return [];
     } catch (_) {
-      // Fallback for offline, network timeouts, or unauthenticated guests
-      return _getVerifiedHospitalsFallback(
-        userLat: userLat,
-        userLng: userLng,
-        emergencyOnly: emergencyBay ?? false,
-      );
+      return [];
     }
   }
 

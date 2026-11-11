@@ -71,7 +71,15 @@ class ApiClient {
 
   Future<dynamic> _sendWithRetry(Future<http.Response> Function() requestFn) async {
     try {
-      final response = await requestFn();
+      var response = await requestFn();
+      if (response.statusCode == 401) {
+        // Attempt silent token refresh before declaring session expired
+        final refreshed = await _tryRefreshToken();
+        if (refreshed) {
+          response = await requestFn();
+        }
+      }
+
       if (response.statusCode == 401) {
         await _tokenStorage.clearAll();
         onSessionExpired?.call();
@@ -83,6 +91,39 @@ class ApiClient {
     } catch (e) {
       throw ApiException(statusCode: 0, message: e.toString());
     }
+  }
+
+  Future<bool> _tryRefreshToken() async {
+    try {
+      final refreshToken = await _tokenStorage.getRefreshToken();
+      if (refreshToken == null || refreshToken.isEmpty) return false;
+
+      final uri = Uri.parse('${ApiConfig.baseUrl}/auth/refresh');
+      final res = await _httpClient.post(
+        uri,
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({'refreshToken': refreshToken}),
+      ).timeout(ApiConfig.timeout);
+
+      if (res.statusCode >= 200 && res.statusCode < 300) {
+        final data = jsonDecode(res.body);
+        if (data is Map<String, dynamic> && data['success'] == true) {
+          final payload = data['data'] as Map<String, dynamic>? ?? {};
+          final tokens = payload['tokens'] as Map<String, dynamic>? ?? {};
+          final newAccess = (tokens['accessToken'] ?? payload['accessToken'])?.toString() ?? '';
+          final newRefresh = (tokens['refreshToken'] ?? payload['refreshToken'])?.toString() ?? '';
+
+          if (newAccess.isNotEmpty) {
+            await _tokenStorage.saveTokens(
+              accessToken: newAccess,
+              refreshToken: newRefresh.isNotEmpty ? newRefresh : refreshToken,
+            );
+            return true;
+          }
+        }
+      }
+    } catch (_) {}
+    return false;
   }
 
   dynamic _handleResponse(http.Response response) {

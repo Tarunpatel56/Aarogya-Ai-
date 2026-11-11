@@ -1,15 +1,9 @@
 import { z } from 'zod';
 
-const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,128}$/;
-
 export const passwordSchema = z
   .string()
-  .min(8, 'Password must be at least 8 characters long')
-  .max(128, 'Password must not exceed 128 characters')
-  .regex(
-    passwordRegex,
-    'Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character'
-  );
+  .min(6, 'Password must be at least 6 characters long')
+  .max(128, 'Password must not exceed 128 characters');
 
 export const emailSchema = z
   .string()

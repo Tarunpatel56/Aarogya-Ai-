@@ -11,8 +11,8 @@ class SuperAdminLoginScreen extends StatefulWidget {
 }
 
 class _SuperAdminLoginScreenState extends State<SuperAdminLoginScreen> {
-  final _emailController = TextEditingController(text: 'superadmin@aarogya.ai');
-  final _passwordController = TextEditingController(text: 'Admin@12345');
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
   final _adminService = SuperAdminService();
   bool _isLoading = false;
   String? _errorMessage;
@@ -132,21 +132,6 @@ class _SuperAdminLoginScreenState extends State<SuperAdminLoginScreen> {
                         ],
                       ),
                     ),
-
-                  // Quick Demo Auto-fill Chip
-                  ActionChip(
-                    avatar: const Icon(Icons.key, size: 14, color: Color(0xFF38BDF8)),
-                    label: const Text('Quick Fill Super Admin Access', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Color(0xFF38BDF8))),
-                    backgroundColor: const Color(0xFF0F172A),
-                    side: const BorderSide(color: Color(0xFF38BDF8)),
-                    onPressed: () {
-                      setState(() {
-                        _emailController.text = 'superadmin@aarogya.ai';
-                        _passwordController.text = 'Admin@12345';
-                      });
-                    },
-                  ),
-                  const SizedBox(height: 16),
 
                   // Login Form Card
                   Container(

@@ -523,7 +523,10 @@ class _LiveAmbulanceTrackingScreenState
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  _emergency.assignedVehicleNo ?? 'Ambulance',
+                  _emergency.assignedVehicleNo ??
+                      ((_emergency.driverName != null && _emergency.driverName!.isNotEmpty)
+                          ? 'Ambulance Unit'
+                          : 'Searching Nearby Pilots...'),
                   style: const TextStyle(
                     color: Color(0xFFFCA5A5),
                     fontSize: 10,
@@ -590,7 +593,7 @@ class _LiveAmbulanceTrackingScreenState
           ),
           const SizedBox(height: 10),
           Text(
-            _emergency.hospitalName ?? 'AIIMS Emergency Trauma Bay',
+            _emergency.hospitalName ?? 'Assigning Nearest Verified Trauma Center...',
             style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 4),

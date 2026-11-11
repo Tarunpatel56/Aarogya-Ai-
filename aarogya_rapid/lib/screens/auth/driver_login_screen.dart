@@ -13,8 +13,8 @@ class DriverLoginScreen extends StatefulWidget {
 }
 
 class _DriverLoginScreenState extends State<DriverLoginScreen> {
-  final _emailController = TextEditingController(text: 'driver@aarogya.ai');
-  final _passwordController = TextEditingController(text: 'Driver@123');
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
   final _authService = AmbulanceAuthService();
   bool _isLoading = false;
   String? _errorMessage;
@@ -123,40 +123,6 @@ class _DriverLoginScreenState extends State<DriverLoginScreen> {
                       ],
                     ),
                   ),
-
-                // Quick Demo Login Fill
-                Wrap(
-                  spacing: 8,
-                  runSpacing: 8,
-                  alignment: WrapAlignment.center,
-                  children: [
-                    ActionChip(
-                      avatar: const Icon(Icons.airport_shuttle, size: 14, color: SanctuaryColors.primaryTeal),
-                      label: const Text('Lead Driver (Demo)', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
-                      backgroundColor: const Color(0xFFEFF6FF),
-                      side: const BorderSide(color: Color(0xFFBFDBFE)),
-                      onPressed: () {
-                        setState(() {
-                          _emailController.text = 'driver@aarogya.ai';
-                          _passwordController.text = 'Driver@123';
-                        });
-                      },
-                    ),
-                    ActionChip(
-                      avatar: const Icon(Icons.medical_services_outlined, size: 14, color: Color(0xFF0284C7)),
-                      label: const Text('Paramedic (Demo)', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Color(0xFF0284C7))),
-                      backgroundColor: const Color(0xFFF0F9FF),
-                      side: const BorderSide(color: Color(0xFFBAE6FD)),
-                      onPressed: () {
-                        setState(() {
-                          _emailController.text = 'testparamedic@aarogya.ai';
-                          _passwordController.text = 'Driver@123';
-                        });
-                      },
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 16),
 
                 // Inputs
                 Container(
