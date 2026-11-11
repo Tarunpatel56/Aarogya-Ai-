@@ -35,6 +35,9 @@ export const authController = {
       });
 
       if (existingUser) {
+        if (existingUser.verificationStatus === VerificationStatus.REJECTED) {
+          throw new ConflictError('This account was rejected by administration. New registration is permanently blocked.');
+        }
         if (email && existingUser.email.toLowerCase() === email.toLowerCase()) {
           throw new ConflictError(`Email '${email}' is already registered. Please sign in instead.`);
         }
@@ -137,6 +140,9 @@ export const authController = {
       });
 
       if (existingUser) {
+        if (existingUser.verificationStatus === VerificationStatus.REJECTED) {
+          throw new ConflictError('This account was rejected by administration. New registration is permanently blocked.');
+        }
         if (email && existingUser.email.toLowerCase() === email.toLowerCase()) {
           throw new ConflictError(`Email '${email}' is already registered. Please sign in instead.`);
         }
@@ -223,6 +229,9 @@ export const authController = {
       });
 
       if (existingUser) {
+        if (existingUser.verificationStatus === VerificationStatus.REJECTED) {
+          throw new ConflictError('This account was rejected by administration. New registration is permanently blocked.');
+        }
         if (email && existingUser.email.toLowerCase() === email.toLowerCase()) {
           throw new ConflictError(`Email '${email}' is already registered. Please sign in instead.`);
         }
@@ -318,6 +327,9 @@ export const authController = {
       });
 
       if (existingUser) {
+        if (existingUser.verificationStatus === VerificationStatus.REJECTED) {
+          throw new ConflictError('This account was rejected by administration. New registration is permanently blocked.');
+        }
         if (email && existingUser.email.toLowerCase() === email.toLowerCase()) {
           throw new ConflictError(`Email '${email}' is already registered. Please sign in instead.`);
         }
@@ -419,6 +431,10 @@ export const authController = {
 
       if (!user.isActive) {
         throw new UnauthorizedError('This account has been deactivated. Please contact support.');
+      }
+
+      if (user.verificationStatus === VerificationStatus.REJECTED) {
+        throw new UnauthorizedError('Your account application was rejected by compliance. Access is permanently blocked.');
       }
 
       // Update lastLoginAt timestamp

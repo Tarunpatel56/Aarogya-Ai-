@@ -73,8 +73,8 @@ export const adminVerifyDriverSchema = {
     status: z.enum(['VERIFIED', 'REJECTED', 'UNDER_REVIEW', 'SUSPENDED', 'PENDING'], {
       required_error: 'status is required (VERIFIED, REJECTED, UNDER_REVIEW, SUSPENDED)',
     }),
-    rejectionReason: z.string().trim().max(500).optional(),
-    notes: z.string().trim().max(500).optional(),
+    rejectionReason: z.string().trim().max(500).nullish(),
+    notes: z.string().trim().max(500).nullish(),
   }),
 };
 

@@ -95,12 +95,13 @@ class SuperAdminService {
   /// Approve or Reject a Doctor
   Future<bool> verifyDoctor(String doctorId, {required String status, String? notes}) async {
     try {
+      final body = <String, dynamic>{
+        'status': status,
+        if (notes != null && notes.isNotEmpty) 'notes': notes,
+      };
       final res = await _apiClient.patch(
         '/admin/doctors/$doctorId/verify',
-        body: {
-          'status': status,
-          'notes': notes ?? (status == 'VERIFIED' ? 'Verified & Activated' : 'Rejected'),
-        },
+        body: body,
       );
       return res is Map<String, dynamic> && res['success'] == true;
     } catch (_) {
@@ -135,14 +136,25 @@ class SuperAdminService {
   /// Approve or Reject an Ambulance Driver / Paramedic
   Future<bool> verifyAmbulanceStaff(String staffId, {required String status, String? rejectionReason, String? notes}) async {
     try {
+      final body = <String, dynamic>{
+        'status': status,
+        if (notes != null && notes.isNotEmpty) 'notes': notes,
+        if (rejectionReason != null && rejectionReason.isNotEmpty) 'rejectionReason': rejectionReason,
+      };
       final res = await _apiClient.patch(
         '/admin/drivers/$staffId/verify',
-        body: {
-          'status': status,
-          'rejectionReason': rejectionReason,
-          'notes': notes ?? (status == 'VERIFIED' ? 'Verified & Activated' : 'Rejected'),
-        },
+        body: body,
       );
+      return res is Map<String, dynamic> && res['success'] == true;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  /// Permanently delete an ID/Account (Doctor, Driver, Patient)
+  Future<bool> deleteUser(String userId) async {
+    try {
+      final res = await _apiClient.delete('/admin/users/$userId');
       return res is Map<String, dynamic> && res['success'] == true;
     } catch (_) {
       return false;

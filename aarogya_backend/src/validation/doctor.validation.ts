@@ -94,6 +94,6 @@ export const adminVerifyDoctorSchema = {
     status: z.nativeEnum(VerificationStatus, {
       errorMap: () => ({ message: 'status must be a valid VerificationStatus (VERIFIED, REJECTED, UNDER_REVIEW, SUSPENDED)' }),
     }),
-    notes: z.string().trim().max(500).optional(),
+    notes: z.string().trim().max(500).nullish(),
   }),
 };

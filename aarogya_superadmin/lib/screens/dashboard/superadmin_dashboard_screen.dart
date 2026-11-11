@@ -222,6 +222,57 @@ class _SuperAdminDashboardScreenState extends State<SuperAdminDashboardScreen> {
     }
   }
 
+  Future<void> _handleDeleteUser(String userId, String userName, String userType) async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: const Color(0xFF1E293B),
+        title: Row(
+          children: const [
+            Icon(Icons.warning_amber_rounded, color: Color(0xFFEF4444)),
+            SizedBox(width: 8),
+            Text('Delete Account ID?', style: TextStyle(color: Colors.white, fontSize: 17)),
+          ],
+        ),
+        content: Text(
+          'Are you sure you want to permanently delete $userName\'s ($userType) ID? This will remove their record from the database and revoke all platform access.',
+          style: const TextStyle(color: Color(0xFFCBD5E1), fontSize: 13),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('Cancel', style: TextStyle(color: Color(0xFF94A3B8))),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFEF4444)),
+            onPressed: () => Navigator.pop(ctx, true),
+            child: const Text('Confirm Delete ID', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+          ),
+        ],
+      ),
+    );
+
+    if (confirm != true) return;
+
+    setState(() => _isLoading = true);
+    final success = await _adminService.deleteUser(userId);
+    setState(() => _isLoading = false);
+
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            success
+                ? 'Account ID for $userName was deleted permanently.'
+                : 'Failed to delete account. Please try again.',
+          ),
+          backgroundColor: success ? Colors.green : Colors.red,
+        ),
+      );
+      _refreshCurrentTab();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -713,6 +764,12 @@ class _SuperAdminDashboardScreenState extends State<SuperAdminDashboardScreen> {
                                   label: const Text('Reject', style: TextStyle(fontSize: 12)),
                                   onPressed: () => _handleDoctorVerification(doctorId, name, 'REJECTED'),
                                 ),
+                              const SizedBox(width: 8),
+                              IconButton(
+                                tooltip: 'Delete ID Permanently',
+                                icon: const Icon(Icons.delete_forever_rounded, color: Color(0xFFEF4444), size: 22),
+                                onPressed: () => _handleDeleteUser(doctorId, name, 'Doctor'),
+                              ),
                             ],
                           ),
                         ],
@@ -908,6 +965,15 @@ class _SuperAdminDashboardScreenState extends State<SuperAdminDashboardScreen> {
                                   label: const Text('Reject', style: TextStyle(fontSize: 12)),
                                   onPressed: () => _handleAmbulanceVerification(staffId, name, 'REJECTED'),
                                 ),
+                              const SizedBox(width: 8),
+                              IconButton(
+                                tooltip: 'Delete ID Permanently',
+                                icon: const Icon(Icons.delete_forever_rounded, color: Color(0xFFEF4444), size: 22),
+                                onPressed: () {
+                                  final targetUserId = user['id']?.toString() ?? staff['userId']?.toString() ?? staffId;
+                                  _handleDeleteUser(targetUserId, name, 'Ambulance Pilot');
+                                },
+                              ),
                             ],
                           ),
                         ],
@@ -1167,6 +1233,15 @@ class _SuperAdminDashboardScreenState extends State<SuperAdminDashboardScreen> {
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
+                          ),
+                          const SizedBox(width: 4),
+                          IconButton(
+                            tooltip: 'Delete ID Permanently',
+                            icon: const Icon(Icons.delete_forever_rounded, color: Color(0xFFEF4444), size: 20),
+                            onPressed: () {
+                              final patientUserId = item['id']?.toString() ?? '';
+                              _handleDeleteUser(patientUserId, name, 'Patient');
+                            },
                           ),
                         ],
                       ),
