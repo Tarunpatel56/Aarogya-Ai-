@@ -14,6 +14,7 @@ import 'services/ambulance_dispatch_service.dart';
 import 'services/ambulance_socket_service.dart';
 import 'theme/app_theme.dart';
 import 'widgets/app_nav_bar.dart';
+import 'screens/splash/rapid_splash_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -57,29 +58,18 @@ class _RapidRootAuthWrapperState extends State<RapidRootAuthWrapper> {
   bool _isAuthenticated = false;
 
   @override
-  void initState() {
-    super.initState();
-    _checkInitialAuth();
-  }
-
-  Future<void> _checkInitialAuth() async {
-    final loggedIn = await _authService.isLoggedIn();
-    if (mounted) {
-      setState(() {
-        _isAuthenticated = loggedIn;
-        _isCheckingAuth = false;
-      });
-    }
-  }
-
-  @override
   Widget build(BuildContext context) {
     if (_isCheckingAuth) {
-      return const Scaffold(
-        backgroundColor: SanctuaryColors.surface,
-        body: Center(
-          child: CircularProgressIndicator(color: SanctuaryColors.emergencyRed),
-        ),
+      return RapidSplashScreen(
+        authService: _authService,
+        onSessionChecked: (hasSession) {
+          if (mounted) {
+            setState(() {
+              _isAuthenticated = hasSession;
+              _isCheckingAuth = false;
+            });
+          }
+        },
       );
     }
 

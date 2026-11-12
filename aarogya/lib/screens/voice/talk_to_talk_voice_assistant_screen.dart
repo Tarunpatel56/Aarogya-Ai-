@@ -471,26 +471,32 @@ class _TalkToTalkVoiceAssistantScreenState extends State<TalkToTalkVoiceAssistan
 
             // Bottom Continuous Mode & Mute Actions
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Row(
-                    children: [
-                      Switch(
-                        value: _continuousMode,
-                        activeThumbColor: const Color(0xFF00BFA5),
-                        activeTrackColor: const Color(0xFF00897B),
-                        onChanged: (val) {
-                          setState(() => _continuousMode = val);
-                        },
-                      ),
-                      const SizedBox(width: 4),
-                      const Text(
-                        'Continuous Talk Mode',
-                        style: TextStyle(color: Colors.white70, fontSize: 12),
-                      ),
-                    ],
+                  Expanded(
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Switch(
+                          value: _continuousMode,
+                          activeThumbColor: const Color(0xFF00BFA5),
+                          activeTrackColor: const Color(0xFF00897B),
+                          onChanged: (val) {
+                            setState(() => _continuousMode = val);
+                          },
+                        ),
+                        const SizedBox(width: 4),
+                        const Flexible(
+                          child: Text(
+                            'Continuous Talk Mode',
+                            style: TextStyle(color: Colors.white70, fontSize: 12),
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                   if (_state == VoiceModeState.speaking)
                     TextButton.icon(

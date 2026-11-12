@@ -3,6 +3,7 @@ import '../../theme/app_colors.dart';
 import '../../theme/app_typography.dart';
 import '../../services/doctor_auth_service.dart';
 import '../../core/api/api_exception.dart';
+import '../../widgets/healthpro_brand_logo.dart';
 import 'doctor_register_screen.dart';
 
 class DoctorLoginScreen extends StatefulWidget {
@@ -84,19 +85,10 @@ class _DoctorLoginScreenState extends State<DoctorLoginScreen> {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     // Shield Logo & Header
-                    Center(
-                      child: Container(
-                        width: 68,
-                        height: 68,
-                        decoration: BoxDecoration(
-                          color: AppColors.primary.withValues(alpha: 0.12),
-                          shape: BoxShape.circle,
-                        ),
-                        child: const Icon(
-                          Icons.medical_services_rounded,
-                          color: AppColors.primary,
-                          size: 34,
-                        ),
+                    const Center(
+                      child: HealthProBrandLogo(
+                        size: 76,
+                        showText: false,
                       ),
                     ),
                     const SizedBox(height: 16),

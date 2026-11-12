@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../services/ambulance_auth_service.dart';
 import '../../theme/app_theme.dart';
+import '../../widgets/rapid_brand_logo.dart';
 import 'driver_register_screen.dart';
 
 class DriverLoginScreen extends StatefulWidget {
@@ -60,25 +61,9 @@ class _DriverLoginScreenState extends State<DriverLoginScreen> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 // EMS Fleet Logo
-                Container(
-                  width: 80,
-                  height: 80,
-                  decoration: BoxDecoration(
-                    color: SanctuaryColors.emergencyRed,
-                    shape: BoxShape.circle,
-                    boxShadow: [
-                      BoxShadow(
-                        color: SanctuaryColors.emergencyRed.withValues(alpha: 0.35),
-                        blurRadius: 16,
-                        offset: const Offset(0, 6),
-                      ),
-                    ],
-                  ),
-                  child: const Icon(
-                    Icons.local_hospital_rounded,
-                    color: Colors.white,
-                    size: 42,
-                  ),
+                const RapidBrandLogo(
+                  size: 78,
+                  showText: false,
                 ),
                 const SizedBox(height: 20),
                 const Text(

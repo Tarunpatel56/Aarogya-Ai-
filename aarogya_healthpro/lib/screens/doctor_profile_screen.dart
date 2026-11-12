@@ -8,6 +8,8 @@ import '../services/doctor_appointment_service.dart';
 import '../services/doctor_notification_service.dart';
 import 'appointments/doctor_appointments_screen.dart';
 import 'notifications/doctor_notifications_screen.dart';
+import 'doctor_navigation_shell.dart';
+import 'auth/doctor_login_screen.dart';
 
 class DoctorProfileScreen extends StatefulWidget {
   final DoctorAuthService? authService;
@@ -516,6 +518,22 @@ class _DoctorProfileScreenState extends State<DoctorProfileScreen> {
 
     if (confirmed == true && widget.authService != null) {
       await widget.authService!.logout();
+      if (!mounted) return;
+      Navigator.of(context).pushAndRemoveUntil(
+        MaterialPageRoute(
+          builder: (_) => DoctorLoginScreen(
+            authService: widget.authService!,
+            onLoginSuccess: () {
+              Navigator.of(context).pushReplacement(
+                MaterialPageRoute(
+                  builder: (_) => MainNavigationShell(authService: widget.authService),
+                ),
+              );
+            },
+          ),
+        ),
+        (route) => false,
+      );
     }
   }
 
@@ -538,6 +556,22 @@ class _DoctorProfileScreenState extends State<DoctorProfileScreen> {
 
     if (confirmed == true && widget.authService != null) {
       await widget.authService!.logoutAll();
+      if (!mounted) return;
+      Navigator.of(context).pushAndRemoveUntil(
+        MaterialPageRoute(
+          builder: (_) => DoctorLoginScreen(
+            authService: widget.authService!,
+            onLoginSuccess: () {
+              Navigator.of(context).pushReplacement(
+                MaterialPageRoute(
+                  builder: (_) => MainNavigationShell(authService: widget.authService),
+                ),
+              );
+            },
+          ),
+        ),
+        (route) => false,
+      );
     }
   }
 

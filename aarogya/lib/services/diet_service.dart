@@ -493,3 +493,4 @@ class DietService {
     return [earlyMeal, bfastMeal, midMeal, lunchMeal, eveMeal, dinMeal, bedMeal];
   }
 }
+

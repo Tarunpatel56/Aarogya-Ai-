@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../services/superadmin_service.dart';
+import '../../widgets/superadmin_brand_logo.dart';
 
 class SuperAdminLoginScreen extends StatefulWidget {
   final VoidCallback onLoginSuccess;
@@ -67,26 +68,9 @@ class _SuperAdminLoginScreenState extends State<SuperAdminLoginScreen> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   // Shield Logo
-                  Container(
-                    width: 76,
-                    height: 76,
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF1E293B),
-                      shape: BoxShape.circle,
-                      border: Border.all(color: const Color(0xFF38BDF8), width: 2),
-                      boxShadow: [
-                        BoxShadow(
-                          color: const Color(0xFF38BDF8).withValues(alpha: 0.25),
-                          blurRadius: 20,
-                          offset: const Offset(0, 6),
-                        ),
-                      ],
-                    ),
-                    child: const Icon(
-                      Icons.admin_panel_settings_rounded,
-                      color: Color(0xFF38BDF8),
-                      size: 40,
-                    ),
+                  const SuperAdminBrandLogo(
+                    size: 78,
+                    showText: false,
                   ),
                   const SizedBox(height: 20),
                   const Text(

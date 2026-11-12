@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'core/config/api_config.dart';
-import 'core/storage/token_storage.dart';
 import 'screens/auth/superadmin_login_screen.dart';
 import 'screens/dashboard/superadmin_dashboard_screen.dart';
+import 'screens/splash/superadmin_splash_screen.dart';
 import 'theme/app_theme.dart';
 
 void main() async {
@@ -35,25 +35,8 @@ class SuperAdminAuthGate extends StatefulWidget {
 }
 
 class _SuperAdminAuthGateState extends State<SuperAdminAuthGate> {
-  final TokenStorage _tokenStorage = TokenStorage();
   bool _isChecking = true;
   bool _isAuthenticated = false;
-
-  @override
-  void initState() {
-    super.initState();
-    _checkAuth();
-  }
-
-  Future<void> _checkAuth() async {
-    final valid = await _tokenStorage.hasValidToken();
-    if (mounted) {
-      setState(() {
-        _isAuthenticated = valid;
-        _isChecking = false;
-      });
-    }
-  }
 
   void _onLoginSuccess() {
     setState(() {
@@ -70,11 +53,15 @@ class _SuperAdminAuthGateState extends State<SuperAdminAuthGate> {
   @override
   Widget build(BuildContext context) {
     if (_isChecking) {
-      return const Scaffold(
-        backgroundColor: Color(0xFF0F172A),
-        body: Center(
-          child: CircularProgressIndicator(color: Color(0xFFEF4444)),
-        ),
+      return SuperAdminSplashScreen(
+        onSessionChecked: (hasSession) {
+          if (mounted) {
+            setState(() {
+              _isAuthenticated = hasSession;
+              _isChecking = false;
+            });
+          }
+        },
       );
     }
 

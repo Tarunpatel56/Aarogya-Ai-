@@ -13,6 +13,8 @@ import 'notifications/notifications_screen.dart';
 import 'profile/abha_card_widget.dart';
 import 'profile/family_health_screen.dart';
 import 'profile/edit_profile_screen.dart';
+import 'auth/patient_login_screen.dart';
+import 'main_navigation_shell.dart';
 
 class ProfileScreen extends StatefulWidget {
   final AuthService? authService;
@@ -269,7 +271,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
       final auth = widget.authService ?? AuthService();
       await auth.logout();
       if (!mounted) return;
-      Navigator.of(context).popUntil((route) => route.isFirst);
+      Navigator.of(context).pushAndRemoveUntil(
+        MaterialPageRoute(
+          builder: (_) => PatientLoginScreen(
+            authService: auth,
+            onLoginSuccess: () {
+              Navigator.of(context).pushReplacement(
+                MaterialPageRoute(
+                  builder: (_) => MainNavigationShell(authService: auth),
+                ),
+              );
+            },
+          ),
+        ),
+        (route) => false,
+      );
     }
   }
 
@@ -294,7 +310,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
       final auth = widget.authService ?? AuthService();
       await auth.logoutAll();
       if (!mounted) return;
-      Navigator.of(context).popUntil((route) => route.isFirst);
+      Navigator.of(context).pushAndRemoveUntil(
+        MaterialPageRoute(
+          builder: (_) => PatientLoginScreen(
+            authService: auth,
+            onLoginSuccess: () {
+              Navigator.of(context).pushReplacement(
+                MaterialPageRoute(
+                  builder: (_) => MainNavigationShell(authService: auth),
+                ),
+              );
+            },
+          ),
+        ),
+        (route) => false,
+      );
     }
   }
 

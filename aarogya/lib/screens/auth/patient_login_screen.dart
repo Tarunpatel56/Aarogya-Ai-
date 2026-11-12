@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import '../../theme/app_theme.dart';
 import '../../services/auth_service.dart';
 import '../../core/api/api_exception.dart';
-import '../home_screen.dart';
+import '../main_navigation_shell.dart';
+import '../../widgets/aarogya_brand_logo.dart';
 import 'patient_register_screen.dart';
 import 'otp_verification_screen.dart';
 import 'forgot_password_screen.dart';
@@ -50,7 +51,7 @@ class _PatientLoginScreenState extends State<PatientLoginScreen> {
     } else {
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(
-          builder: (_) => HomeScreen(authService: _authService),
+          builder: (_) => MainNavigationShell(authService: _authService),
         ),
       );
     }
@@ -202,19 +203,10 @@ class _PatientLoginScreenState extends State<PatientLoginScreen> {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     // Brand Logo & Heading
-                    Center(
-                      child: Container(
-                        width: 64,
-                        height: 64,
-                        decoration: BoxDecoration(
-                          color: AppColors.primaryTeal.withValues(alpha: 0.12),
-                          shape: BoxShape.circle,
-                        ),
-                        child: const Icon(
-                          Icons.local_hospital_rounded,
-                          color: AppColors.primaryTeal,
-                          size: 34,
-                        ),
+                    const Center(
+                      child: AarogyaBrandLogo(
+                        size: 76,
+                        showText: false,
                       ),
                     ),
                     const SizedBox(height: 16),
