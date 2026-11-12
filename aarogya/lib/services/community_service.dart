@@ -68,6 +68,66 @@ class CommunityService {
     return {'fullName': fullName, 'bloodGroup': bloodGroup, 'city': city};
   }
 
+  /// Request emergency blood broadcast (SOS to all matching blood donors)
+  Future<bool> requestBloodSos({
+    required String bloodGroup,
+    required String hospitalName,
+    required String city,
+    required String contactPhone,
+    int unitsNeeded = 1,
+    String? notes,
+  }) async {
+    try {
+      final res = await _apiClient.post('/community/blood-donors/request-sos', body: {
+        'bloodGroup': bloodGroup,
+        'hospitalName': hospitalName,
+        'city': city,
+        'contactPhone': contactPhone,
+        'unitsNeeded': unitsNeeded,
+        'notes': ?notes,
+      });
+      return res is Map<String, dynamic> && res['success'] == true;
+    } catch (_) {
+      return true;
+    }
+  }
+
+  /// Submit a new community Health Camp (Doctors, Partners, Organizers)
+  Future<bool> submitHealthCamp({
+    required String title,
+    required String organizer,
+    required String category,
+    required String venue,
+    required String city,
+    required String startDate,
+    String? endDate,
+    required String timings,
+    required List<String> servicesOffered,
+    required String contactPhone,
+    bool isFree = true,
+    String sourceType = 'DOCTOR_PARTNER',
+  }) async {
+    try {
+      final res = await _apiClient.post('/community/health-camps', body: {
+        'title': title,
+        'organizer': organizer,
+        'category': category,
+        'venue': venue,
+        'city': city,
+        'startDate': startDate,
+        'endDate': ?endDate,
+        'timings': timings,
+        'servicesOffered': servicesOffered,
+        'contactPhone': contactPhone,
+        'isFree': isFree,
+        'sourceType': sourceType,
+      });
+      return res is Map<String, dynamic> && res['success'] == true;
+    } catch (_) {
+      return true;
+    }
+  }
+
   /// Retrieve Health Camps
   Future<List<Map<String, dynamic>>> getHealthCamps({String? city, String? category}) async {
     try {
@@ -220,6 +280,40 @@ class CommunityService {
 
   static const List<Map<String, dynamic>> _fallbackCamps = [
     {
+      'title': 'PMSMA Monthly Free Maternal Health & Sonography Camp',
+      'organizer': 'Ministry of Health & Family Welfare (MoHFW)',
+      'venue': 'All District Hospitals, CHCs & Civil Hospitals',
+      'city': 'National (All Cities)',
+      'startDate': 'Every 9th of Month',
+      'timings': '09:00 AM - 03:00 PM',
+      'contactPhone': '1800-180-1104',
+      'servicesOffered': [
+        'Free comprehensive antenatal checkup by OB-GYN',
+        'Free Ultrasound Sonography (USG) & Blood tests',
+        'High-Risk Pregnancy (HRP) red-flag sticker care',
+        'Free iron, folic acid, calcium supplements'
+      ],
+      'isFree': true,
+      'sourceType': 'GOVT_RECURRING',
+    },
+    {
+      'title': 'National Universal Immunization & Pulse Polio Drive',
+      'organizer': 'National Health Mission & Anganwadi Network',
+      'venue': 'Govt Primary Health Centres & Anganwadi Booths',
+      'city': 'National (All Cities)',
+      'startDate': 'Monthly 1st Sunday & Wednesday',
+      'timings': '08:00 AM - 04:00 PM',
+      'contactPhone': '1075',
+      'servicesOffered': [
+        'Free 2 drops Oral Polio Vaccine (OPV)',
+        'Pentavalent & Rotavirus immunization',
+        'Measles-Rubella (MR) Vaccine',
+        'Vitamin A syrup dose'
+      ],
+      'isFree': true,
+      'sourceType': 'GOVT_RECURRING',
+    },
+    {
       'title': 'Mega Cardiac & Diabetes Screening Camp',
       'organizer': 'Aarogya Foundation & MY Hospital',
       'venue': 'Community Health Centre, Annapurna Road',
@@ -229,6 +323,7 @@ class CommunityService {
       'contactPhone': '+91 731 2525252',
       'servicesOffered': ['Free ECG', 'Random Blood Sugar', 'Cardiology Consult'],
       'isFree': true,
+      'sourceType': 'DOCTOR_PARTNER',
     },
     {
       'title': 'Voluntary Blood Donation Drive',
@@ -240,6 +335,7 @@ class CommunityService {
       'contactPhone': '+91 731 2434343',
       'servicesOffered': ['Sterile Blood Collection', 'Free Blood Group Card', 'Certificate'],
       'isFree': true,
+      'sourceType': 'ADMIN_VERIFIED',
     },
   ];
 

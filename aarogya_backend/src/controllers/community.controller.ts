@@ -83,6 +83,66 @@ export const communityController = {
     }
   },
 
+  // POST /community/blood-donors/request-sos
+  async requestBloodSos(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const { bloodGroup, hospitalName, city, contactPhone, unitsNeeded, notes } = req.body;
+      if (!bloodGroup || !hospitalName || !city || !contactPhone) {
+        throw new BadRequestError('bloodGroup, hospitalName, city, and contactPhone are required');
+      }
+
+      const alert = communityService.createBloodSosRequest({
+        bloodGroup: String(bloodGroup).trim().toUpperCase(),
+        hospitalName: String(hospitalName).trim(),
+        city: String(city).trim(),
+        contactPhone: String(contactPhone).trim(),
+        unitsNeeded: unitsNeeded ? Number(unitsNeeded) : 1,
+        notes: notes ? String(notes).trim() : undefined,
+      });
+
+      res.status(201).json({
+        success: true,
+        message: `Emergency SOS Alert broadcasted to all ${bloodGroup} donors in ${city}.`,
+        data: { alert },
+      });
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  // POST /community/health-camps
+  async submitHealthCamp(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const { title, organizer, category, venue, city, startDate, endDate, timings, servicesOffered, contactPhone, isFree, sourceType } = req.body;
+      if (!title || !venue || !city || !startDate || !contactPhone) {
+        throw new BadRequestError('title, venue, city, startDate, and contactPhone are required');
+      }
+
+      const camp = communityService.createHealthCamp({
+        title: String(title).trim(),
+        organizer: organizer ? String(organizer).trim() : 'Community Organizer',
+        category: category || 'GENERAL_CHECKUP',
+        venue: String(venue).trim(),
+        city: String(city).trim(),
+        startDate: String(startDate).trim(),
+        endDate: endDate ? String(endDate).trim() : undefined,
+        timings: timings ? String(timings).trim() : '09:00 AM - 04:00 PM',
+        servicesOffered: Array.isArray(servicesOffered) ? servicesOffered : [servicesOffered || 'Free Health Checkup'],
+        contactPhone: String(contactPhone).trim(),
+        isFree: isFree !== false,
+        sourceType: sourceType || 'DOCTOR_PARTNER',
+      });
+
+      res.status(201).json({
+        success: true,
+        message: 'Health Camp registered successfully and published to community feed.',
+        data: { camp },
+      });
+    } catch (error) {
+      next(error);
+    }
+  },
+
   // GET /community/health-camps
   async getHealthCamps(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {

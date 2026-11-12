@@ -9,8 +9,10 @@ router.get('/government-schemes/:id', communityController.getSchemeById);
 
 router.get('/blood-donors', communityController.getBloodDonors);
 router.post('/blood-donors', communityController.registerBloodDonor);
+router.post('/blood-donors/request-sos', communityController.requestBloodSos);
 
 router.get('/health-camps', communityController.getHealthCamps);
+router.post('/health-camps', communityController.submitHealthCamp);
 router.get('/vaccinations', communityController.getVaccines);
 router.get('/medicine-safety/:drugName', communityController.getMedicineSafety);
 

@@ -29,7 +29,8 @@ export interface HealthCamp {
   id: string;
   title: string;
   organizer: string;
-  category: 'GENERAL_CHECKUP' | 'BLOOD_DONATION' | 'EYE_SCREENING' | 'DIABETES' | 'PEDIATRIC';
+  category: 'GENERAL_CHECKUP' | 'BLOOD_DONATION' | 'EYE_SCREENING' | 'DIABETES' | 'PEDIATRIC' | 'MATERNITY' | 'IMMUNIZATION';
+  sourceType?: 'GOVT_RECURRING' | 'DOCTOR_PARTNER' | 'ADMIN_VERIFIED';
   venue: string;
   city: string;
   startDate: string;
@@ -38,6 +39,17 @@ export interface HealthCamp {
   servicesOffered: string[];
   contactPhone: string;
   isFree: boolean;
+}
+
+export interface BloodSosAlert {
+  id: string;
+  bloodGroup: string;
+  hospitalName: string;
+  city: string;
+  contactPhone: string;
+  unitsNeeded: number;
+  notes?: string;
+  createdAt: string;
 }
 
 export interface VaccineDose {
@@ -300,10 +312,49 @@ class CommunityService {
 
   private healthCamps: HealthCamp[] = [
     {
+      id: 'camp-pmsma',
+      title: 'PMSMA Monthly Free Maternal Care & Sonography Camp',
+      organizer: 'Ministry of Health & Family Welfare (MoHFW)',
+      category: 'MATERNITY',
+      sourceType: 'GOVT_RECURRING',
+      venue: 'All District Hospitals, CHCs & Civil Hospitals',
+      city: 'National (All Cities)',
+      startDate: 'Every 9th of Month',
+      timings: '09:00 AM - 03:00 PM',
+      servicesOffered: [
+        'Free comprehensive antenatal checkup by OB-GYN specialists',
+        'Free Ultrasound Sonography (USG) & Blood/Urine screening',
+        'High-Risk Pregnancy (HRP) red-flag identification & counseling',
+        'Free iron, folic acid, and calcium supplements distribution'
+      ],
+      contactPhone: '1800-180-1104',
+      isFree: true,
+    },
+    {
+      id: 'camp-uip',
+      title: 'National Universal Immunization & Pulse Polio Drive',
+      organizer: 'National Health Mission (NHM) & Anganwadi Network',
+      category: 'IMMUNIZATION',
+      sourceType: 'GOVT_RECURRING',
+      venue: 'Govt Primary Health Centres (PHC) & Anganwadi Booths',
+      city: 'National (All Cities)',
+      startDate: 'Monthly 1st Sunday & Wednesday',
+      timings: '08:00 AM - 04:00 PM',
+      servicesOffered: [
+        'Free 2 drops Oral Polio Vaccine (OPV) for children under 5',
+        'Pentavalent, Rotavirus & Measles-Rubella (MR) immunization',
+        'Vitamin A syrup dose and childhood growth chart tracking',
+        'Maternal Td booster immunization'
+      ],
+      contactPhone: '1075',
+      isFree: true,
+    },
+    {
       id: 'camp-1',
       title: 'Free Mega Cardiac & Diabetes Health Screening Camp',
       organizer: 'Aarogya Foundation & MY Hospital Clinical Trust',
       category: 'GENERAL_CHECKUP',
+      sourceType: 'DOCTOR_PARTNER',
       venue: 'Community Health Centre, Annapurna Road',
       city: 'Indore',
       startDate: '2026-11-20',
@@ -323,6 +374,7 @@ class CommunityService {
       title: 'Voluntary Blood Donation & Platelet Drive',
       organizer: 'Red Cross Society Indore & Aarogya Rapid EMS',
       category: 'BLOOD_DONATION',
+      sourceType: 'ADMIN_VERIFIED',
       venue: 'Nehru Stadium Hall, Near Residency Area',
       city: 'Indore',
       startDate: '2026-11-25',
@@ -330,7 +382,7 @@ class CommunityService {
       servicesOffered: [
         'Voluntary blood donation collection with sterile bags',
         'Free complete blood count (CBC) & blood group card',
-        'Donor donor certificate and emergency blood voucher',
+        'Donor certificate and emergency blood voucher',
         'Nutritional refreshments & recovery lounge'
       ],
       contactPhone: '+91 731 2434343',
@@ -341,6 +393,7 @@ class CommunityService {
       title: 'Senior Citizen Cataract & Eye Vision Camp',
       organizer: 'Drishti Foundation in association with District Health Mission',
       category: 'EYE_SCREENING',
+      sourceType: 'ADMIN_VERIFIED',
       venue: 'Red Cross Hospital Premises, Shivaji Nagar',
       city: 'Bhopal',
       startDate: '2026-11-28',
@@ -623,6 +676,8 @@ class CommunityService {
     return this.schemes.find((s) => s.id === id);
   }
 
+  private bloodSosRequests: BloodSosAlert[] = [];
+
   // Blood Donors
   getBloodDonors(bloodGroup?: string, city?: string): BloodDonor[] {
     return this.bloodDonors.filter((d) => {
@@ -646,6 +701,16 @@ class CommunityService {
     };
     this.bloodDonors.unshift(newDonor);
     return newDonor;
+  }
+
+  createBloodSosRequest(data: Omit<BloodSosAlert, 'id' | 'createdAt'>): BloodSosAlert {
+    const alert: BloodSosAlert = {
+      id: `sos-blood-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
+      ...data,
+      createdAt: new Date().toISOString(),
+    };
+    this.bloodSosRequests.unshift(alert);
+    return alert;
   }
 
   // Health Camps
