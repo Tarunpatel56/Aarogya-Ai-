@@ -27,6 +27,7 @@ import 'community/blood_donor_directory_screen.dart';
 import 'community/health_camps_screen.dart';
 import 'wellness/vaccination_tracker_screen.dart';
 import 'wellness/wellness_dashboard_screen.dart';
+import 'wellness/diet_plan_screen.dart';
 import 'ai/medical_report_comparison_screen.dart';
 import 'medicines/medicine_safety_screen.dart';
 import 'voice/talk_to_talk_voice_assistant_screen.dart';
@@ -366,6 +367,15 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
     );
   }
 
+  void _openDietPlan() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => const DietPlanScreen(),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -409,6 +419,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                   onOpenPhysio: _openPhysio,
                   onOpenNearbyHospitals: _openNearbyHospitals,
                   onOpenPrescriptions: _openPrescriptions,
+                  onOpenDietPlan: _openDietPlan,
                 ),
                 const SizedBox(height: 18),
 
@@ -587,6 +598,17 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                 title: 'Medicine Safety',
                 subtitle: 'Warnings & Interactions',
                 onTap: _openMedicineSafety,
+              ),
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: _buildHubTile(
+                icon: Icons.restaurant_menu_rounded,
+                iconBg: const Color(0xFFECFDF5),
+                iconColor: const Color(0xFF059669),
+                title: 'Daily Diet Plan',
+                subtitle: 'BMI & Illness Custom',
+                onTap: _openDietPlan,
               ),
             ),
           ],

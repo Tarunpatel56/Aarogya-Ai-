@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../theme/app_theme.dart';
+import 'diet_plan_screen.dart';
 
 class WellnessDashboardScreen extends StatefulWidget {
   const WellnessDashboardScreen({super.key});
@@ -42,6 +43,18 @@ class _WellnessDashboardScreenState extends State<WellnessDashboardScreen> {
         backgroundColor: Colors.white,
         elevation: 0.5,
         foregroundColor: AppColors.textPrimary,
+        actions: [
+          IconButton(
+            tooltip: 'Personalized Diet Plan',
+            icon: const Icon(Icons.restaurant_menu_rounded, color: AppColors.primaryTeal),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const DietPlanScreen()),
+              );
+            },
+          ),
+        ],
       ),
       body: SafeArea(
         child: SingleChildScrollView(
@@ -49,6 +62,68 @@ class _WellnessDashboardScreenState extends State<WellnessDashboardScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              // 0. Personalized Diet Plan Banner Card
+              Container(
+                margin: const EdgeInsets.only(bottom: 16),
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  gradient: const LinearGradient(
+                    colors: [Color(0xFF0F766E), Color(0xFF0D9488)],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                  borderRadius: BorderRadius.circular(16),
+                  boxShadow: AppColors.cardShadow,
+                ),
+                child: Row(
+                  children: [
+                    Container(
+                      width: 48,
+                      height: 48,
+                      decoration: BoxDecoration(
+                        color: Colors.white.withValues(alpha: 0.2),
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(Icons.restaurant_menu_rounded, color: Colors.white, size: 24),
+                    ),
+                    const SizedBox(width: 14),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: const [
+                          Text(
+                            'Daily Personalized Diet Plan',
+                            style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: Colors.white),
+                          ),
+                          SizedBox(height: 3),
+                          Text(
+                            'Medically tailored to your BMI, Veg/Non-Veg preference & health conditions.',
+                            style: TextStyle(fontSize: 11, color: Colors.white70, height: 1.2),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.white,
+                        foregroundColor: AppColors.primaryTeal,
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                        minimumSize: Size.zero,
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                      ),
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (_) => const DietPlanScreen()),
+                        );
+                      },
+                      child: const Text('View Plan', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+                    ),
+                  ],
+                ),
+              ),
+
               // 1. Water Intake Card
               Container(
                 padding: const EdgeInsets.all(16),

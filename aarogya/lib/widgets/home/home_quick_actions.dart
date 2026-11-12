@@ -16,6 +16,7 @@ class HomeQuickActions extends StatelessWidget {
   final VoidCallback? onOpenPhysio;
   final VoidCallback? onOpenNearbyHospitals;
   final VoidCallback? onOpenPrescriptions;
+  final VoidCallback? onOpenDietPlan;
 
   const HomeQuickActions({
     super.key,
@@ -32,6 +33,7 @@ class HomeQuickActions extends StatelessWidget {
     this.onOpenPhysio,
     this.onOpenNearbyHospitals,
     this.onOpenPrescriptions,
+    this.onOpenDietPlan,
   });
 
   @override
@@ -291,7 +293,7 @@ class HomeQuickActions extends StatelessWidget {
               ],
             ),
           ],
-          if (onOpenNearbyHospitals != null || onOpenPrescriptions != null) ...[
+          if (onOpenNearbyHospitals != null || onOpenPrescriptions != null || onOpenDietPlan != null) ...[
             const SizedBox(height: 10),
             Row(
               children: [
@@ -314,9 +316,22 @@ class HomeQuickActions extends StatelessWidget {
                       icon: Icons.description_outlined,
                       iconBg: const Color(0xFFF0FDF4),
                       iconColor: const Color(0xFF0F766E),
-                      title: 'Digital Prescriptions',
-                      subtitle: 'Doctor Orders & Meds',
+                      title: 'Digital Rx',
+                      subtitle: 'Doctor Orders',
                       onTap: onOpenPrescriptions!,
+                    ),
+                  ),
+                if ((onOpenNearbyHospitals != null || onOpenPrescriptions != null) && onOpenDietPlan != null)
+                  const SizedBox(width: 8),
+                if (onOpenDietPlan != null)
+                  Expanded(
+                    child: _buildActionTile(
+                      icon: Icons.restaurant_menu_rounded,
+                      iconBg: const Color(0xFFECFDF5),
+                      iconColor: const Color(0xFF059669),
+                      title: 'Daily Diet Plan',
+                      subtitle: 'BMI & Illness Custom',
+                      onTap: onOpenDietPlan!,
                     ),
                   ),
               ],
