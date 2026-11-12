@@ -18,6 +18,7 @@ class _DriverLoginScreenState extends State<DriverLoginScreen> {
   final _passwordController = TextEditingController();
   final _authService = AmbulanceAuthService();
   bool _isLoading = false;
+  bool _obscurePassword = true;
   String? _errorMessage;
 
   Future<void> _handleLogin() async {
@@ -150,9 +151,17 @@ class _DriverLoginScreenState extends State<DriverLoginScreen> {
                       const SizedBox(height: 6),
                       TextField(
                         controller: _passwordController,
-                        obscureText: true,
+                        obscureText: _obscurePassword,
                         decoration: InputDecoration(
                           prefixIcon: const Icon(Icons.lock_outline_rounded, size: 20),
+                          suffixIcon: IconButton(
+                            icon: Icon(
+                              _obscurePassword ? Icons.visibility_off : Icons.visibility,
+                              size: 20,
+                              color: SanctuaryColors.textMuted,
+                            ),
+                            onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
+                          ),
                           hintText: '••••••••',
                           border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
                           contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),

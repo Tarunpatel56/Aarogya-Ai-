@@ -75,6 +75,10 @@ export interface MedicineSafetyInfo {
   alcoholInteraction: string;
   foodInstructions: string;
   disclaimer: string;
+  brandAliases?: string[];
+  simpleUsesHindi?: string[];
+  safeDosageHindi?: string;
+  genericSavingsHindi?: string;
 }
 
 export interface PlatformAnnouncement {
@@ -232,6 +236,53 @@ class CommunityService {
       ],
       helpline: '011-23061323',
       officialPortal: 'https://main.mohfw.gov.in/ran',
+    },
+    {
+      id: 'jsy',
+      title: 'Janani Suraksha Yojana (JSY)',
+      department: 'National Health Mission (NHM), MoHFW',
+      coverageAmount: '₹1,400 (Rural) / ₹1,000 (Urban) Direct DBT Cash Benefit',
+      category: 'MATERNITY',
+      shortSummary: 'Safe motherhood initiative encouraging institutional delivery among pregnant women in BPL/SC/ST households.',
+      eligibility: [
+        'All pregnant women delivering in government health facilities or accredited clinics',
+        'BPL / SC / ST pregnant women across rural and urban India'
+      ],
+      benefits: [
+        'Direct cash assistance transferred via DBT to mother bank account',
+        'Free transport to and from hospital under Janani Shishu Suraksha Karyakram (JSSK)',
+        'Zero expense delivery, free medications, diet, and newborn care'
+      ],
+      documentsRequired: [
+        'Aadhaar Card',
+        'Mother-Child Protection (MCP) Card',
+        'Bank Account Passbook / DBT details'
+      ],
+      helpline: '104 / 1800-180-1104',
+      officialPortal: 'https://nhm.gov.in',
+    },
+    {
+      id: 'hmdg',
+      title: "Health Minister's Discretionary Grant (HMDG)",
+      department: 'Ministry of Health & Family Welfare, Govt. of India',
+      coverageAmount: 'Up to ₹1,25,000 direct grant',
+      category: 'FINANCIAL_AID',
+      shortSummary: 'Emergency financial grant for impoverished patients suffering from major chronic illnesses requiring specialized intervention.',
+      eligibility: [
+        'Annual family income less than ₹1,25,000',
+        'Receiving treatment at government super-speciality hospitals'
+      ],
+      benefits: [
+        'Direct reimbursement for pacemakers, stents, joint prosthesis, and urgent surgery',
+        'Disbursed swiftly to hospital medical administration'
+      ],
+      documentsRequired: [
+        'Income Certificate issued by Tehsildar or SDM',
+        'Hospital Estimate Certificate signed by HOD',
+        'Ration Card / Aadhaar Card'
+      ],
+      helpline: '011-23061323',
+      officialPortal: 'https://main.mohfw.gov.in',
     },
   ];
 
@@ -513,84 +564,291 @@ class CommunityService {
 
   private medicineDatabase: Record<string, MedicineSafetyInfo> = {
     paracetamol: {
-      drugName: 'Paracetamol',
-      genericName: 'Acetaminophen',
-      therapeuticClass: 'Analgesic & Antipyretic',
+      drugName: 'Paracetamol (Crosin / Dolo 650)',
+      genericName: 'Acetaminophen / Paracetamol 500mg-650mg',
+      therapeuticClass: 'Analgesic & Antipyretic (Bukhar aur Dard Nivarak)',
+      brandAliases: ['crosin', 'dolo', 'dolo 650', 'calpol', 'pacimol', 'pyregesic', 'pcm', 'crocin'],
       standardIndications: ['Mild to moderate pain', 'Fever reduction', 'Headache', 'Myalgia'],
-      commonSideEffects: ['Nausea', 'Mild rash', 'Constipation (rare)'],
-      severeWarnings: [
-        'Maximum daily dose is 4,000 mg (4 grams) in adults. Do not exceed to avoid acute hepatotoxicity.',
-        'Avoid taking concurrently with other cough/cold formulations containing acetaminophen.'
+      simpleUsesHindi: [
+        'Bukhar utarne aur taapman normal karne ke liye (Fever reduction)',
+        'Sar dard, badan dard aur daant dard me turant aaram',
+        'Thakan aur halka jodon ka dard dur karne me'
       ],
-      contraindications: ['Severe active hepatic impairment', 'Severe acute liver failure'],
+      safeDosageHindi: 'Din me 3 se 4 baar se zyada na lein (4-6 ghante ka antar zaroor rakhein). 24 ghante me 4,000 mg (4 gram) se zyada galti se bhi na lein!',
+      genericSavingsHindi: 'PM Jan Aushadhi Kendra par ₹10-₹15 me 10 goli milti hain, jabki branded Dolo/Crosin ₹35-₹50 me aati hai (70%+ bachat)!',
+      commonSideEffects: ['Khali pet lene par halki ulti ya acidity', 'Halka pet dard'],
+      severeWarnings: [
+        '24 ghante me 4 gram (4,000 mg) se zyada dose lene par liver damage ka khatra hota hai.',
+        'Kayi cough syrup ya cold tablets me pehle se paracetamol hota hai, unke sath bina check kare na lein.'
+      ],
+      contraindications: ['Severe active hepatic impairment (Liver ki bimari)', 'Severe acute liver failure'],
       pregnancySafety: 'SAFE',
-      alcoholInteraction: 'Avoid regular alcohol; concurrent heavy alcohol intake drastically increases liver damage risk.',
-      foodInstructions: 'Can be taken with or without food. Taking with water reduces gastric fullness.',
-      disclaimer: 'Informational guideline only. Always consult a certified physician for dosage tailored to your weight and medical history.',
+      alcoholInteraction: 'Sharab (Alcohol) ke sath bilkul na lein; isse liver par behad bura asar pad sakta hai.',
+      foodInstructions: 'Khane ke baad ya pehle ek glass taaze paani ke sath le sakte hain.',
+      disclaimer: 'Aam bukhar aur dard ke liye surakshit hai. Agar bukhar 3 din se zyada rahe to doctor ko zaroor dikhayein.',
     },
-    metformin: {
-      drugName: 'Metformin',
-      genericName: 'Metformin Hydrochloride',
-      therapeuticClass: 'Biguanide Antidiabetic Agent',
-      standardIndications: ['Type 2 Diabetes Mellitus', 'Polycystic Ovary Syndrome (PCOS insulin resistance)'],
-      commonSideEffects: ['Abdominal discomfort', 'Diarrhea', 'Metallic taste', 'Flatulence'],
-      severeWarnings: [
-        'Rare but severe risk of Lactic Acidosis in patients with renal impairment (eGFR < 30 mL/min).',
-        'Must be withheld 48 hours prior to IV iodinated contrast radiological procedures.'
+    pantoprazole: {
+      drugName: 'Pantoprazole + Domperidone (Pan-D)',
+      genericName: 'Pantoprazole 40mg + Domperidone 30mg SR',
+      therapeuticClass: 'Proton Pump Inhibitor (PPI) & Prokinetic (Acidity & Gas)',
+      brandAliases: ['pan-d', 'pan d', 'pantocid', 'pantop', 'pantop-d', 'pantodac', 'dompan'],
+      standardIndications: ['Gastroesophageal Reflux Disease (GERD)', 'Gastric acidity', 'Peptic ulcer disease', 'Nausea associated with acid reflux'],
+      simpleUsesHindi: [
+        'Seene me tez jalan (Heartburn), acidity aur gas se turant rahat',
+        'Khana gale me wapas aana (Acid Reflux) aur khatti dakar rokna',
+        'Ulti aur ji michlana theek karna'
       ],
-      contraindications: ['Severe renal impairment (eGFR < 30)', 'Acute metabolic acidosis', 'Severe heart failure'],
+      safeDosageHindi: 'Subah khali pet (nahaar munh) 1 capsule gungune paani ke sath lein, khana khane se 30-45 minute pehle.',
+      genericSavingsHindi: 'PM Jan Aushadhi Kendra par ₹25-₹35 me 10 capsule milte hain, jabki branded Pan-D ₹150-₹220 me aati hai (80%+ bachat)!',
+      commonSideEffects: ['Halka sar dard', 'Halka dast (diarrhea) ya muh sukhna'],
+      severeWarnings: [
+        'Lagatar 2-3 hafte se zyada bina doctor ki salah ke na khayein.',
+        'Lambe samay tak lene se Calcium aur Vitamin B12 absorption kam ho sakta hai.'
+      ],
+      contraindications: ['Gastrointestinal hemorrhage or mechanical bowel obstruction'],
       pregnancySafety: 'CAUTION',
-      alcoholInteraction: 'Potentiates risk of hypoglycemia and lactic acidosis; strictly limit alcohol.',
-      foodInstructions: 'Always take with or immediately after meals to minimize gastrointestinal upset.',
-      disclaimer: 'Informational guideline only. Maintain regular HbA1c and renal function tests.',
+      alcoholInteraction: 'Sharab se pet me acid aur jalan badhti hai, isliye dawa ke sath sharab se parhez karein.',
+      foodInstructions: 'Subah khana khane se kam se kam 30 minute pehle khali pet lein.',
+      disclaimer: 'Acidity me behad asardar hai. Chronic lakshan hone par gastroenterologist se jaanch karayein.',
+    },
+    combiflam: {
+      drugName: 'Combiflam / Flexon',
+      genericName: 'Ibuprofen 400mg + Paracetamol 325mg',
+      therapeuticClass: 'NSAID & Analgesic (Tez Dard aur Sujan Nivarak)',
+      brandAliases: ['combiflam', 'flexon', 'brufen', 'brufen-plus', 'ibuprofen'],
+      standardIndications: ['Severe headache', 'Dental pain', 'Musculoskeletal pain', 'Post-traumatic inflammation', 'Arthritis joint pain'],
+      simpleUsesHindi: [
+        'Tez badan dard, daant dard aur chot lagne par dard me aaram',
+        'Jodon me sujan, kamar dard aur moch (sprain) me turant rahat',
+        'Tez bukhar aur sharir tootne par asardar'
+      ],
+      safeDosageHindi: 'Hamesha khana khane ya doodh peene ke BAAD hi lein. Khali pet bilkul na lein (pet me chhale ya ulcer ka khatra hota hai). Din me 2-3 baar se zyada na lein.',
+      genericSavingsHindi: 'PM Jan Aushadhi Kendra par Ibuprofen+Paracetamol ₹12-₹18 me 10 goli milti hain, jabki branded ₹45-₹65 me aati hai.',
+      commonSideEffects: ['Khali pet lene par pet me jalan aur acidity', 'Halka ji michlana'],
+      severeWarnings: [
+        'Pet me ulcer ya bleeding ki history wale mareez ise na lein.',
+        'Asthma ya kidney ki bimari wale mareez bina doctor ki anumati ke na lein.'
+      ],
+      contraindications: ['Active peptic ulcer disease', 'Severe renal impairment', 'Aspirin-induced asthma'],
+      pregnancySafety: 'CONTRAINDICATED',
+      alcoholInteraction: 'Sharab ke sath lene se pet me bleeding aur liver damage ka bada khatra hota hai.',
+      foodInstructions: 'Hamesha pet bhar ke khana khane ke baad ek glass paani ke sath hi lein.',
+      disclaimer: 'Tez dard ke liye asardar hai par zaroorat padne par hi lein. Aadat na banayein.',
+    },
+    meftal: {
+      drugName: 'Meftal-Spas',
+      genericName: 'Mefenamic Acid 250mg + Dicyclomine 10mg',
+      therapeuticClass: 'Antispasmodic & NSAID (Pet Dard aur Marod Nivarak)',
+      brandAliases: ['meftal-spas', 'meftal spas', 'meftal', 'mefenamic', 'spasmo'],
+      standardIndications: ['Menstrual cramps (Dysmenorrhea)', 'Abdominal spasmodic pain', 'Colic pain', 'Ureteric colic'],
+      simpleUsesHindi: [
+        'Mahilao me mahwari (Periods) ke dauran hone wale asahaniya pet dard me aaram',
+        'Pet me tez marod, cramps aur loose motion ke dard me rahat',
+        'Kidney stone ya intestine me aithan ka dard dur karne me'
+      ],
+      safeDosageHindi: 'Jab pet me tez dard ya cramps uthein tab 1 goli lein. Din me 2 se 3 baar se zyada na lein.',
+      genericSavingsHindi: 'PM Jan Aushadhi Kendra par Mefenamic+Dicyclomine ₹15-₹22 me 10 goli milti hain (Branded ₹55-₹80).',
+      commonSideEffects: ['Muh sukhna', 'Halki susti ya chakkar aana', 'Halki acidity'],
+      severeWarnings: [
+        'Bina dard ke regular roop se na lein.',
+        'Agar pet dard ke sath tez ulti ya khoon aaye to turant hospital jayein.'
+      ],
+      contraindications: ['Glaucoma', 'Myasthenia gravis', 'Severe obstructive uropathy'],
+      pregnancySafety: 'CAUTION',
+      alcoholInteraction: 'Sharab ke sath susti aur chakkar badh sakte hain.',
+      foodInstructions: 'Khane ke baad ya halka snack lene ke baad paani ke sath lein.',
+      disclaimer: 'Periods aur aithan ke dard ke liye prabhavi hai. Jyada din lagatar na lein.',
+    },
+    azithromycin: {
+      drugName: 'Azithromycin (Azithral 500)',
+      genericName: 'Azithromycin 500mg',
+      therapeuticClass: 'Macrolide Antibiotic (Bacterial Infection Nivarak)',
+      brandAliases: ['azithral', 'azithromycin', 'zithrox', 'aziwok', 'azithral 500', 'zady'],
+      standardIndications: ['Upper and lower respiratory tract infections', 'Pharyngitis & tonsillitis', 'Community-acquired pneumonia', 'Bacterial skin infections'],
+      simpleUsesHindi: [
+        'Gale me kharash, tonsils, pakan aur chest infection me rahat',
+        'Khansi, balgham aur saans ki nali ka bacterial infection theek karna',
+        'Kaan aur skin ke bacterial infection me asardar'
+      ],
+      safeDosageHindi: 'Din me sirf 1 goli (500mg), nishchit samay par. Lagatar 3 ya 5 din tak doctor ke anusar. Course beech me na chodein!',
+      genericSavingsHindi: 'Jan Aushadhi Kendra par 3 goli ₹20-₹28 me milti hain, jabki branded ₹110-₹140 me aati hai (80%+ bachat)!',
+      commonSideEffects: ['Halka dast (loose stools)', 'Pet me gudgudahat ya halki ulti'],
+      severeWarnings: [
+        'Yeh antibiotic hai, sadharan sardi-zukam (viral flu) me kaam nahi karti.',
+        'Poora course 3 ya 5 din lena zaroori hai, warna bacteria dawa ke prati dheet ban jate hain (Resistance).'
+      ],
+      contraindications: ['Known allergy to macrolide antibiotics', 'Severe hepatic dysfunction'],
+      pregnancySafety: 'SAFE',
+      alcoholInteraction: 'Sharab antibiotic ke asar ko kam karti hai aur dehydration badhati hai.',
+      foodInstructions: 'Khana khane se 1 ghanta pehle ya khane ke 2 ghante baad lein.',
+      disclaimer: 'Kewal doctor ke prescription par hi lein. Course adhura mat chodiye.',
+    },
+    cetirizine: {
+      drugName: 'Cetirizine (Okacet / Cetzine)',
+      genericName: 'Cetirizine Hydrochloride 10mg',
+      therapeuticClass: 'Antihistamine (Sardi, Chheenk aur Allergy Nivarak)',
+      brandAliases: ['cetirizine', 'okacet', 'cetzine', 'allegra', 'avil', 'zyrtec'],
+      standardIndications: ['Allergic rhinitis', 'Seasonal pollinosis', 'Urticaria (hives)', 'Allergic conjunctivitis'],
+      simpleUsesHindi: [
+        'Baar-baar chheenk aana, naak behna aur sardi-zukam me turant rahat',
+        'Aankhon se paani aana, laal hona aur gale me khujli',
+        'Shareer par pitti uchhalna (skin rashes) aur khujli theek karna'
+      ],
+      safeDosageHindi: 'Raat ko sote samay 1 goli (10mg) paani ke sath lein. Din me driving karte waqt lene se bachein kyunki isse neend aati hai.',
+      genericSavingsHindi: 'Jan Aushadhi Kendra par 10 goli sirf ₹6-₹10 me milti hain (Branded ₹30-₹50).',
+      commonSideEffects: ['Susti aur neend aana (Drowsiness)', 'Muh sukhna', 'Thakan'],
+      severeWarnings: [
+        'Dawa lene ke baad gaadi chalana ya bhari machinery operate karna avoid karein.',
+        'Chhote bachhon ko bina paediatrician ki salah ke na dein.'
+      ],
+      contraindications: ['End-stage renal disease (CrCl < 10 mL/min)'],
+      pregnancySafety: 'SAFE',
+      alcoholInteraction: 'Sharab ke sath bilkul na lein – isse behad jyada neend aur chakkar aa sakte hain.',
+      foodInstructions: 'Khane ke baad ya pehle le sakte hain. Raat ko lena sabse behtar hota hai.',
+      disclaimer: 'Allergy aur sardi me turant aaram deti hai.',
     },
     amoxicillin: {
-      drugName: 'Amoxicillin',
-      genericName: 'Amoxicillin Trihydrate',
-      therapeuticClass: 'Aminopenicillin Antibiotic',
-      standardIndications: ['Bacterial respiratory tract infections', 'Otitis media', 'Streptococcal pharyngitis', 'UTIs'],
-      commonSideEffects: ['Mild diarrhea', 'Nausea', 'Skin rash'],
+      drugName: 'Augmentin 625 / Amoxicillin',
+      genericName: 'Amoxicillin 500mg + Potassium Clavulanate 125mg',
+      therapeuticClass: 'Broad-Spectrum Penicillin Antibiotic',
+      brandAliases: ['amoxicillin', 'augmentin', 'moxikind-cv', 'amoxyclav', 'mox'],
+      standardIndications: ['Bacterial respiratory tract infections', 'Otitis media', 'Streptococcal pharyngitis', 'UTIs', 'Dental abscess'],
+      simpleUsesHindi: [
+        'Kaan, naak, gale aur daant ke gehre bacterial infection me',
+        'Fefdo me sankraman (Pneumonia, Bronchitis)',
+        'Peshaw ki nali (UTI) aur ghav (wound) pakne par asardar'
+      ],
+      safeDosageHindi: 'Subah aur shaam 1-1 goli khana khane ke baad. Doctor ke nirdharit dino tak poora course karein.',
+      genericSavingsHindi: 'Jan Aushadhi Kendra par Amox+Clav ₹60-₹85 me 10 tablet milti hain (Branded ₹200-₹260).',
+      commonSideEffects: ['Halka dast (diarrhea)', 'Nausea', 'Skin rash'],
       severeWarnings: [
-        'Immediate risk of anaphylaxis in individuals with known penicillin or beta-lactam allergies.',
-        'Complete the full prescribed course even if symptoms subside to prevent antimicrobial resistance.'
+        'Agar penicillin se allergy ho to turant doctor ko batayein (Anaphylaxis risk).',
+        'Adhura course chhodne par sankraman dobara lout sakta hai.'
       ],
       contraindications: ['Documented hypersensitivity to penicillin or cephalosporins'],
       pregnancySafety: 'SAFE',
-      alcoholInteraction: 'Moderate alcohol does not directly inactivate amoxicillin, but impairs immune recovery.',
-      foodInstructions: 'May be taken with or without food. Taking with a light meal improves gastrointestinal tolerance.',
-      disclaimer: 'Informational guideline only. Effective only against bacterial, not viral (common cold/flu) infections.',
+      alcoholInteraction: 'Sharab peene se body dehydration aur immunity kam hoti hai.',
+      foodInstructions: 'Hamesha khana khane ke sath lein taaki pet kharab na ho.',
+      disclaimer: 'Antibiotic dawa hai. Kewal certified doctor ke prescription par lein.',
+    },
+    metformin: {
+      drugName: 'Metformin (Glycomet)',
+      genericName: 'Metformin Hydrochloride 500mg - 1000mg',
+      therapeuticClass: 'Biguanide Antidiabetic Agent (Blood Sugar Control)',
+      brandAliases: ['metformin', 'glycomet', 'glyciphage', 'glucophage'],
+      standardIndications: ['Type 2 Diabetes Mellitus', 'Polycystic Ovary Syndrome (PCOS insulin resistance)'],
+      simpleUsesHindi: [
+        'Type 2 Sugar (Diabetes) ke mareezo me blood sugar control karna',
+        'Sharir me insulin ki karyakshamta badhana',
+        'Mahilao me PCOS me hormonal santulan banana'
+      ],
+      safeDosageHindi: 'Khana khane ke theek baad ya khane ke sath hi lein. Khali pet lene se pet me marod ho sakti hai.',
+      genericSavingsHindi: 'Jan Aushadhi Kendra par 10 goli sirf ₹7-₹12 me milti hain (Branded ₹30-₹60).',
+      commonSideEffects: ['Pet me gas', 'Loose motions ya dast', 'Muh me metallic swad'],
+      severeWarnings: [
+        'Kidney ki bimari wale mareez regular kidney jaanch (eGFR) karayein.',
+        'CT Scan ya X-ray jisme contrast dye di jaani ho usse 48 ghante pehle band karein.'
+      ],
+      contraindications: ['Severe renal impairment (eGFR < 30)', 'Acute metabolic acidosis', 'Severe heart failure'],
+      pregnancySafety: 'CAUTION',
+      alcoholInteraction: 'Sharab ke sath lactic acidosis aur low sugar (hypoglycemia) ka khatra badhta hai.',
+      foodInstructions: 'Hamesha khana khate waqt ya khane ke turant baad lein.',
+      disclaimer: 'Niyamit blood sugar aur HbA1c test karwate rahein.',
+    },
+    ors: {
+      drugName: 'Electral / WHO-ORS',
+      genericName: 'Oral Rehydration Salts (WHO Formula)',
+      therapeuticClass: 'Electrolyte Replenisher (Dehydration Nivarak)',
+      brandAliases: ['electral', 'ors', 'oral rehydration', 'enerzal'],
+      standardIndications: ['Dehydration due to diarrhea and vomiting', 'Heat exhaustion', 'Electrolyte imbalance'],
+      simpleUsesHindi: [
+        'Dast (Diarrhea) aur ulti me sharir me paani aur namak ki kami poori karna',
+        'Garmi aur dhoop me loo lagne ya chakkhar aane par urja dena',
+        'Dehydration se jaan bachana'
+      ],
+      safeDosageHindi: '1 packet poora 1 litre peene ke saaf paani me gholein. Ghole hue paani ko 24 ghante ke andar piyein.',
+      genericSavingsHindi: 'Jan Aushadhi Kendra par ₹10-₹15 me bada packet milta hai (Branded ₹25-₹35).',
+      commonSideEffects: ['Koi side effect nahi. Sharir ke liye amrit saman hai.'],
+      severeWarnings: [
+        'Chhote bachhon ko thoda-thoda karke chammach se pilayein.',
+        'Bina paani ki sahi matra ke powder direct na khayein.'
+      ],
+      contraindications: ['Severe intractable vomiting requiring IV rehydration'],
+      pregnancySafety: 'SAFE',
+      alcoholInteraction: 'Dehydration me sharab bilkul na piyein.',
+      foodInstructions: 'Din bhar thoda-thoda ghoont-ghoont karke piyein.',
+      disclaimer: 'Har ghar me emergency ke liye ORS ka packet hamesha hona chahiye.',
+    },
+    digene: {
+      drugName: 'Digene / Gelusil',
+      genericName: 'Magnesium + Aluminium Hydroxide + Simethicone',
+      therapeuticClass: 'Antacid & Antiflatulent (Instant Acidity & Gas Relief)',
+      brandAliases: ['digene', 'gelusil', 'mucaine'],
+      standardIndications: ['Hyperacidity', 'Heartburn', 'Flatulence', 'Sour stomach'],
+      simpleUsesHindi: [
+        'Seene me achanak jalan (Heartburn) hone par 2 minute me thandak',
+        'Khana khane ke baad pet phoolna aur gas ke dabav se rahat',
+        'Khatti dakar aur pet me acid ka asar kam karna'
+      ],
+      safeDosageHindi: 'Khana khane ke baad ya jalan hone par 2 chammach syrup piyein ya 2 goli chaba kar khayein.',
+      genericSavingsHindi: 'Jan Aushadhi Kendra par ₹40-₹50 me 200ml bottle milti hai (Branded ₹120-₹160).',
+      commonSideEffects: ['Adhik lene par halka kabz ya dast'],
+      severeWarnings: [
+        'Anya dawaon ke sath lene me 1-2 ghante ka antar rakhein taaki absorption na ruke.'
+      ],
+      contraindications: ['Severe renal failure or hypophosphatemia'],
+      pregnancySafety: 'SAFE',
+      alcoholInteraction: 'Sharab se pet ki lining chhil sakti hai, isliye sharab avoid karein.',
+      foodInstructions: 'Khana khane ke 30 minute baad ya sote waqt lein.',
+      disclaimer: 'Aam gas aur jalan me turant rahat milti hai.',
     },
     atorvastatin: {
       drugName: 'Atorvastatin',
       genericName: 'Atorvastatin Calcium',
-      therapeuticClass: 'HMG-CoA Reductase Inhibitor (Statin)',
-      standardIndications: ['Hypercholesterolemia', 'Dyslipidemia', 'Cardiovascular event risk reduction in coronary disease'],
-      commonSideEffects: ['Mild myalgia', 'Arthralgia', 'Mild elevation in transaminases'],
-      severeWarnings: [
-        'Report unexplained muscle pain, tenderness, or weakness immediately (risk of rhabdomyolysis).',
-        'Periodic liver enzymes (ALT/AST) monitoring recommended.'
+      therapeuticClass: 'HMG-CoA Reductase Inhibitor (Statin / Cholesterol Control)',
+      brandAliases: ['atorvastatin', 'atorva', 'lipitor', 'storvas'],
+      standardIndications: ['Hypercholesterolemia', 'Dyslipidemia', 'Cardiovascular event risk reduction'],
+      simpleUsesHindi: [
+        'Khoon me kharab cholesterol (LDL) aur triglycerides kam karna',
+        'Heart attack aur stroke ke khatre ko kam karna',
+        'Khoon ki nalion me plaque jamne se rokna'
       ],
-      contraindications: ['Active liver disease', 'Unexplained persistent liver enzyme elevations', 'Pregnancy & breastfeeding'],
+      safeDosageHindi: 'Raat ko sote samay 1 goli rozana ek niyamit samay par lein.',
+      genericSavingsHindi: 'Jan Aushadhi Kendra par ₹15-₹25 me 10 goli milti hain (Branded ₹90-₹150).',
+      commonSideEffects: ['Pindliyon ya manspeshiyon me halka dard (Myalgia)', 'Halka sir dard'],
+      severeWarnings: [
+        'Bina doctor ke mashware ke dawa achanak band na karein.',
+        'Agar manspeshiyon me achanak asahaniya dard ho to turant doctor ko batayein.'
+      ],
+      contraindications: ['Active liver disease', 'Pregnancy & breastfeeding'],
       pregnancySafety: 'CONTRAINDICATED',
-      alcoholInteraction: 'Chronic alcohol consumption increases the risk of hepatic injury.',
-      foodInstructions: 'Take once daily at any time of day, with or without food. Avoid large amounts of grapefruit juice.',
-      disclaimer: 'Informational guideline only. Do not discontinue without consulting your cardiologist.',
+      alcoholInteraction: 'Sharab cholesterol badhati hai aur liver par dabaav badhati hai.',
+      foodInstructions: 'Raat ke khane ke baad paani ke sath lein.',
+      disclaimer: 'Cardiologist ki salah se niyamit roop se lein.',
     },
     amlodipine: {
-      drugName: 'Amlodipine',
-      genericName: 'Amlodipine Besylate',
-      therapeuticClass: 'Dihydropyridine Calcium Channel Blocker',
-      standardIndications: ['Essential Hypertension', 'Chronic Stable Angina', 'Vasospastic Angina'],
-      commonSideEffects: ['Peripheral edema (ankle swelling)', 'Flushing', 'Dizziness', 'Headache'],
-      severeWarnings: [
-        'Sudden cessation can precipitate rebound severe hypertension.',
-        'May cause symptomatic hypotension in volume-depleted patients.'
+      drugName: 'Amlodipine / Telmisartan',
+      genericName: 'Amlodipine 5mg / Telmisartan 40mg',
+      therapeuticClass: 'Antihypertensive (Blood Pressure Control)',
+      brandAliases: ['amlodipine', 'amlong', 'telma', 'telmisartan', 'stamlo'],
+      standardIndications: ['Essential Hypertension', 'Chronic Stable Angina', 'Cardiovascular risk management'],
+      simpleUsesHindi: [
+        'High Blood Pressure (BP) ko normal range me rakhna',
+        'Dil par dabaav kam karna aur dil ki bimari se bachana',
+        'Seene ke dard (Angina) me rahat'
       ],
-      contraindications: ['Severe aortic stenosis', 'Cardiogenic shock', 'Severe hypotension (SBP < 90 mmHg)'],
+      safeDosageHindi: 'Roz subah naste ke baad 1 goli fix time par lein. Kabhi bhi goli miss na karein.',
+      genericSavingsHindi: 'Jan Aushadhi Kendra par ₹8-₹14 me 10 goli milti hain (Branded ₹60-₹110).',
+      commonSideEffects: ['Pairon ke takhno me halki sujan (Ankle swelling)', 'Halka chakkar aana'],
+      severeWarnings: [
+        'Achanak dawa band karne se BP tezi se badh sakta hai.',
+        'Rozana ghar par BP monitor karein aur record rakhein.'
+      ],
+      contraindications: ['Severe aortic stenosis', 'Cardiogenic shock', 'Severe hypotension'],
       pregnancySafety: 'CAUTION',
-      alcoholInteraction: 'Additive vasodilatory effects may trigger dizziness, lightheadedness, or postural syncope.',
-      foodInstructions: 'Take at the same time each day, with or without meals.',
-      disclaimer: 'Informational guideline only. Monitor resting blood pressure routinely.',
+      alcoholInteraction: 'Sharab BP ko aniyantrit karti hai, isliye sharab se bachein.',
+      foodInstructions: 'Roz subah ek hi samay par paani ke sath lein.',
+      disclaimer: 'High BP me niyamit dawa aur kam namak khana zaroori hai.',
     },
   };
 
@@ -744,16 +1002,23 @@ class CommunityService {
 
   // Medicine Safety
   getMedicineSafety(drugQuery: string): MedicineSafetyInfo {
-    const cleanQuery = drugQuery.trim().toLowerCase();
-    const exactKey = Object.keys(this.medicineDatabase).find(
-      (k) => cleanQuery.includes(k) || k.includes(cleanQuery)
-    );
+    const cleanQuery = drugQuery.trim().toLowerCase().replace(/[^a-z0-9]/g, '');
 
-    if (exactKey) {
-      return this.medicineDatabase[exactKey];
+    // 1. Direct key match or alias match
+    for (const [key, info] of Object.entries(this.medicineDatabase)) {
+      const cleanKey = key.toLowerCase().replace(/[^a-z0-9]/g, '');
+      if (cleanQuery.includes(cleanKey) || cleanKey.includes(cleanQuery)) {
+        return info;
+      }
+      if (info.brandAliases && info.brandAliases.some(alias => {
+        const cleanAlias = alias.toLowerCase().replace(/[^a-z0-9]/g, '');
+        return cleanQuery.includes(cleanAlias) || cleanAlias.includes(cleanQuery);
+      })) {
+        return info;
+      }
     }
 
-    // Default intelligent clinical safety advisory for queried chemical
+    // Default intelligent clinical safety advisory for queried medicine
     const capitalized = drugQuery.charAt(0).toUpperCase() + drugQuery.slice(1);
     return {
       drugName: capitalized,
@@ -763,16 +1028,22 @@ class CommunityService {
         `Prescription indicated clinical management with ${capitalized}`,
         'Symptom alleviation under medical direction'
       ],
-      commonSideEffects: ['Mild nausea', 'Drowsiness or dizziness', 'Dry mouth', 'Mild gastrointestinal discomfort'],
-      severeWarnings: [
-        'Do not exceed the dosage explicitly recommended by your registered doctor.',
-        'Immediately seek emergency medical attention if you experience breathing difficulty, facial swelling, or severe urticaria.'
+      simpleUsesHindi: [
+        `${capitalized} doctor dwara batayi gayi bimari ke upchar ke liye li jaati hai`,
+        'Bimari ke lakshano aur asuvidha me rahat ke liye'
       ],
-      contraindications: ['Known hypersensitivity to this active chemical compound or related drug classes'],
+      safeDosageHindi: 'Doctor ya pharmacist dwara bataye anusaar niyamit samay par lein. Apne man se dose kam ya zyada na karein.',
+      genericSavingsHindi: 'PM Jan Aushadhi Kendra par iski generic dawa 50% se 80% saste daamo me uplabdh ho sakti hai.',
+      commonSideEffects: ['Halki ulti ya ji michlana', 'Halka sar dard ya susti (drowsiness)', 'Pet me halki gas'],
+      severeWarnings: [
+        'Doctor dwara nirdharit dose se zyada galti se bhi na lein.',
+        'Agar saans lene me takleef ya allergy ke lakshan dikhein to turant doctor se milein.'
+      ],
+      contraindications: ['Is dawa se ya kisi anya dawa se allergy hone par na lein'],
       pregnancySafety: 'CONSULT_DOCTOR',
-      alcoholInteraction: 'Caution is strongly advised. Alcohol can amplify central nervous system depression and alter hepatic drug clearance.',
-      foodInstructions: 'Consume with a full glass of water. Consult your pharmacist regarding whether to take before or after meals.',
-      disclaimer: 'Informational guideline only. Always verify interactions and contraindications with your treating physician or licensed pharmacist.',
+      alcoholInteraction: 'Is dawa ke chalte sharab (alcohol) ka sevan bilkul na karein.',
+      foodInstructions: 'Ek glass taaze paani ke sath lein. Doctor se zaroor poochein ki khana khane ke pehle ya baad me lena hai.',
+      disclaimer: 'Yeh jankari sirf aapki suvidha ke liye hai. Koi bhi nayi dawa lene se pehle doctor se zaroor salah lein.'
     };
   }
 

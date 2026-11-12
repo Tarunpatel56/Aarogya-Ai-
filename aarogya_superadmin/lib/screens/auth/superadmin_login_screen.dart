@@ -17,6 +17,7 @@ class _SuperAdminLoginScreenState extends State<SuperAdminLoginScreen> {
   final _passwordController = TextEditingController();
   final _adminService = SuperAdminService();
   bool _isLoading = false;
+  bool _obscurePassword = true;
   String? _errorMessage;
 
   Future<void> _handleLogin() async {
@@ -205,13 +206,21 @@ class _SuperAdminLoginScreenState extends State<SuperAdminLoginScreen> {
                         const SizedBox(height: 6),
                         TextField(
                           controller: _passwordController,
-                          obscureText: true,
+                          obscureText: _obscurePassword,
                           style: const TextStyle(color: Colors.white),
                           decoration: InputDecoration(
                             prefixIcon: const Icon(
                               Icons.lock_outline,
                               size: 20,
                               color: Color(0xFF94A3B8),
+                            ),
+                            suffixIcon: IconButton(
+                              icon: Icon(
+                                _obscurePassword ? Icons.visibility_off : Icons.visibility,
+                                size: 20,
+                                color: const Color(0xFF94A3B8),
+                              ),
+                              onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
                             ),
                             hintText: '••••••••',
                             hintStyle: const TextStyle(
