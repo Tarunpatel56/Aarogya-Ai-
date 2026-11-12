@@ -130,3 +130,4 @@ class RapidBrandLogo extends StatelessWidget {
     );
   }
 }
+

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import '../../services/superadmin_service.dart';
 import '../../widgets/superadmin_brand_logo.dart';
 
@@ -33,13 +34,17 @@ class _SuperAdminLoginScreenState extends State<SuperAdminLoginScreen> {
     });
 
     try {
-      final success = await _adminService.login(email: email, password: password);
+      final success = await _adminService.login(
+        email: email,
+        password: password,
+      );
       if (mounted) {
         if (success) {
           widget.onLoginSuccess();
         } else {
           setState(() {
-            _errorMessage = 'Invalid Super Admin credentials or permission denied.';
+            _errorMessage =
+                'Invalid Super Admin credentials or permission denied.';
             _isLoading = false;
           });
         }
@@ -86,10 +91,7 @@ class _SuperAdminLoginScreenState extends State<SuperAdminLoginScreen> {
                   const Text(
                     'Master Healthcare Verification & Ecosystem Command',
                     textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 13,
-                      color: Color(0xFF94A3B8),
-                    ),
+                    style: TextStyle(fontSize: 13, color: Color(0xFF94A3B8)),
                   ),
                   const SizedBox(height: 28),
 
@@ -105,12 +107,19 @@ class _SuperAdminLoginScreenState extends State<SuperAdminLoginScreen> {
                       ),
                       child: Row(
                         children: [
-                          const Icon(Icons.error_outline_rounded, color: Color(0xFFFCA5A5), size: 20),
+                          const Icon(
+                            Icons.error_outline_rounded,
+                            color: Color(0xFFFCA5A5),
+                            size: 20,
+                          ),
                           const SizedBox(width: 8),
                           Expanded(
                             child: Text(
                               _errorMessage!,
-                              style: const TextStyle(fontSize: 12.5, color: Color(0xFFFCA5A5)),
+                              style: const TextStyle(
+                                fontSize: 12.5,
+                                color: Color(0xFFFCA5A5),
+                              ),
                             ),
                           ),
                         ],
@@ -137,7 +146,11 @@ class _SuperAdminLoginScreenState extends State<SuperAdminLoginScreen> {
                       children: [
                         const Text(
                           'Super Admin Email',
-                          style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.w600, color: Color(0xFFCBD5E1)),
+                          style: TextStyle(
+                            fontSize: 12.5,
+                            fontWeight: FontWeight.w600,
+                            color: Color(0xFFCBD5E1),
+                          ),
                         ),
                         const SizedBox(height: 6),
                         TextField(
@@ -145,30 +158,49 @@ class _SuperAdminLoginScreenState extends State<SuperAdminLoginScreen> {
                           keyboardType: TextInputType.emailAddress,
                           style: const TextStyle(color: Colors.white),
                           decoration: InputDecoration(
-                            prefixIcon: const Icon(Icons.badge_outlined, size: 20, color: Color(0xFF94A3B8)),
+                            prefixIcon: const Icon(
+                              Icons.badge_outlined,
+                              size: 20,
+                              color: Color(0xFF94A3B8),
+                            ),
                             hintText: 'superadmin@aarogya.ai',
-                            hintStyle: const TextStyle(color: Color(0xFF64748B)),
+                            hintStyle: const TextStyle(
+                              color: Color(0xFF64748B),
+                            ),
                             filled: true,
                             fillColor: const Color(0xFF0F172A),
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(10),
-                              borderSide: const BorderSide(color: Color(0xFF334155)),
+                              borderSide: const BorderSide(
+                                color: Color(0xFF334155),
+                              ),
                             ),
                             enabledBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(10),
-                              borderSide: const BorderSide(color: Color(0xFF334155)),
+                              borderSide: const BorderSide(
+                                color: Color(0xFF334155),
+                              ),
                             ),
                             focusedBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(10),
-                              borderSide: const BorderSide(color: Color(0xFF38BDF8)),
+                              borderSide: const BorderSide(
+                                color: Color(0xFF38BDF8),
+                              ),
                             ),
-                            contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                            contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 14,
+                              vertical: 12,
+                            ),
                           ),
                         ),
                         const SizedBox(height: 16),
                         const Text(
                           'Master Passphrase',
-                          style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.w600, color: Color(0xFFCBD5E1)),
+                          style: TextStyle(
+                            fontSize: 12.5,
+                            fontWeight: FontWeight.w600,
+                            color: Color(0xFFCBD5E1),
+                          ),
                         ),
                         const SizedBox(height: 6),
                         TextField(
@@ -176,24 +208,39 @@ class _SuperAdminLoginScreenState extends State<SuperAdminLoginScreen> {
                           obscureText: true,
                           style: const TextStyle(color: Colors.white),
                           decoration: InputDecoration(
-                            prefixIcon: const Icon(Icons.lock_outline, size: 20, color: Color(0xFF94A3B8)),
+                            prefixIcon: const Icon(
+                              Icons.lock_outline,
+                              size: 20,
+                              color: Color(0xFF94A3B8),
+                            ),
                             hintText: '••••••••',
-                            hintStyle: const TextStyle(color: Color(0xFF64748B)),
+                            hintStyle: const TextStyle(
+                              color: Color(0xFF64748B),
+                            ),
                             filled: true,
                             fillColor: const Color(0xFF0F172A),
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(10),
-                              borderSide: const BorderSide(color: Color(0xFF334155)),
+                              borderSide: const BorderSide(
+                                color: Color(0xFF334155),
+                              ),
                             ),
                             enabledBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(10),
-                              borderSide: const BorderSide(color: Color(0xFF334155)),
+                              borderSide: const BorderSide(
+                                color: Color(0xFF334155),
+                              ),
                             ),
                             focusedBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(10),
-                              borderSide: const BorderSide(color: Color(0xFF38BDF8)),
+                              borderSide: const BorderSide(
+                                color: Color(0xFF38BDF8),
+                              ),
                             ),
-                            contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                            contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 14,
+                              vertical: 12,
+                            ),
                           ),
                         ),
                         const SizedBox(height: 24),
@@ -204,7 +251,9 @@ class _SuperAdminLoginScreenState extends State<SuperAdminLoginScreen> {
                             style: ElevatedButton.styleFrom(
                               backgroundColor: const Color(0xFF2563EB),
                               foregroundColor: Colors.white,
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10),
+                              ),
                               elevation: 2,
                             ),
                             onPressed: _isLoading ? null : _handleLogin,
@@ -212,11 +261,17 @@ class _SuperAdminLoginScreenState extends State<SuperAdminLoginScreen> {
                                 ? const SizedBox(
                                     width: 20,
                                     height: 20,
-                                    child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
+                                    child: CircularProgressIndicator(
+                                      color: Colors.white,
+                                      strokeWidth: 2,
+                                    ),
                                   )
                                 : const Text(
                                     'Access SuperAdmin Command',
-                                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700),
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w700,
+                                    ),
                                   ),
                           ),
                         ),
@@ -232,4 +287,3 @@ class _SuperAdminLoginScreenState extends State<SuperAdminLoginScreen> {
     );
   }
 }
-

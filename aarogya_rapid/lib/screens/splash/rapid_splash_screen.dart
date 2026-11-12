@@ -202,3 +202,4 @@ class _RapidSplashScreenState extends State<RapidSplashScreen>
     );
   }
 }
+
