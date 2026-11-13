@@ -5,10 +5,10 @@ import 'package:http/http.dart' as http;
 class ApiConfig {
   static String? _customBaseUrl;
 
-  /// High-reliability Cloudflare Tunnel endpoint (unblocked worldwide across all mobile ISPs)
-  static const String publicCloudflareUrl = 'https://mac-saw-polo-alex.trycloudflare.com';
+  /// High-reliability Cloudflare Tunnel endpoint
+  static const String publicCloudflareUrl = 'https://decent-until-digit-bat.trycloudflare.com';
 
-  /// Active production cloud endpoint on Ngrok Tunnel
+  /// Permanent production cloud endpoint on Ngrok Tunnel
   static const String publicTunnelUrl = 'https://nonpictorial-alysia-seminervously.ngrok-free.dev';
 
   /// Default API base URL based on runtime platform
@@ -17,7 +17,7 @@ class ApiConfig {
     if (fromEnv.isNotEmpty) {
       return fromEnv;
     }
-    return '$publicCloudflareUrl/api/v1';
+    return '$publicTunnelUrl/api/v1';
   }
 
   /// Get current effective API base URL
@@ -56,8 +56,8 @@ class ApiConfig {
     }
 
     final candidates = <String>[
-      publicCloudflareUrl,
       publicTunnelUrl,
+      publicCloudflareUrl,
       'http://10.31.181.46:5000',
       'http://127.0.0.1:5000',
       'http://localhost:5000',
@@ -66,7 +66,9 @@ class ApiConfig {
     final probeFutures = candidates.map((host) async {
       try {
         final uri = Uri.parse('$host/health');
-        final res = await http.get(uri).timeout(const Duration(milliseconds: 2500));
+        final res = await http.get(uri, headers: {
+          'ngrok-skip-browser-warning': 'true',
+        }).timeout(const Duration(milliseconds: 2500));
         if (res.statusCode == 200) {
           return '$host/api/v1';
         }

@@ -5,10 +5,10 @@ import 'package:http/http.dart' as http;
 class ApiConfig {
   static String? _customBaseUrl;
 
-  /// High-reliability Cloudflare Tunnel endpoint (unblocked worldwide across all mobile ISPs)
-  static const String publicCloudflareUrl = 'https://mac-saw-polo-alex.trycloudflare.com';
+  /// High-reliability Cloudflare Tunnel endpoint
+  static const String publicCloudflareUrl = 'https://decent-until-digit-bat.trycloudflare.com';
 
-  /// Active production cloud endpoint on Ngrok Tunnel
+  /// Permanent production cloud endpoint on Ngrok Tunnel
   static const String publicTunnelUrl = 'https://nonpictorial-alysia-seminervously.ngrok-free.dev';
 
   /// Default API base URL based on runtime platform
@@ -18,8 +18,8 @@ class ApiConfig {
       return fromEnv;
     }
 
-    // Connect directly to high-reliability cloud backend across both Web and Mobile
-    return '$publicCloudflareUrl/api/v1';
+    // Connect directly to permanent production cloud backend
+    return '$publicTunnelUrl/api/v1';
   }
 
   /// Get current effective API base URL
@@ -60,8 +60,8 @@ class ApiConfig {
 
     // Concurrent candidate endpoints with Cloudflare, Ngrok and LAN fallbacks
     final candidates = <String>[
-      publicCloudflareUrl,
       publicTunnelUrl,
+      publicCloudflareUrl,
       'http://10.31.181.46:5000',
       'http://127.0.0.1:5000',
       'http://10.0.2.2:5000',
