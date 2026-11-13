@@ -5,11 +5,8 @@ import 'package:http/http.dart' as http;
 class ApiConfig {
   static String? _customBaseUrl;
 
-  /// High-reliability Cloudflare Tunnel endpoint
-  static const String publicCloudflareUrl = 'https://decent-until-digit-bat.trycloudflare.com';
-
-  /// Permanent production cloud endpoint on Ngrok Tunnel
-  static const String publicTunnelUrl = 'https://nonpictorial-alysia-seminervously.ngrok-free.dev';
+  /// Live Production Cloud Backend Endpoint on Render
+  static const String productionCloudUrl = 'https://aarogya-ai-azgi.onrender.com';
 
   /// Default API base URL based on runtime platform
   static String get defaultBaseUrl {
@@ -17,7 +14,7 @@ class ApiConfig {
     if (fromEnv.isNotEmpty) {
       return fromEnv;
     }
-    return '$publicTunnelUrl/api/v1';
+    return '$productionCloudUrl/api/v1';
   }
 
   /// Get current effective API base URL
@@ -37,8 +34,8 @@ class ApiConfig {
     _customBaseUrl = url;
   }
 
-  /// Request timeout duration
-  static const Duration timeout = Duration(seconds: 15);
+  /// Request timeout duration (60s to handle Render cold start)
+  static const Duration timeout = Duration(seconds: 60);
 
   /// Auto-probe candidate URLs to find active backend host
   static Future<String> autoDetectBaseUrl() async {
@@ -55,35 +52,7 @@ class ApiConfig {
       return _customBaseUrl!;
     }
 
-    final candidates = <String>[
-      publicTunnelUrl,
-      publicCloudflareUrl,
-      'http://10.31.181.46:5000',
-      'http://127.0.0.1:5000',
-      'http://localhost:5000',
-    ];
-
-    final probeFutures = candidates.map((host) async {
-      try {
-        final uri = Uri.parse('$host/health');
-        final res = await http.get(uri, headers: {
-          'ngrok-skip-browser-warning': 'true',
-        }).timeout(const Duration(milliseconds: 2500));
-        if (res.statusCode == 200) {
-          return '$host/api/v1';
-        }
-      } catch (_) {}
-      return null;
-    });
-
-    final results = await Future.wait(probeFutures);
-    for (final responsiveHost in results) {
-      if (responsiveHost != null) {
-        _customBaseUrl = responsiveHost;
-        return _customBaseUrl!;
-      }
-    }
-
+    // Always use live Render production backend — no local fallbacks
     _customBaseUrl = defaultBaseUrl;
     return _customBaseUrl!;
   }

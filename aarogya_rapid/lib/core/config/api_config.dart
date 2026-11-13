@@ -5,11 +5,8 @@ import 'package:http/http.dart' as http;
 class ApiConfig {
   static String? _customBaseUrl;
 
-  /// High-reliability Cloudflare Tunnel endpoint
-  static const String publicCloudflareUrl = 'https://decent-until-digit-bat.trycloudflare.com';
-
-  /// Permanent production cloud endpoint on Ngrok Tunnel
-  static const String publicTunnelUrl = 'https://nonpictorial-alysia-seminervously.ngrok-free.dev';
+  /// Live Production Cloud Backend Endpoint on Render
+  static const String productionCloudUrl = 'https://aarogya-ai-azgi.onrender.com';
 
   /// Default API base URL based on runtime platform
   static String get defaultBaseUrl {
@@ -18,8 +15,8 @@ class ApiConfig {
       return fromEnv;
     }
 
-    // Connect directly to permanent production cloud backend
-    return '$publicTunnelUrl/api/v1';
+    // Connect directly to live production cloud backend on Render
+    return '$productionCloudUrl/api/v1';
   }
 
   /// Get current effective API base URL
@@ -58,38 +55,7 @@ class ApiConfig {
       return _customBaseUrl!;
     }
 
-    // Concurrent candidate endpoints with Cloudflare, Ngrok and LAN fallbacks
-    final candidates = <String>[
-      publicTunnelUrl,
-      publicCloudflareUrl,
-      'http://10.31.181.46:5000',
-      'http://127.0.0.1:5000',
-      'http://10.0.2.2:5000',
-      'http://localhost:5000',
-    ];
-
-    // Probe all candidate endpoints concurrently for ultra-fast startup (<2s)
-    final probeFutures = candidates.map((host) async {
-      try {
-        final uri = Uri.parse('$host/health');
-        final res = await http.get(uri, headers: {
-          'ngrok-skip-browser-warning': 'true',
-        }).timeout(const Duration(milliseconds: 2500));
-        if (res.statusCode == 200) {
-          return '$host/api/v1';
-        }
-      } catch (_) {}
-      return null;
-    });
-
-    final results = await Future.wait(probeFutures);
-    for (final responsiveHost in results) {
-      if (responsiveHost != null) {
-        _customBaseUrl = responsiveHost;
-        return _customBaseUrl!;
-      }
-    }
-
+    // Always use live Render production backend — no local fallbacks
     _customBaseUrl = defaultBaseUrl;
     return _customBaseUrl!;
   }

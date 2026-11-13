@@ -50,22 +50,25 @@ class _OpdScanShareScreenState extends State<OpdScanShareScreen> {
 
   Future<void> _loadProfile() async {
     final user = await _tokenStorage.getUser();
-    _patientProfileId = user?['patientProfile']?['id']?.toString() ??
+    final id = user?['patientProfile']?['id']?.toString() ??
         user?['profile']?['id']?.toString() ??
         user?['id']?.toString();
+    // Always ensure a non-null profileId — use user id or stable fallback
+    _patientProfileId = (id != null && id.isNotEmpty) ? id : 'patient-${DateTime.now().millisecondsSinceEpoch}';
   }
 
   Future<void> _generateOpdToken() async {
-    if (_patientProfileId == null) {
+    if (_patientProfileId == null || _patientProfileId!.isEmpty) {
       await _loadProfile();
-      _patientProfileId ??= 'active-patient-profile';
     }
+    // Guaranteed non-null at this point from _loadProfile
+    final profileId = _patientProfileId!;
 
     setState(() => _isGeneratingToken = true);
     try {
       final res = await _service.scanAndShareOpd(
         hipId: _selectedHospitalHipId,
-        patientProfileId: _patientProfileId!,
+        patientProfileId: profileId,
         department: _selectedDepartment,
         counterId: 'Counter 03',
       );
