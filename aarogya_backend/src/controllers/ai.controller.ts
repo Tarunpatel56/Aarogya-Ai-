@@ -185,6 +185,57 @@ export class AiController {
       next(error);
     }
   }
+
+  /**
+   * Summarize FHIR / ABDM Health Record
+   * POST /api/v1/ai/summarize-record
+   */
+  public async summarizeRecord(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const { recordText, language } = req.body;
+      const result = await aiService.summarizeHealthRecord(recordText || '', language || 'en');
+      res.status(200).json({
+        success: true,
+        data: result,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  /**
+   * Explain Medicine Composition & Generic Alternative
+   * POST /api/v1/ai/explain-medicine
+   */
+  public async explainMedicine(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const { medicineName, composition, language } = req.body;
+      const result = await aiService.explainMedicineComposition(medicineName || '', composition || '', language || 'en');
+      res.status(200).json({
+        success: true,
+        data: result,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  /**
+   * Generate Doctor-to-Doctor Clinical Referral Case Summary
+   * POST /api/v1/ai/clinical-case-summary
+   */
+  public async clinicalCaseSummary(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const { patientName, clinicalData } = req.body;
+      const result = await aiService.generateClinicalCaseSummary(patientName || 'Patient', clinicalData || {});
+      res.status(200).json({
+        success: true,
+        data: result,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
 }
 
 export const aiController = new AiController();

@@ -121,4 +121,19 @@ router.post('/analyze-report', imageUploadMiddleware, (req: Request, res: Respon
   aiController.analyzeReport(req, res, next);
 });
 
+// 12. Summarize FHIR / ABDM Health Record
+router.post('/summarize-record', (req: Request, res: Response, next: NextFunction) => {
+  aiController.summarizeRecord(req, res, next);
+});
+
+// 13. Explain Medicine Composition & Generic Alternative
+router.post('/explain-medicine', (req: Request, res: Response, next: NextFunction) => {
+  aiController.explainMedicine(req, res, next);
+});
+
+// 14. Doctor Clinical Referral Case Summary
+router.post('/clinical-case-summary', (req: Request, res: Response, next: NextFunction) => {
+  aiController.clinicalCaseSummary(req, res, next);
+});
+
 export const aiRoutes = router;

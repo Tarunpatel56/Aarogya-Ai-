@@ -15,6 +15,11 @@ import { prescriptionRoutes } from './prescription.routes';
 import { vitalsRoutes, deviceRoutes } from './vitals.routes';
 import { physiotherapyRoutes } from './physiotherapy.routes';
 import { communityRoutes } from './community.routes';
+import { abdmRoutes } from './abdm.routes';
+import { governmentRoutes } from './government.routes';
+import { mchRoutes } from './mch.routes';
+import { placesRoutes } from './places.routes';
+import { referralRoutes } from './referral.routes';
 
 const router = Router();
 
@@ -75,6 +80,21 @@ router.use('/physiotherapy', physiotherapyRoutes);
 
 // Community, Government Schemes, Blood Donors, Vaccine Tracker, Health Camps & Medicine Safety
 router.use('/community', communityRoutes);
+
+// ABDM (Ayushman Bharat Digital Mission) M1, M2, M3 Endpoints
+router.use('/abdm', abdmRoutes);
+
+// Government Healthcare Services (e-RaktKosh, Jan Aushadhi, PM-JAY, HFR/HPR, UHI, OPD Scan & Share)
+router.use('/government', governmentRoutes);
+
+// Maternal & Child Healthcare (MCH, ANC/PNC, U-WIN, PMSMA)
+router.use('/mch', mchRoutes);
+
+// Google Places Nearby Healthcare Finder Proxy
+router.use('/places', placesRoutes);
+
+// Inter-Doctor Clinical Referrals (aarogya_healthpro)
+router.use('/referrals', referralRoutes);
 
 // Administrative authority & verification workflows
 router.use('/admin', adminRoutes);

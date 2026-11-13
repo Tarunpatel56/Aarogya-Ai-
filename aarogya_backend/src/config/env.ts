@@ -16,6 +16,7 @@ const envSchema = z.object({
   GROQ_API_KEY: z.string().optional(),
   GROK_API_KEY: z.string().optional(),
   GEMINI_API_KEY: z.string().optional(),
+  GOOGLE_PLACES_API_KEY: z.string().optional(),
   MEDICAL_AI_PROVIDER: z.enum(['gemini', 'groq', 'custom_ml']).default('gemini'),
   GROQ_VISION_MODEL: z.string().optional(),
   // External AI Inference Providers (MRI, Lung, Skin)

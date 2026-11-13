@@ -31,6 +31,7 @@ import 'wellness/diet_plan_screen.dart';
 import 'ai/medical_report_comparison_screen.dart';
 import 'medicines/medicine_safety_screen.dart';
 import 'voice/talk_to_talk_voice_assistant_screen.dart';
+import 'government/government_dashboard_screen.dart';
 import '../services/ai_service.dart';
 import '../services/community_service.dart';
 import '../services/medicine_reminder_service.dart';
@@ -376,6 +377,15 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
     );
   }
 
+  void _openGovtServices() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => const GovernmentDashboardScreen(),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -480,6 +490,66 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        // Government Healthcare Services Portal Master Banner
+        GestureDetector(
+          onTap: _openGovtServices,
+          child: Container(
+            margin: const EdgeInsets.only(bottom: 16),
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              gradient: const LinearGradient(
+                colors: [Color(0xFF004D40), Color(0xFF00796B)],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+              borderRadius: BorderRadius.circular(16),
+              boxShadow: [
+                BoxShadow(
+                  color: const Color(0xFF004D40).withValues(alpha: 0.25),
+                  blurRadius: 10,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
+            child: Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: 0.2),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: const Icon(Icons.account_balance_rounded, color: Colors.white, size: 24),
+                ),
+                const SizedBox(width: 14),
+                const Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Text(
+                            'Government Health Services',
+                            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14),
+                          ),
+                          SizedBox(width: 6),
+                          Icon(Icons.verified_rounded, color: Colors.white70, size: 14),
+                        ],
+                      ),
+                      SizedBox(height: 2),
+                      Text(
+                        'ABHA, e-RaktKosh, Jan Aushadhi, PM-JAY & OPD Scan',
+                        style: TextStyle(color: Color(0xFFE0F2F1), fontSize: 11),
+                      ),
+                    ],
+                  ),
+                ),
+                const Icon(Icons.arrow_forward_ios_rounded, color: Colors.white70, size: 14),
+              ],
+            ),
+          ),
+        ),
+
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [

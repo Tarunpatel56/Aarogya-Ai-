@@ -138,7 +138,7 @@ class _DriverLoginScreenState extends State<DriverLoginScreen> {
                         keyboardType: TextInputType.emailAddress,
                         decoration: InputDecoration(
                           prefixIcon: const Icon(Icons.badge_outlined, size: 20),
-                          hintText: 'driver@aarogya.ai',
+                          hintText: 'driver@gmail.com',
                           border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
                           contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
                         ),

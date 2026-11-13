@@ -141,6 +141,11 @@ model PatientProfile {
   assignmentHistories   AssignmentHistory[]
   accessAuditLogs       AccessAuditLog[]
   physiotherapySessions PhysiotherapySession[]
+  abhaProfile           AbhaProfile?
+  maternalChildCare     MaternalChildCare[]
+  wellnessGoals         HealthWellnessGoal[]
+  doctorReferrals       DoctorReferral[]
+  opdTokens             OpdRegistrationToken[]
 
   @@index([userId])
   @@index([abhaId])
@@ -198,6 +203,8 @@ model DoctorProfile {
   prescriptions         Prescription[]
   assignedPatients      PatientDoctorAssignment[]
   assignmentHistories   AssignmentHistory[]
+  referralsInitiated    DoctorReferral[]           @relation("ReferringDoctor")
+  referralsReceived     DoctorReferral[]           @relation("TargetDoctor")
 
   @@index([userId])
   @@index([specialization])
@@ -767,4 +774,307 @@ model PhysiotherapySession {
 
   @@index([patientProfileId, createdAt])
   @@index([exerciseName])
+}
+
+// ==============================================================================
+// 12. ABHA & Ayushman Bharat Digital Mission (ABDM M1 / M2 / M3)
+// ==============================================================================
+model AbhaProfile {
+  id                String             @id @default(uuid())
+  patientProfileId  String             @unique
+  patientProfile    PatientProfile     @relation(fields: [patientProfileId], references: [id], onDelete: Cascade)
+  abhaNumber        String             @unique // 14-digit ABHA Number: "91-1234-5678-9012"
+  abhaAddress       String             @unique // "patient@abdm"
+  fullName          String
+  gender            String?
+  dateOfBirth       String?
+  mobile            String?
+  authMethod        String             @default("AADHAAR_OTP") // AADHAAR_OTP, MOBILE_OTP
+  verificationStatus String            @default("VERIFIED")    // VERIFIED, PENDING, UNLINKED
+  profileData       Json?              // Address, Photo, District, State, Pincode
+  linkToken         String?
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+
+  consents          AbdmConsent[]
+  linkedRecords     AbdmLinkedRecord[]
+
+  @@index([abhaNumber])
+  @@index([abhaAddress])
+}
+
+model AbdmConsent {
+  id                String             @id @default(uuid())
+  abhaProfileId     String
+  abhaProfile       AbhaProfile        @relation(fields: [abhaProfileId], references: [id], onDelete: Cascade)
+  consentRequestId  String             @unique
+  consentArtifactId String?            @unique
+  requesterName     String             // Doctor or Hospital Name
+  requesterHprId    String?            // Doctor's HPR ID
+  requesterRole     String             @default("DOCTOR")
+  purposeCode       String             @default("CAREMGT") // CAREMGT, BTG, PUBHLTH
+  purposeText       String             @default("Care Management and Treatment Planning")
+  healthInfoTypes   String[]           // ["DISCHARGE_SUMMARY", "DIAGNOSTIC_REPORT", "PRESCRIPTION", "OP_CONSULTATION"]
+  dateRangeFrom     DateTime
+  dateRangeTo       DateTime
+  expiryDate        DateTime
+  status            String             @default("REQUESTED") // REQUESTED, GRANTED, DENIED, REVOKED
+  grantedAt         DateTime?
+  revokedAt         DateTime?
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+
+  @@index([abhaProfileId])
+  @@index([status])
+}
+
+model AbdmLinkedRecord {
+  id                   String          @id @default(uuid())
+  abhaProfileId        String
+  abhaProfile          AbhaProfile     @relation(fields: [abhaProfileId], references: [id], onDelete: Cascade)
+  hipId                String          // Health Information Provider ID (HFR ID)
+  hipName              String
+  careContextReference String          // Episode / Encounter ID
+  displayTitle         String
+  recordType           RecordType
+  fhirBundle           Json?           // ABDM FHIR R4 Compliant Document
+  recordDate           DateTime        @default(now())
+  linkedAt             DateTime        @default(now())
+
+  @@index([abhaProfileId])
+  @@index([recordType])
+}
+
+// ==============================================================================
+// 13. e-RaktKosh Blood Bank Directory & Stock Registry
+// ==============================================================================
+model BloodBankFacility {
+  id                String             @id @default(uuid())
+  name              String
+  hfrId             String?            @unique
+  state             String
+  district          String
+  city              String
+  address           String
+  pincode           String?
+  latitude          Float?
+  longitude         Float?
+  contactPhone      String
+  email             String?
+  category          String             @default("GOVT") // GOVT, RED_CROSS, PRIVATE, CHARITABLE
+  componentFacility Boolean            @default(true)   // Has component separation facility
+  isVerified        Boolean            @default(true)
+  lastStockSyncAt   DateTime?
+  stockSummary      Json?              // Breakdown of units per blood group & component
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+
+  @@index([city])
+  @@index([state, district])
+  @@index([latitude, longitude])
+}
+
+// ==============================================================================
+// 14. Jan Aushadhi Kendra (PMBJP) Generic Medicines & Stores
+// ==============================================================================
+model JanAushadhiProduct {
+  id                String             @id @default(uuid())
+  drugCode          String             @unique // PMBJP Drug Code
+  genericName       String
+  groupCategory     String             // Cardiovascular, Antibiotic, Gastrointestinal, Analgesic
+  dosageForm        String             // Tablet, Capsule, Syrup, Injection
+  strength          String             // 500mg, 40mg+30mg, etc.
+  unitSize          String             // 10 Tablets, 100ml
+  mrpInr            Float
+  brandedEquivalent String?            // "Dolo 650", "Pan-D", "Augmentin"
+  brandedMrpAvg     Float?
+  composition       String
+  indications       String?
+  createdAt         DateTime           @default(now())
+
+  @@index([genericName])
+  @@index([brandedEquivalent])
+  @@index([groupCategory])
+}
+
+model JanAushadhiKendra {
+  id                String             @id @default(uuid())
+  kendraCode        String             @unique
+  centerName        String
+  state             String
+  district          String
+  city              String?
+  pincode           String
+  address           String
+  latitude          Float?
+  longitude         Float?
+  contactPerson     String?
+  contactPhone      String
+  operatingHours    String?            @default("09:00 AM - 08:00 PM")
+  isOperational     Boolean            @default(true)
+  createdAt         DateTime           @default(now())
+
+  @@index([state, district])
+  @@index([pincode])
+  @@index([latitude, longitude])
+}
+
+// ==============================================================================
+// 15. HFR (Health Facility Registry) & HPR (Healthcare Professionals)
+// ==============================================================================
+model HfrFacility {
+  id                String             @id @default(uuid())
+  hfrId             String             @unique // e.g. "IN2300000123"
+  facilityName      String
+  facilityType      String             // "HOSPITAL", "CLINIC", "DIAGNOSTIC_LAB", "BLOOD_BANK"
+  systemOfMedicine  String             @default("ALLOPATHY") // ALLOPATHY, AYUSH, HOMEOPATHY
+  ownership         String             @default("GOVT")      // GOVT, PRIVATE, TRUST
+  state             String
+  district          String
+  city              String
+  address           String
+  pincode           String
+  contactPhone      String
+  emergencyPhone    String?
+  latitude          Float?
+  longitude         Float?
+  totalBeds         Int?               @default(0)
+  accreditations    String[]           @default(["NABH_ROUTINE"])
+  servicesOffered   String[]           @default([])
+  verificationStatus String            @default("VERIFIED") // VERIFIED, PROVISIONAL
+  createdAt         DateTime           @default(now())
+
+  @@index([facilityType])
+  @@index([city])
+  @@index([state, district])
+}
+
+model HprPractitioner {
+  id                String             @id @default(uuid())
+  hprId             String             @unique // e.g. "91-1234-5678-9012@hpr"
+  fullName          String
+  registrationNumber String            @unique // State / NMC Registration Number
+  registrationCouncil String           @default("National Medical Commission")
+  qualifications    String             // MBBS, MD, MS
+  specialization    String             // Cardiology, Orthopedics, Pediatrics
+  experienceYears   Int                @default(5)
+  facilityAffiliation String?
+  state             String
+  city              String
+  verificationStatus String            @default("VERIFIED") // VERIFIED, PROVISIONAL
+  consultationModes String[]           @default(["IN_PERSON", "TELECONSULTATION"])
+  createdAt         DateTime           @default(now())
+
+  @@index([specialization])
+  @@index([city])
+  @@index([registrationNumber])
+}
+
+// ==============================================================================
+// 16. PM-JAY Packages & OPD Scan and Share Token
+// ==============================================================================
+model PmjayPackage {
+  id                String             @id @default(uuid())
+  procedureCode     String             @unique // e.g. "MC001"
+  specialty         String             // Cardiology, General Surgery, Oncology
+  procedureName     String
+  preAuthRequired   Boolean            @default(true)
+  packagePriceInr   Float
+  stayDurationDays  Int                @default(3)
+  description       String?
+  createdAt         DateTime           @default(now())
+
+  @@index([specialty])
+  @@index([procedureName])
+}
+
+model OpdRegistrationToken {
+  id                String             @id @default(uuid())
+  patientProfileId  String
+  patientProfile    PatientProfile     @relation(fields: [patientProfileId], references: [id], onDelete: Cascade)
+  facilityHfrId     String
+  facilityName      String
+  departmentName    String             @default("General Medicine")
+  tokenNumber       String             // e.g. "OPD-GM-142"
+  appointmentDate   DateTime           @default(now())
+  status            String             @default("ACTIVE") // ACTIVE, CALLED, COMPLETED, EXPIRED
+  qrPayloadScanned  String?
+  createdAt         DateTime           @default(now())
+
+  @@index([patientProfileId])
+  @@index([facilityHfrId])
+}
+
+// ==============================================================================
+// 17. Mother & Child Care Tracking (MCH / U-WIN)
+// ==============================================================================
+model MaternalChildCare {
+  id                String             @id @default(uuid())
+  patientProfileId  String
+  patientProfile    PatientProfile     @relation(fields: [patientProfileId], references: [id], onDelete: Cascade)
+  profileType       String             @default("MATERNAL") // "MATERNAL" or "CHILD"
+  fullName          String
+  dateOfBirthOrLMP  DateTime           // Last Menstrual Period for Mother, or DOB for Child
+  expectedDueDate   DateTime?
+  bloodGroup        String?
+  rchId             String?            // Reproductive and Child Health ID
+  highRiskFlags     String[]           @default([]) // e.g. ["Anemia", "Gestational Diabetes", "Hypertension"]
+  careLogs          Json?              // Routine ANC Visits, Ultrasound scans, Weight logs
+  immunizations     Json?              // Given and scheduled vaccines with dates
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+
+  @@index([patientProfileId])
+  @@index([profileType])
+}
+
+// ==============================================================================
+// 18. Doctor-to-Doctor Consultation & Clinical Referrals
+// ==============================================================================
+model DoctorReferral {
+  id                String             @id @default(uuid())
+  patientProfileId  String
+  patientProfile    PatientProfile     @relation(fields: [patientProfileId], references: [id], onDelete: Cascade)
+  referringDoctorId String
+  referringDoctor   DoctorProfile      @relation("ReferringDoctor", fields: [referringDoctorId], references: [id], onDelete: Cascade)
+  targetDoctorId    String?
+  targetDoctor      DoctorProfile?     @relation("TargetDoctor", fields: [targetDoctorId], references: [id], onDelete: SetNull)
+  targetSpecialty   String
+  urgencyLevel      String             @default("ROUTINE") // ROUTINE, URGENT, EMERGENCY
+  clinicalSummary   String
+  attachedRecordIds String[]           @default([])
+  status            String             @default("PENDING") // PENDING, ACCEPTED, DECLINED, COMPLETED
+  specialistNotes   String?
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+
+  @@index([patientProfileId])
+  @@index([referringDoctorId])
+  @@index([targetDoctorId])
+  @@index([status])
+}
+
+// ==============================================================================
+// 19. Health Wellness Goals & Aggregates
+// ==============================================================================
+model HealthWellnessGoal {
+  id                String             @id @default(uuid())
+  patientProfileId  String
+  patientProfile    PatientProfile     @relation(fields: [patientProfileId], references: [id], onDelete: Cascade)
+  goalDate          DateTime           @default(now())
+  targetSteps       Int                @default(8000)
+  completedSteps    Int                @default(0)
+  targetWaterMl     Int                @default(2500)
+  consumedWaterMl   Int                @default(0)
+  targetSleepHours  Float              @default(7.5)
+  recordedSleepHours Float             @default(0)
+  burnedCalories    Float              @default(0)
+  dietType          String             @default("VEGETARIAN") // VEGETARIAN, NON_VEGETARIAN, VEGAN, EGGETARIAN
+  conditionTags     String[]           @default([]) // e.g. ["Diabetes", "Hypertension", "Uric Acid"]
+  aiDietPlanJson    Json?
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+
+  @@unique([patientProfileId, goalDate])
+  @@index([patientProfileId])
 }

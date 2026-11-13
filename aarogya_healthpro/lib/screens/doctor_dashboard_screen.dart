@@ -14,6 +14,7 @@ import 'notifications/doctor_notifications_screen.dart';
 import 'doctor_imaging_review_screen.dart';
 import 'prescriptions/prescription_authoring_screen.dart';
 import 'hospital/hospital_beds_screen.dart';
+import 'referrals/doctor_referrals_screen.dart';
 import '../services/doctor_notification_service.dart';
 import '../services/doctor_socket_service.dart';
 import '../core/api/api_exception.dart';
@@ -694,6 +695,46 @@ class _DoctorDashboardScreenState extends State<DoctorDashboardScreen> {
                           ),
                         ),
                         Icon(Icons.arrow_forward_ios_rounded, size: 12, color: Color(0xFF059669)),
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 8),
+
+                // Inter-Doctor Clinical Referrals Quick Action
+                InkWell(
+                  onTap: () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (_) => DoctorReferralsScreen(
+                          authService: _authService,
+                        ),
+                      ),
+                    );
+                  },
+                  borderRadius: BorderRadius.circular(12),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFEFF6FF),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: const Color(0xFFBFDBFE)),
+                    ),
+                    child: Row(
+                      children: const [
+                        Icon(Icons.swap_horiz_rounded, color: Color(0xFF2563EB), size: 20),
+                        SizedBox(width: 10),
+                        Expanded(
+                          child: Text(
+                            'Inter-Doctor Consultations & Referrals (Specialist Network)',
+                            style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.bold,
+                              color: Color(0xFF1E40AF),
+                            ),
+                          ),
+                        ),
+                        Icon(Icons.arrow_forward_ios_rounded, size: 12, color: Color(0xFF2563EB)),
                       ],
                     ),
                   ),
