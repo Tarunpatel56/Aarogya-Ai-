@@ -370,3 +370,4 @@ class _NearbyHealthcarePlacesScreenState extends State<NearbyHealthcarePlacesScr
     );
   }
 }
+
