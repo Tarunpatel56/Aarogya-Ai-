@@ -7,6 +7,8 @@ import 'pmjay_ayushman_screen.dart';
 import 'health_registry_screen.dart';
 import 'opd_scan_share_screen.dart';
 import 'maternal_child_screen.dart';
+import 'nearby_healthcare_places_screen.dart';
+import '../profile/family_health_screen.dart';
 import '../community/government_schemes_screen.dart';
 
 class GovernmentDashboardScreen extends StatelessWidget {
@@ -220,6 +222,36 @@ class GovernmentDashboardScreen extends StatelessWidget {
                 badgeColor: Colors.blueGrey.shade50,
                 badgeTextColor: Colors.blueGrey.shade800,
                 onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const GovernmentSchemesScreen())),
+              ),
+              const SizedBox(height: 12),
+
+              // 9. Nearby Healthcare Places (Google Places API New)
+              _buildServiceCard(
+                context,
+                title: 'Nearby Healthcare & Pharmacy Finder',
+                subtitle: 'Google Maps Places API dwara nazdeeki hospital, lab, clinic aur medical store khojein.',
+                icon: Icons.place_rounded,
+                iconColor: const Color(0xFF0F766E),
+                iconBg: const Color(0xFFCCFBF1),
+                badgeText: 'Google Places API',
+                badgeColor: Colors.teal.shade50,
+                badgeTextColor: Colors.teal.shade800,
+                onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const NearbyHealthcarePlacesScreen())),
+              ),
+              const SizedBox(height: 12),
+
+              // 10. Family Health Management & Isolated Profiles
+              _buildServiceCard(
+                context,
+                title: 'Parivaar Swasthya Prabandhan (Family Health)',
+                subtitle: 'Ghar ke sadasyo ke alag-alag health profile, ABHA, prescriptions aur records manage karein.',
+                icon: Icons.people_alt_rounded,
+                iconColor: const Color(0xFFB45309),
+                iconBg: const Color(0xFFFEF3C7),
+                badgeText: 'Consent Isolated',
+                badgeColor: Colors.amber.shade50,
+                badgeTextColor: Colors.amber.shade900,
+                onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const FamilyHealthScreen())),
               ),
             ],
           ),
