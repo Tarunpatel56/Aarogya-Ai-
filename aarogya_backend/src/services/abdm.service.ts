@@ -1,5 +1,6 @@
 import { PrismaClient } from '@prisma/client';
 import { AppError, NotFoundError, BadRequestError } from '../utils/AppError';
+import { callAbdmGatewayApi } from './external-apis.service';
 
 const prisma = new PrismaClient();
 
@@ -39,7 +40,14 @@ export class AbdmService {
       throw new BadRequestError('Valid 10-digit mobile number or 12-digit Aadhaar number is required');
     }
 
-    const txnId = `abdm-txn-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`;
+    // 1. Invoke external ABDM Gateway M1 API
+    const abdmResponse = await callAbdmGatewayApi({
+      endpoint: authMethod === 'AADHAAR_OTP' ? 'v1/registration/aadhaar/generateOtp' : 'v1/registration/mobile/generateOtp',
+      method: 'POST',
+      body: { value: identifier.trim() },
+    });
+
+    const txnId = abdmResponse?.txnId || `abdm-txn-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`;
     return {
       txnId,
       message: `OTP sent successfully to registered mobile linked with ${authMethod === 'AADHAAR_OTP' ? 'Aadhaar' : 'Mobile'}.`,
@@ -54,6 +62,13 @@ export class AbdmService {
     if (!otp || otp.trim().length !== 6) {
       throw new BadRequestError('Invalid OTP. Please enter the 6-digit OTP received.');
     }
+
+    // 1. Invoke external ABDM Gateway verification API
+    await callAbdmGatewayApi({
+      endpoint: params.authMethod === 'AADHAAR_OTP' ? 'v1/registration/aadhaar/verifyOTP' : 'v1/registration/mobile/verifyOTP',
+      method: 'POST',
+      body: { otp: otp.trim(), txnId },
+    });
 
     const patient = await prisma.patientProfile.findUnique({
       where: { id: params.patientProfileId },

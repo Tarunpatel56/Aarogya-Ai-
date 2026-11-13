@@ -1,4 +1,5 @@
 import { env } from '../config/env';
+import { callGooglePlacesSearchNearby } from './external-apis.service';
 
 export interface NearbyPlace {
   id: string;
@@ -70,46 +71,15 @@ export class PlacesService {
     category: string,
     keyword?: string
   ): Promise<NearbyPlace[]> {
-    const typeMapping: Record<string, string[]> = {
-      HOSPITAL: ['hospital'],
-      PHARMACY: ['pharmacy', 'drugstore'],
-      JAN_AUSHADHI: ['pharmacy'],
-      BLOOD_BANK: ['hospital'],
-      DIAGNOSTIC_LAB: ['medical_lab'],
-      CLINIC: ['doctor', 'medical_clinic'],
-      ALL: ['hospital', 'pharmacy', 'doctor'],
-    };
-
-    const includedTypes = typeMapping[category.toUpperCase()] || ['hospital', 'pharmacy'];
-
-    const response = await fetch('https://places.googleapis.com/v1/places:searchNearby', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-Goog-Api-Key': this.googleApiKey,
-        'X-Goog-FieldMask':
-          'places.id,places.displayName,places.formattedAddress,places.location,places.currentOpeningHours,places.rating,places.userRatingCount,places.internationalPhoneNumber,places.googleMapsUri',
-      },
-      body: JSON.stringify({
-        includedTypes,
-        locationRestriction: {
-          circle: {
-            center: { latitude: lat, longitude: lng },
-            radius,
-          },
-        },
-      }),
+    const list = await callGooglePlacesSearchNearby({
+      latitude: lat,
+      longitude: lng,
+      radiusMeters: radius,
+      category,
+      keyword,
     });
 
-    if (!response.ok) {
-      const errText = await response.text();
-      throw new Error(`Google Places API returned ${response.status}: ${errText}`);
-    }
-
-    const data: any = await response.json();
-    const list: any[] = data.places || [];
-
-    return list.map((p) => {
+    return list.map((p: any) => {
       const pLat = p.location?.latitude || lat;
       const pLng = p.location?.longitude || lng;
       const dist = this.calculateDistanceKm(lat, lng, pLat, pLng);

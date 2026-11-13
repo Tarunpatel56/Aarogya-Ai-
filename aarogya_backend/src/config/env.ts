@@ -13,12 +13,35 @@ const envSchema = z.object({
   JWT_REFRESH_SECRET: z.string().optional(),
   JWT_ACCESS_EXPIRY: z.string().default('30d'),
   JWT_REFRESH_EXPIRY: z.string().default('60d'),
+
+  // AI Services Configuration
   GROQ_API_KEY: z.string().optional(),
   GROK_API_KEY: z.string().optional(),
   GEMINI_API_KEY: z.string().optional(),
-  GOOGLE_PLACES_API_KEY: z.string().optional(),
   MEDICAL_AI_PROVIDER: z.enum(['gemini', 'groq', 'custom_ml']).default('gemini'),
   GROQ_VISION_MODEL: z.string().optional(),
+
+  // Google Places API
+  GOOGLE_PLACES_API_KEY: z.string().optional(),
+  GOOGLE_PLACES_BASE_URL: z.string().default('https://places.googleapis.com/v1'),
+
+  // Government Health APIs: ABDM (Ayushman Bharat Digital Mission)
+  ABDM_CLIENT_ID: z.string().optional(),
+  ABDM_CLIENT_SECRET: z.string().optional(),
+  ABDM_BASE_URL: z.string().default('https://dev.abdm.gov.in/gateway'),
+
+  // Government Health APIs: e-RaktKosh Blood Bank
+  ERAKTKOSH_API_KEY: z.string().optional(),
+  ERAKTKOSH_BASE_URL: z.string().default('https://www.eraktkosh.in/BLDAHIMS/bloodbank'),
+
+  // Government Health APIs: Jan Aushadhi (PMBJP)
+  PMBJP_API_KEY: z.string().optional(),
+  PMBJP_BASE_URL: z.string().default('http://janaushadhi.gov.in/api'),
+
+  // Government Health APIs: PM-JAY Ayushman Bharat
+  PMJAY_API_KEY: z.string().optional(),
+  PMJAY_BASE_URL: z.string().default('https://pmjay.gov.in/api'),
+
   // External AI Inference Providers (MRI, Lung, Skin)
   HUGGINGFACE_API_KEY: z.string().optional(),
   MRI_AI_API_URL: z.string().url().default('https://api-inference.huggingface.co/models/Hemgg/brain-tumor-classification'),

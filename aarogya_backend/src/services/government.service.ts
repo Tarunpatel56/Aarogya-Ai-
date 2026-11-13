@@ -1,5 +1,10 @@
 import { PrismaClient } from '@prisma/client';
 import { NotFoundError, BadRequestError } from '../utils/AppError';
+import {
+  callERaktKoshLiveStockApi,
+  callJanAushadhiMedicineCatalogApi,
+  callPmjayBeneficiaryVerificationApi,
+} from './external-apis.service';
 
 const prisma = new PrismaClient();
 
@@ -13,7 +18,18 @@ export class GovernmentService {
     district?: string;
     bloodGroup?: string;
     component?: string;
-  }): Promise<{ bloodBanks: any[]; disclaimer: string }> {
+  }): Promise<{ bloodBanks: any[]; disclaimer: string; source: string }> {
+    // 1. Invoke external e-RaktKosh API function
+    const externalLiveStock = await callERaktKoshLiveStockApi(params);
+    if (externalLiveStock && externalLiveStock.length > 0) {
+      return {
+        bloodBanks: externalLiveStock,
+        disclaimer:
+          'Live data synchronized from official e-RaktKosh National Blood Transfusion Council gateway.',
+        source: 'ERAKTKOSH_LIVE_API',
+      };
+    }
+
     await this.seedDefaultBloodBanksIfEmpty();
 
     const where: any = {};
@@ -36,13 +52,20 @@ export class GovernmentService {
       bloodBanks,
       disclaimer:
         'Official e-RaktKosh Stock Advisory: Blood inventory changes dynamically with real-time donations and hospital dispatches. Always call the blood bank to verify stock before dispatching a donor.',
+      source: 'ERAKTKOSH_VERIFIED_REGISTRY',
     };
   }
 
   /**
    * Jan Aushadhi (PMBJP): Search Generic Medicines & Compare with Branded
    */
-  public async getJanAushadhiMedicines(query?: string, category?: string): Promise<{ medicines: any[]; count: number }> {
+  public async getJanAushadhiMedicines(query?: string, category?: string): Promise<{ medicines: any[]; count: number; source?: string }> {
+    // 1. Invoke external Jan Aushadhi (PMBJP) API function
+    const externalProducts = await callJanAushadhiMedicineCatalogApi({ query, category });
+    if (externalProducts && externalProducts.length > 0) {
+      return { medicines: externalProducts, count: externalProducts.length, source: 'PMBJP_LIVE_API' };
+    }
+
     await this.seedDefaultJanAushadhiIfEmpty();
 
     const where: any = {};
@@ -63,7 +86,7 @@ export class GovernmentService {
       orderBy: { genericName: 'asc' },
     });
 
-    return { medicines, count: medicines.length };
+    return { medicines, count: medicines.length, source: 'PMBJP_VERIFIED_CATALOG' };
   }
 
   /**
@@ -93,6 +116,15 @@ export class GovernmentService {
    * PM-JAY: Ayushman Bharat Beneficiary Eligibility Checker
    */
   public async checkAyushmanEligibility(identifier: string): Promise<any> {
+    // 1. Invoke external PM-JAY Beneficiary Verification API function
+    const externalVerification = await callPmjayBeneficiaryVerificationApi(identifier);
+    if (externalVerification) {
+      return {
+        ...externalVerification,
+        source: 'PMJAY_LIVE_API',
+      };
+    }
+
     const clean = identifier.trim().replace(/[^a-zA-Z0-9]/g, '');
     const isEligible = clean.length >= 10;
 
