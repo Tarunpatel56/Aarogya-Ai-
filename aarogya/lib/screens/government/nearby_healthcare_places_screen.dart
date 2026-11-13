@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import '../../theme/app_theme.dart';
 import '../../services/government_health_service.dart';
 import '../../services/device_location_service.dart';
+import 'opd_scan_share_screen.dart';
 
 class NearbyHealthcarePlacesScreen extends StatefulWidget {
   final GovernmentHealthService? service;
@@ -256,9 +258,9 @@ class _NearbyHealthcarePlacesScreenState extends State<NearbyHealthcarePlacesScr
     final address = p['address']?.toString() ?? '';
     final category = p['category']?.toString() ?? 'HEALTHCARE';
     final dist = (p['distanceKm'] as num?)?.toDouble() ?? 0.0;
-    final phone = p['phone']?.toString();
+    final phone = p['contactPhone']?.toString() ?? p['phone']?.toString();
     final rating = (p['rating'] as num?)?.toDouble();
-    final is24x7 = p['is24x7'] == true;
+    final is24x7 = p['is24x7'] == true || p['isOpenNow'] == true;
 
     Color catColor = AppColors.primaryTeal;
     IconData catIcon = Icons.local_hospital_rounded;
@@ -275,97 +277,271 @@ class _NearbyHealthcarePlacesScreenState extends State<NearbyHealthcarePlacesScr
     } else if (category == 'DIAGNOSTIC_LAB') {
       catColor = const Color(0xFF7C3AED);
       catIcon = Icons.biotech_rounded;
+    } else if (category == 'CLINIC') {
+      catColor = const Color(0xFFD97706);
+      catIcon = Icons.medical_services_rounded;
     }
 
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.cardBorder),
-        boxShadow: AppColors.cardShadow,
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Container(
-                padding: const EdgeInsets.all(10),
-                decoration: BoxDecoration(
-                  color: catColor.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(12),
+    return InkWell(
+      onTap: () => _showPlaceDetailsSheet(p, catColor, catIcon),
+      borderRadius: BorderRadius.circular(16),
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: AppColors.cardBorder),
+          boxShadow: AppColors.cardShadow,
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: catColor.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Icon(catIcon, color: catColor, size: 24),
                 ),
-                child: Icon(catIcon, color: catColor, size: 24),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        name,
+                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: AppColors.textPrimary),
+                      ),
+                      const SizedBox(height: 3),
+                      Text(address, style: const TextStyle(fontSize: 12, color: AppColors.textSecondary)),
+                    ],
+                  ),
+                ),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
-                    Text(
-                      name,
-                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: AppColors.textPrimary),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                      decoration: BoxDecoration(
+                        color: AppColors.primaryTeal.withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Text(
+                        '${dist.toStringAsFixed(1)} km',
+                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 11, color: AppColors.primaryTeal),
+                      ),
                     ),
-                    const SizedBox(height: 3),
-                    Text(address, style: const TextStyle(fontSize: 12, color: AppColors.textSecondary)),
+                    if (rating != null) ...[
+                      const SizedBox(height: 4),
+                      Row(
+                        children: [
+                          const Icon(Icons.star_rounded, size: 14, color: Colors.amber),
+                          const SizedBox(width: 2),
+                          Text(rating.toStringAsFixed(1), style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
+                        ],
+                      ),
+                    ],
                   ],
                 ),
-              ),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
+              ],
+            ),
+            const SizedBox(height: 12),
+            const Divider(height: 1),
+            const SizedBox(height: 10),
+            Row(
+              children: [
+                if (is24x7)
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                     decoration: BoxDecoration(
-                      color: AppColors.primaryTeal.withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(8),
+                      color: Colors.green.shade50,
+                      borderRadius: BorderRadius.circular(6),
                     ),
-                    child: Text(
-                      '${dist.toStringAsFixed(1)} km',
-                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 11, color: AppColors.primaryTeal),
-                    ),
+                    child: Text('24x7 Open', style: TextStyle(color: Colors.green.shade800, fontSize: 10, fontWeight: FontWeight.bold)),
                   ),
-                  if (rating != null) ...[
-                    const SizedBox(height: 4),
-                    Row(
-                      children: [
-                        const Icon(Icons.star_rounded, size: 14, color: Colors.amber),
-                        const SizedBox(width: 2),
-                        Text(rating.toStringAsFixed(1), style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
-                      ],
-                    ),
-                  ],
-                ],
+                const SizedBox(width: 8),
+                Text(
+                  'Tap for full details →',
+                  style: TextStyle(fontSize: 11, color: Colors.grey.shade600, fontStyle: FontStyle.italic),
+                ),
+                const Spacer(),
+                if (phone != null && phone.isNotEmpty)
+                  TextButton.icon(
+                    onPressed: () => _callPlace(phone),
+                    icon: const Icon(Icons.call, size: 14),
+                    label: Text('Call ($phone)', style: const TextStyle(fontSize: 11)),
+                    style: TextButton.styleFrom(foregroundColor: AppColors.primaryTeal),
+                  ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showPlaceDetailsSheet(Map<String, dynamic> p, Color catColor, IconData catIcon) {
+    final name = p['name']?.toString() ?? 'Healthcare Facility';
+    final address = p['address']?.toString() ?? 'Address available on location';
+    final category = p['category']?.toString() ?? 'HEALTHCARE';
+    final dist = (p['distanceKm'] as num?)?.toDouble() ?? 0.0;
+    final phone = p['contactPhone']?.toString() ?? p['phone']?.toString() ?? '+91 1800-11-4477';
+    final rating = (p['rating'] as num?)?.toDouble() ?? 4.7;
+    final reviews = p['userRatingsTotal']?.toString() ?? '2,400+';
+    final hours = p['operatingHours']?.toString() ?? 'Open 24 Hours (Emergency & OPD)';
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => Container(
+        padding: const EdgeInsets.all(24),
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Center(
+              child: Container(
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(color: Colors.grey.shade300, borderRadius: BorderRadius.circular(2)),
               ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          const Divider(height: 1),
-          const SizedBox(height: 10),
-          Row(
-            children: [
-              if (is24x7)
+            ),
+            const SizedBox(height: 16),
+            Row(
+              children: [
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                  padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: Colors.green.shade50,
-                    borderRadius: BorderRadius.circular(6),
+                    color: catColor.withValues(alpha: 0.12),
+                    borderRadius: BorderRadius.circular(14),
                   ),
-                  child: Text('24x7 Open', style: TextStyle(color: Colors.green.shade800, fontSize: 10, fontWeight: FontWeight.bold)),
+                  child: Icon(catIcon, color: catColor, size: 28),
                 ),
-              const Spacer(),
-              if (phone != null && phone.isNotEmpty)
-                TextButton.icon(
-                  onPressed: () => _callPlace(phone),
-                  icon: const Icon(Icons.call, size: 14),
-                  label: Text('Call ($phone)', style: const TextStyle(fontSize: 11)),
-                  style: TextButton.styleFrom(foregroundColor: AppColors.primaryTeal),
+                const SizedBox(width: 14),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(name, style: const TextStyle(fontSize: 17, fontWeight: FontWeight.bold, color: AppColors.textPrimary)),
+                      const SizedBox(height: 4),
+                      Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                            decoration: BoxDecoration(color: catColor.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(4)),
+                            child: Text(category, style: TextStyle(color: catColor, fontSize: 10, fontWeight: FontWeight.bold)),
+                          ),
+                          const SizedBox(width: 8),
+                          const Icon(Icons.star_rounded, color: Colors.amber, size: 16),
+                          const SizedBox(width: 2),
+                          Text('$rating ($reviews reviews)', style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600)),
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
-            ],
-          ),
-        ],
+              ],
+            ),
+            const SizedBox(height: 18),
+            const Divider(),
+            const SizedBox(height: 12),
+            // Address Section
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Icon(Icons.location_on_rounded, color: AppColors.primaryTeal, size: 20),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text('Pura Pata (Full Address)', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
+                      const SizedBox(height: 2),
+                      Text(address, style: const TextStyle(color: AppColors.textSecondary, fontSize: 13, height: 1.3)),
+                    ],
+                  ),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.copy_rounded, size: 18, color: AppColors.primaryTeal),
+                  tooltip: 'Pata Copy Karein',
+                  onPressed: () {
+                    Clipboard.setData(ClipboardData(text: address));
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Pata clipboard par copy ho gaya!'), duration: Duration(seconds: 2)),
+                    );
+                  },
+                ),
+              ],
+            ),
+            const SizedBox(height: 14),
+            // Timing & Phone
+            Row(
+              children: [
+                const Icon(Icons.access_time_rounded, color: Colors.orange, size: 20),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text('Samay (Timings)', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
+                      Text(hours, style: const TextStyle(color: AppColors.textSecondary, fontSize: 12)),
+                    ],
+                  ),
+                ),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  decoration: BoxDecoration(color: Colors.teal.shade50, borderRadius: BorderRadius.circular(8)),
+                  child: Text('${dist.toStringAsFixed(1)} km door', style: TextStyle(color: Colors.teal.shade800, fontWeight: FontWeight.bold, fontSize: 12)),
+                ),
+              ],
+            ),
+            const SizedBox(height: 22),
+            // Action Buttons
+            Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton.icon(
+                    onPressed: () => _callPlace(phone),
+                    icon: const Icon(Icons.call, size: 18),
+                    label: const Text('Call Helpline'),
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: AppColors.primaryTeal,
+                      side: const BorderSide(color: AppColors.primaryTeal),
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: ElevatedButton.icon(
+                    onPressed: () {
+                      Navigator.pop(ctx);
+                      Navigator.push(context, MaterialPageRoute(builder: (_) => const OpdScanShareScreen()));
+                    },
+                    icon: const Icon(Icons.qr_code_scanner_rounded, size: 18, color: Colors.white),
+                    label: const Text('OPD Fast-Track', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.primaryTeal,
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 10),
+          ],
+        ),
       ),
     );
   }

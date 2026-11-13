@@ -9,7 +9,6 @@ import 'opd_scan_share_screen.dart';
 import 'maternal_child_screen.dart';
 import 'nearby_healthcare_places_screen.dart';
 import '../profile/family_health_screen.dart';
-import '../community/government_schemes_screen.dart';
 
 class GovernmentDashboardScreen extends StatelessWidget {
   const GovernmentDashboardScreen({super.key});
@@ -208,21 +207,7 @@ class GovernmentDashboardScreen extends StatelessWidget {
                 badgeTextColor: Colors.indigo.shade800,
                 onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const HealthRegistryScreen())),
               ),
-              const SizedBox(height: 12),
 
-              // 8. All Government Health Schemes Explorer
-              _buildServiceCard(
-                context,
-                title: 'Sarkari Swasthya Yojanaein (Schemes Directory)',
-                subtitle: 'PM-JAY, Vay Vandana, PMSMA, RAN, HMDG, JSY ki puri jankari aur dastavez suchi.',
-                icon: Icons.account_balance_rounded,
-                iconColor: const Color(0xFF475569),
-                iconBg: const Color(0xFFF1F5F9),
-                badgeText: 'Sarkari Yojna',
-                badgeColor: Colors.blueGrey.shade50,
-                badgeTextColor: Colors.blueGrey.shade800,
-                onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const GovernmentSchemesScreen())),
-              ),
               const SizedBox(height: 12),
 
               // 9. Nearby Healthcare Places (Google Places API New)

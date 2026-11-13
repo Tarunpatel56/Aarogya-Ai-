@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import '../../theme/app_theme.dart';
 import '../../services/government_health_service.dart';
+import 'nearby_healthcare_places_screen.dart';
 
 class PmjayAyushmanScreen extends StatefulWidget {
   final GovernmentHealthService? service;
@@ -387,55 +389,212 @@ class _PmjayAyushmanScreenState extends State<PmjayAyushmanScreen> with SingleTi
                         final rate = (p['rate'] as num?)?.toDouble() ?? 0.0;
                         final preAuth = p['preAuthRequired'] == true;
 
-                        return Container(
-                          padding: const EdgeInsets.all(16),
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(16),
-                            border: Border.all(color: AppColors.cardBorder),
-                            boxShadow: AppColors.cardShadow,
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Expanded(
-                                    child: Text(
-                                      name,
-                                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: AppColors.textPrimary),
-                                    ),
-                                  ),
-                                  Text(
-                                    '₹${rate.toStringAsFixed(0)}',
-                                    style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 16, color: AppColors.primaryTeal),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 4),
-                              Row(
-                                children: [
-                                  Text('Code: $code | $specialty', style: const TextStyle(fontSize: 11, color: AppColors.textSecondary)),
-                                  const Spacer(),
-                                  if (preAuth)
-                                    Container(
-                                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                                      decoration: BoxDecoration(
-                                        color: Colors.amber.shade50,
-                                        borderRadius: BorderRadius.circular(6),
+                        return InkWell(
+                          onTap: () => _showPackageDetailsSheet(p),
+                          borderRadius: BorderRadius.circular(16),
+                          child: Container(
+                            padding: const EdgeInsets.all(16),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(16),
+                              border: Border.all(color: AppColors.cardBorder),
+                              boxShadow: AppColors.cardShadow,
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Expanded(
+                                      child: Text(
+                                        name,
+                                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: AppColors.textPrimary),
                                       ),
-                                      child: Text('Pre-Auth Required', style: TextStyle(fontSize: 10, color: Colors.amber.shade900, fontWeight: FontWeight.bold)),
                                     ),
-                                ],
-                              ),
-                            ],
+                                    Text(
+                                      '₹${rate.toStringAsFixed(0)}',
+                                      style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 16, color: AppColors.primaryTeal),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 4),
+                                Row(
+                                  children: [
+                                    Text('Code: $code | $specialty', style: const TextStyle(fontSize: 11, color: AppColors.textSecondary)),
+                                    const Spacer(),
+                                    if (preAuth)
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                        decoration: BoxDecoration(
+                                          color: Colors.amber.shade50,
+                                          borderRadius: BorderRadius.circular(6),
+                                        ),
+                                        child: Text('Pre-Auth Required', style: TextStyle(fontSize: 10, color: Colors.amber.shade900, fontWeight: FontWeight.bold)),
+                                      ),
+                                  ],
+                                ),
+                                const SizedBox(height: 6),
+                                Text('Tap to view coverage & empaneled hospital benefits →', style: TextStyle(fontSize: 11, color: Colors.grey.shade600, fontStyle: FontStyle.italic)),
+                              ],
+                            ),
                           ),
                         );
                       },
                     ),
         ),
       ],
+    );
+  }
+
+  void _showPackageDetailsSheet(Map<String, dynamic> p) {
+    final name = p['procedureName']?.toString() ?? 'Medical Procedure';
+    final code = p['packageCode']?.toString() ?? '';
+    final specialty = p['specialty']?.toString() ?? 'Multi-Speciality';
+    final rate = (p['rate'] as num?)?.toDouble() ?? 0.0;
+    final preAuth = p['preAuthRequired'] == true;
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => Container(
+        padding: const EdgeInsets.all(24),
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Center(
+              child: Container(
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(color: Colors.grey.shade300, borderRadius: BorderRadius.circular(2)),
+              ),
+            ),
+            const SizedBox(height: 16),
+            Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFFEF3C7),
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                  child: const Icon(Icons.shield_rounded, color: Color(0xFFD97706), size: 28),
+                ),
+                const SizedBox(width: 14),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(name, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                      const SizedBox(height: 2),
+                      Text('PM-JAY Scheme Code: $code • $specialty', style: const TextStyle(fontSize: 11, color: AppColors.primaryTeal, fontWeight: FontWeight.bold)),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            const Divider(),
+            const SizedBox(height: 12),
+            Container(
+              padding: const EdgeInsets.all(14),
+              decoration: BoxDecoration(
+                color: const Color(0xFFF0FDF4),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: const Color(0xFFBBF7D0)),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text('Sarkari Nishulk Package Mulya', style: TextStyle(fontSize: 11, color: Color(0xFF15803D), fontWeight: FontWeight.bold)),
+                      Text('₹${rate.toStringAsFixed(0)}', style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w900, color: Color(0xFF166534))),
+                      const Text('100% Cashless Coverage under PM-JAY', style: TextStyle(fontSize: 11, color: Color(0xFF15803D))),
+                    ],
+                  ),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                    decoration: BoxDecoration(
+                      color: Colors.green.shade100,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: const Text('FREE', style: TextStyle(fontWeight: FontWeight.w900, color: Color(0xFF166534), fontSize: 14)),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 14),
+            Container(
+              padding: const EdgeInsets.all(14),
+              decoration: BoxDecoration(color: AppColors.scaffoldBg, borderRadius: BorderRadius.circular(12)),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      const Icon(Icons.info_outline_rounded, size: 16, color: AppColors.primaryTeal),
+                      const SizedBox(width: 6),
+                      const Text('Package me kya kya shamil hai:', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
+                    ],
+                  ),
+                  const SizedBox(height: 6),
+                  const Text('• Operation / Treatment fee and OT charges', style: TextStyle(fontSize: 12, color: AppColors.textSecondary)),
+                  const Text('• 3-5 Din tak ka hospital stay aur ward bedding', style: TextStyle(fontSize: 12, color: AppColors.textSecondary)),
+                  const Text('• Dawaiyan, test aur discharge ke baad 15 din ki dawa', style: TextStyle(fontSize: 12, color: AppColors.textSecondary)),
+                  if (preAuth) ...[
+                    const SizedBox(height: 6),
+                    Text('• Pre-Authorization: Ayushman Mitra dwara pehle approved karwaya jayega', style: TextStyle(fontSize: 11, color: Colors.amber.shade900, fontWeight: FontWeight.bold)),
+                  ],
+                ],
+              ),
+            ),
+            const SizedBox(height: 20),
+            Row(
+              children: [
+                Expanded(
+                  child: ElevatedButton.icon(
+                    onPressed: () {
+                      Navigator.pop(ctx);
+                      Navigator.push(context, MaterialPageRoute(builder: (_) => const NearbyHealthcarePlacesScreen()));
+                    },
+                    icon: const Icon(Icons.local_hospital_rounded, color: Colors.white, size: 18),
+                    label: const Text('Nazdeeki Hospital Dekhein', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.primaryTeal,
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 10),
+                OutlinedButton.icon(
+                  onPressed: () {
+                    Clipboard.setData(ClipboardData(text: '$name (Code: $code)'));
+                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Package details copy ho gayi!')));
+                  },
+                  icon: const Icon(Icons.copy_rounded, size: 16),
+                  label: const Text('Copy'),
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: AppColors.primaryTeal,
+                    side: const BorderSide(color: AppColors.primaryTeal),
+                    padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 10),
+          ],
+        ),
+      ),
     );
   }
 }

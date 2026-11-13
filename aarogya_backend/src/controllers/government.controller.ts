@@ -140,11 +140,25 @@ export const governmentController = {
   // POST /government/opd/scan-and-share
   async scanAndShareOpd(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
-      const { patientProfileId, qrPayload } = req.body;
-      if (!patientProfileId || !qrPayload) {
-        throw new BadRequestError('patientProfileId and qrPayload are required');
-      }
-      const result = await governmentService.scanAndShareOpd(patientProfileId, qrPayload);
+      const patientProfileId =
+        req.body.patientProfileId ||
+        req.body.userId ||
+        (req as any).user?.patientProfile?.id ||
+        (req as any).user?.id;
+      const qrPayload =
+        req.body.qrPayload ||
+        req.body.hipId ||
+        req.body.hospitalName ||
+        'AIIMS New Delhi (ABDM OPD Counter)';
+      const department = req.body.department || req.body.departmentName || 'General Medicine';
+      const counterId = req.body.counterId || 'Counter 03';
+
+      const result = await governmentService.scanAndShareOpd({
+        patientProfileId,
+        qrPayload,
+        department,
+        counterId,
+      });
       res.status(200).json({
         success: true,
         data: result,

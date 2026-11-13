@@ -22,16 +22,14 @@ import 'physio/physiotherapy_home_screen.dart';
 import 'reminders/medicine_reminders_screen.dart';
 import 'hospitals/nearby_hospitals_screen.dart';
 import 'prescriptions/patient_prescriptions_screen.dart';
-import 'community/government_schemes_screen.dart';
-import 'community/blood_donor_directory_screen.dart';
 import 'community/health_camps_screen.dart';
-import 'wellness/vaccination_tracker_screen.dart';
 import 'wellness/wellness_dashboard_screen.dart';
 import 'wellness/diet_plan_screen.dart';
 import 'ai/medical_report_comparison_screen.dart';
 import 'medicines/medicine_safety_screen.dart';
 import 'voice/talk_to_talk_voice_assistant_screen.dart';
 import 'government/government_dashboard_screen.dart';
+import 'government/blood_bank_finder_screen.dart';
 import '../services/ai_service.dart';
 import '../services/community_service.dart';
 import '../services/medicine_reminder_service.dart';
@@ -284,44 +282,11 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
     );
   }
 
-  void _openGovtSchemes() {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (_) => GovernmentSchemesScreen(
-          communityService: CommunityService(apiClient: widget.authService?.apiClient),
-        ),
-      ),
-    );
-  }
-
-  void _openBloodDonors() {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (_) => BloodDonorDirectoryScreen(
-          communityService: CommunityService(apiClient: widget.authService?.apiClient),
-        ),
-      ),
-    );
-  }
-
   void _openHealthCamps() {
     Navigator.push(
       context,
       MaterialPageRoute(
         builder: (_) => HealthCampsScreen(
-          communityService: CommunityService(apiClient: widget.authService?.apiClient),
-        ),
-      ),
-    );
-  }
-
-  void _openVaccines() {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (_) => VaccinationTrackerScreen(
           communityService: CommunityService(apiClient: widget.authService?.apiClient),
         ),
       ),
@@ -591,20 +556,20 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                 icon: Icons.account_balance_rounded,
                 iconBg: const Color(0xFFE0F2F1),
                 iconColor: AppColors.primaryTeal,
-                title: 'Govt Schemes',
-                subtitle: 'PM-JAY & Vay Vandana',
-                onTap: _openGovtSchemes,
+                title: 'Govt Services',
+                subtitle: 'ABHA & PM-JAY',
+                onTap: _openGovtServices,
               ),
             ),
             const SizedBox(width: 10),
             Expanded(
               child: _buildHubTile(
-                icon: Icons.favorite_rounded,
+                icon: Icons.bloodtype_rounded,
                 iconBg: const Color(0xFFFEF2F2),
                 iconColor: const Color(0xFFDC2626),
-                title: 'Blood Donors',
-                subtitle: 'Find & Register',
-                onTap: _openBloodDonors,
+                title: 'e-RaktKosh',
+                subtitle: 'Live Blood Stock',
+                onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const BloodBankFinderScreen())),
               ),
             ),
             const SizedBox(width: 10),
@@ -625,12 +590,12 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
           children: [
             Expanded(
               child: _buildHubTile(
-                icon: Icons.shield_outlined,
+                icon: Icons.local_hospital_rounded,
                 iconBg: const Color(0xFFDCFCE7),
                 iconColor: const Color(0xFF16A34A),
-                title: 'Vaccinations',
-                subtitle: 'Universal Tracker',
-                onTap: _openVaccines,
+                title: 'ICU Bed Live',
+                subtitle: 'Emergency Beds',
+                onTap: _openNearbyHospitals,
               ),
             ),
             const SizedBox(width: 10),

@@ -371,12 +371,13 @@ class _MaternalChildScreenState extends State<MaternalChildScreen> with SingleTi
             elevation: 0.5,
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
             child: ListTile(
+              onTap: () => _showVaccineDetailsDialog(v),
               leading: Icon(
                 isGiven ? Icons.check_circle_rounded : isPending ? Icons.pending_rounded : Icons.schedule_rounded,
                 color: isGiven ? Colors.green : isPending ? Colors.orange : Colors.grey,
               ),
               title: Text(v['name']!, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
-              subtitle: Text('Aayu: ${v['age']}', style: const TextStyle(fontSize: 11, color: AppColors.textSecondary)),
+              subtitle: Text('Aayu: ${v['age']} • Tap for details', style: const TextStyle(fontSize: 11, color: AppColors.textSecondary)),
               trailing: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                 decoration: BoxDecoration(
@@ -404,6 +405,150 @@ class _MaternalChildScreenState extends State<MaternalChildScreen> with SingleTi
           );
         }),
       ],
+    );
+  }
+
+  void _showVaccineDetailsDialog(Map<String, String> v) {
+    final name = v['name'] ?? 'Teeka (Vaccine)';
+    final age = v['age'] ?? 'Infant';
+    final status = v['status'] ?? 'SCHEDULED';
+    final isGiven = status == 'GIVEN';
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => Container(
+        padding: const EdgeInsets.all(24),
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Center(
+              child: Container(
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(color: Colors.grey.shade300, borderRadius: BorderRadius.circular(2)),
+              ),
+            ),
+            const SizedBox(height: 16),
+            Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: isGiven ? const Color(0xFFF0FDF4) : const Color(0xFFFEF3C7),
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                  child: Icon(Icons.vaccines_rounded, color: isGiven ? const Color(0xFF166534) : const Color(0xFFD97706), size: 28),
+                ),
+                const SizedBox(width: 14),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(name, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                      const SizedBox(height: 2),
+                      Text('U-WIN Universal Immunization Portal', style: const TextStyle(fontSize: 11, color: AppColors.primaryTeal, fontWeight: FontWeight.bold)),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            const Divider(),
+            const SizedBox(height: 12),
+            Container(
+              padding: const EdgeInsets.all(14),
+              decoration: BoxDecoration(color: AppColors.scaffoldBg, borderRadius: BorderRadius.circular(12)),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text('Sarkari Samay Window:', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
+                      Text(age, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: AppColors.primaryTeal)),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text('Teekakaran Status:', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                        decoration: BoxDecoration(
+                          color: isGiven ? Colors.green.shade50 : Colors.orange.shade50,
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                        child: Text(
+                          isGiven ? 'Laga Diya Gaya (Completed)' : 'Baki Hai (Scheduled / Pending)',
+                          style: TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.bold,
+                            color: isGiven ? Colors.green.shade800 : Colors.orange.shade800,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 14),
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(color: const Color(0xFFF0FDF4), borderRadius: BorderRadius.circular(10), border: Border.all(color: const Color(0xFFBBF7D0))),
+              child: const Row(
+                children: [
+                  Icon(Icons.shield_rounded, color: Color(0xFF166534), size: 18),
+                  SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      'Yeh teeka shishu ko jaanleva sankraman aur bimariyo se poori suraksha pradaan karta hai. Sabhi sarkari PHC/CHC par muft uplabdh.',
+                      style: TextStyle(color: Color(0xFF166534), fontSize: 11, height: 1.3),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 20),
+            Row(
+              children: [
+                Expanded(
+                  child: ElevatedButton.icon(
+                    onPressed: () {
+                      Navigator.pop(ctx);
+                      setState(() {
+                        v['status'] = isGiven ? 'PENDING' : 'GIVEN';
+                      });
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(isGiven ? '$name ko pending mark kiya gaya.' : '$name safaltapoorvak U-WIN card me verified ho gaya!'),
+                          backgroundColor: AppColors.primaryTeal,
+                        ),
+                      );
+                    },
+                    icon: Icon(isGiven ? Icons.undo_rounded : Icons.check_circle_rounded, color: Colors.white, size: 18),
+                    label: Text(isGiven ? 'Mark Pending' : 'Mark as Given (Teeka Lag Gaya)', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: isGiven ? Colors.blueGrey : AppColors.primaryTeal,
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 10),
+          ],
+        ),
+      ),
     );
   }
 }

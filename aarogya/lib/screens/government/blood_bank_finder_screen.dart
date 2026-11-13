@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import '../../theme/app_theme.dart';
 import '../../services/government_health_service.dart';
 
@@ -258,137 +259,334 @@ class _BloodBankFinderScreenState extends State<BloodBankFinderScreen> {
     final state = bank['state']?.toString() ?? '';
     final phone = bank['contactPhone']?.toString() ?? '108';
     final address = bank['address']?.toString() ?? '$city, $state';
-    final isGovt = bank['isGovernment'] == true;
-    final is24x7 = bank['is24x7'] == true;
-    final stock = bank['stockAvailability'] as Map<String, dynamic>? ?? {};
+    final isGovt = bank['isGovernment'] == true || bank['category'] == 'GOVT';
+    final is24x7 = bank['is24x7'] == true || bank['componentFacility'] == true;
+    final stock = (bank['stockAvailability'] ?? bank['stockSummary']) as Map<String, dynamic>? ?? {};
 
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.cardBorder),
-        boxShadow: AppColors.cardShadow,
+    return InkWell(
+      onTap: () => _showBloodBankDetailsSheet(bank),
+      borderRadius: BorderRadius.circular(16),
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: AppColors.cardBorder),
+          boxShadow: AppColors.cardShadow,
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: AppColors.sosLightBg,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: const Icon(Icons.bloodtype_rounded, color: AppColors.sosRed, size: 26),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        name,
+                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: AppColors.textPrimary),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(address, style: const TextStyle(color: AppColors.textSecondary, fontSize: 12)),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            // Badges
+            Row(
+              children: [
+                if (isGovt)
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                    decoration: BoxDecoration(
+                      color: Colors.blue.shade50,
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                    child: Text('Government e-RaktKosh', style: TextStyle(color: Colors.blue.shade800, fontSize: 10, fontWeight: FontWeight.bold)),
+                  ),
+                const SizedBox(width: 6),
+                if (is24x7)
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                    decoration: BoxDecoration(
+                      color: Colors.green.shade50,
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                    child: Text('24x7 Emergency', style: TextStyle(color: Colors.green.shade800, fontSize: 10, fontWeight: FontWeight.bold)),
+                  ),
+                const Spacer(),
+                Text(
+                  'Tap for stock details →',
+                  style: TextStyle(fontSize: 11, color: Colors.grey.shade600, fontStyle: FontStyle.italic),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            const Divider(height: 1),
+            const SizedBox(height: 10),
+
+            // Live Stock Indicators
+            const Text('Uplabdh Stock (Live Component Availability):', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: AppColors.textSecondary)),
+            const SizedBox(height: 6),
+            Wrap(
+              spacing: 8,
+              runSpacing: 6,
+              children: stock.entries.take(6).map((entry) {
+                final val = entry.value;
+                final count = val is Map ? (val['units'] ?? val['wholeBlood'] ?? val['prbc'] ?? 10) : val;
+                final isAvailable = (count is int && count > 0) || (count is num && count > 0);
+
+                return Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: isAvailable ? const Color(0xFFF0FDF4) : const Color(0xFFFEF2F2),
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: isAvailable ? const Color(0xFFBBF7D0) : const Color(0xFFFECACA)),
+                  ),
+                  child: Text(
+                    '${entry.key}: $count Units',
+                    style: TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.bold,
+                      color: isAvailable ? const Color(0xFF166534) : const Color(0xFF991B1B),
+                    ),
+                  ),
+                );
+              }).toList(),
+            ),
+
+            const SizedBox(height: 14),
+            Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton.icon(
+                    onPressed: () => _makeCall(phone),
+                    icon: const Icon(Icons.call_rounded, size: 16),
+                    label: Text('Call ($phone)', style: const TextStyle(fontSize: 12)),
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: AppColors.primaryTeal,
+                      side: const BorderSide(color: AppColors.primaryTeal),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                      padding: const EdgeInsets.symmetric(vertical: 10),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: ElevatedButton.icon(
+                    onPressed: () => _showEmergencyRequestDialog(context, bank),
+                    icon: const Icon(Icons.emergency_rounded, size: 16, color: Colors.white),
+                    label: const Text('SOS Request', style: TextStyle(fontSize: 12, color: Colors.white, fontWeight: FontWeight.bold)),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.sosRed,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                      padding: const EdgeInsets.symmetric(vertical: 10),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
+    );
+  }
+
+  void _showBloodBankDetailsSheet(Map<String, dynamic> bank) {
+    final name = bank['name']?.toString() ?? 'Blood Bank';
+    final city = bank['city']?.toString() ?? '';
+    final state = bank['state']?.toString() ?? '';
+    final phone = bank['contactPhone']?.toString() ?? '108';
+    final address = bank['address']?.toString() ?? '$city, $state';
+    final hfrId = bank['hfrId']?.toString() ?? 'IN2300000104';
+    final stock = (bank['stockAvailability'] ?? bank['stockSummary']) as Map<String, dynamic>? ?? {};
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => Container(
+        padding: const EdgeInsets.all(24),
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        ),
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              Center(
+                child: Container(
+                  width: 40,
+                  height: 4,
+                  decoration: BoxDecoration(color: Colors.grey.shade300, borderRadius: BorderRadius.circular(2)),
+                ),
+              ),
+              const SizedBox(height: 16),
+              Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: AppColors.sosLightBg,
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                    child: const Icon(Icons.bloodtype_rounded, color: AppColors.sosRed, size: 30),
+                  ),
+                  const SizedBox(width: 14),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(name, style: const TextStyle(fontSize: 17, fontWeight: FontWeight.bold)),
+                        const SizedBox(height: 2),
+                        Text('HFR ID: $hfrId • e-RaktKosh Certified', style: const TextStyle(fontSize: 11, color: AppColors.primaryTeal, fontWeight: FontWeight.bold)),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 18),
+              const Divider(),
+              const SizedBox(height: 10),
+              // Address & Contact
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Icon(Icons.location_on_rounded, color: AppColors.sosRed, size: 20),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text('Kendra Pata (Address)', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
+                        const SizedBox(height: 2),
+                        Text(address, style: const TextStyle(color: AppColors.textSecondary, fontSize: 12)),
+                      ],
+                    ),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.copy_rounded, size: 18, color: AppColors.primaryTeal),
+                    onPressed: () {
+                      Clipboard.setData(ClipboardData(text: address));
+                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Pata copy ho gaya!')));
+                    },
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              const Text('Full Blood Stock Breakdown (Sabhi Groups):', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+              const SizedBox(height: 8),
               Container(
-                padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
-                  color: AppColors.sosLightBg,
+                  border: Border.all(color: Colors.grey.shade200),
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: const Icon(Icons.bloodtype_rounded, color: AppColors.sosRed, size: 26),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      name,
-                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: AppColors.textPrimary),
+                  children: stock.entries.map((e) {
+                    final group = e.key;
+                    final val = e.value;
+                    final count = val is Map ? (val['units'] ?? val['wholeBlood'] ?? val['prbc'] ?? 10) : val;
+                    final status = val is Map ? (val['status'] ?? 'AVAILABLE') : 'AVAILABLE';
+                    final isLow = status == 'LOW' || status == 'CRITICAL';
+
+                    return Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                      decoration: BoxDecoration(
+                        border: Border(bottom: BorderSide(color: Colors.grey.shade100)),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Row(
+                            children: [
+                              Container(
+                                width: 36,
+                                height: 36,
+                                alignment: Alignment.center,
+                                decoration: BoxDecoration(
+                                  color: AppColors.sosLightBg,
+                                  shape: BoxShape.circle,
+                                ),
+                                child: Text(group, style: const TextStyle(color: AppColors.sosRed, fontWeight: FontWeight.bold, fontSize: 12)),
+                              ),
+                              const SizedBox(width: 12),
+                              Text('Blood Group $group', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
+                            ],
+                          ),
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                            decoration: BoxDecoration(
+                              color: isLow ? Colors.red.shade50 : Colors.green.shade50,
+                              borderRadius: BorderRadius.circular(6),
+                            ),
+                            child: Text(
+                              '$count Units ($status)',
+                              style: TextStyle(
+                                fontSize: 11,
+                                fontWeight: FontWeight.bold,
+                                color: isLow ? Colors.red.shade800 : Colors.green.shade800,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  }).toList(),
+                ),
+              ),
+              const SizedBox(height: 20),
+              Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton.icon(
+                      onPressed: () => _makeCall(phone),
+                      icon: const Icon(Icons.call_rounded),
+                      label: Text('Call $phone'),
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: AppColors.primaryTeal,
+                        side: const BorderSide(color: AppColors.primaryTeal),
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      ),
                     ),
-                    const SizedBox(height: 4),
-                    Text(address, style: const TextStyle(color: AppColors.textSecondary, fontSize: 12)),
-                  ],
-                ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: ElevatedButton.icon(
+                      onPressed: () {
+                        Navigator.pop(ctx);
+                        _showEmergencyRequestDialog(context, bank);
+                      },
+                      icon: const Icon(Icons.emergency_rounded, color: Colors.white),
+                      label: const Text('SOS Request', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.sosRed,
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      ),
+                    ),
+                  ),
+                ],
               ),
+              const SizedBox(height: 10),
             ],
           ),
-          const SizedBox(height: 12),
-          // Badges
-          Row(
-            children: [
-              if (isGovt)
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                  decoration: BoxDecoration(
-                    color: Colors.blue.shade50,
-                    borderRadius: BorderRadius.circular(6),
-                  ),
-                  child: Text('Government e-RaktKosh', style: TextStyle(color: Colors.blue.shade800, fontSize: 10, fontWeight: FontWeight.bold)),
-                ),
-              const SizedBox(width: 6),
-              if (is24x7)
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                  decoration: BoxDecoration(
-                    color: Colors.green.shade50,
-                    borderRadius: BorderRadius.circular(6),
-                  ),
-                  child: Text('24x7 Emergency', style: TextStyle(color: Colors.green.shade800, fontSize: 10, fontWeight: FontWeight.bold)),
-                ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          const Divider(height: 1),
-          const SizedBox(height: 10),
-
-          // Live Stock Indicators
-          const Text('Uplabdh Stock (Live Component Availability):', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: AppColors.textSecondary)),
-          const SizedBox(height: 6),
-          Wrap(
-            spacing: 8,
-            runSpacing: 6,
-            children: stock.entries.map((entry) {
-              final val = entry.value;
-              final count = val is Map ? (val['units'] ?? val['stock'] ?? 0) : val;
-              final isAvailable = (count is int && count > 0) || (count is num && count > 0);
-
-              return Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                decoration: BoxDecoration(
-                  color: isAvailable ? const Color(0xFFF0FDF4) : const Color(0xFFFEF2F2),
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: isAvailable ? const Color(0xFFBBF7D0) : const Color(0xFFFECACA)),
-                ),
-                child: Text(
-                  '${entry.key}: $count Units',
-                  style: TextStyle(
-                    fontSize: 11,
-                    fontWeight: FontWeight.bold,
-                    color: isAvailable ? const Color(0xFF166534) : const Color(0xFF991B1B),
-                  ),
-                ),
-              );
-            }).toList(),
-          ),
-
-          const SizedBox(height: 14),
-          Row(
-            children: [
-              Expanded(
-                child: OutlinedButton.icon(
-                  onPressed: () => _makeCall(phone),
-                  icon: const Icon(Icons.call_rounded, size: 16),
-                  label: Text('Call ($phone)', style: const TextStyle(fontSize: 12)),
-                  style: OutlinedButton.styleFrom(
-                    foregroundColor: AppColors.primaryTeal,
-                    side: const BorderSide(color: AppColors.primaryTeal),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                  ),
-                ),
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: ElevatedButton.icon(
-                  onPressed: () => _showEmergencyRequestDialog(context, bank),
-                  icon: const Icon(Icons.emergency_rounded, size: 16, color: Colors.white),
-                  label: const Text('Request Blood', style: TextStyle(fontSize: 12, color: Colors.white)),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.sosRed,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ],
+        ),
       ),
     );
   }

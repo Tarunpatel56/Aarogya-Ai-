@@ -310,6 +310,7 @@ class GovernmentHealthService {
     try {
       final res = await _apiClient.post('/government/opd/scan-and-share', body: {
         'hipId': hipId,
+        'qrPayload': hipId,
         'patientProfileId': patientProfileId,
         if (department != null) 'department': department,
         if (counterId != null) 'counterId': counterId,

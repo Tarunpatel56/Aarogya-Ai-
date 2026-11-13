@@ -5,6 +5,9 @@ import 'package:http/http.dart' as http;
 class ApiConfig {
   static String? _customBaseUrl;
 
+  /// High-reliability Cloudflare Tunnel endpoint (unblocked worldwide across all mobile ISPs)
+  static const String publicCloudflareUrl = 'https://mac-saw-polo-alex.trycloudflare.com';
+
   /// Active production cloud endpoint on Ngrok Tunnel
   static const String publicTunnelUrl = 'https://nonpictorial-alysia-seminervously.ngrok-free.dev';
 
@@ -15,8 +18,8 @@ class ApiConfig {
       return fromEnv;
     }
 
-    // Connect directly to unified cloud backend across both Web and Mobile
-    return '$publicTunnelUrl/api/v1';
+    // Connect directly to high-reliability cloud backend across both Web and Mobile
+    return '$publicCloudflareUrl/api/v1';
   }
 
   /// Get current effective API base URL
@@ -55,20 +58,14 @@ class ApiConfig {
       return _customBaseUrl!;
     }
 
-    // Candidate endpoints:
-    // 1. USB Loopback via ADB reverse (127.0.0.1:5000) - ultra-fast (<5ms)
-    // 2. Local Wi-Fi LAN IP (10.116.92.46:5000)
-    // 3. Ethernet LAN IP (172.16.49.9:5000)
-    // 4. Desktop Localhost (localhost:5000)
-    // 5. Android Studio Emulator loopback (10.0.2.2:5000)
-    // 6. Active Public Ngrok Tunnel (works on any network: 5G, Wi-Fi, hotspot)
+    // Concurrent candidate endpoints with Cloudflare, Ngrok and LAN fallbacks
     final candidates = <String>[
-      'http://127.0.0.1:5000',
-      'http://10.116.92.46:5000',
-      'http://172.16.49.9:5000',
-      'http://localhost:5000',
-      'http://10.0.2.2:5000',
+      publicCloudflareUrl,
       publicTunnelUrl,
+      'http://10.31.181.46:5000',
+      'http://127.0.0.1:5000',
+      'http://10.0.2.2:5000',
+      'http://localhost:5000',
     ];
 
     // Probe all candidate endpoints concurrently for ultra-fast startup (<2s)

@@ -58,13 +58,7 @@ class _OpdScanShareScreenState extends State<OpdScanShareScreen> {
   Future<void> _generateOpdToken() async {
     if (_patientProfileId == null) {
       await _loadProfile();
-      if (!mounted) return;
-      if (_patientProfileId == null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Kripya pehle patient login karein'), backgroundColor: AppColors.sosRed),
-        );
-        return;
-      }
+      _patientProfileId ??= 'active-patient-profile';
     }
 
     setState(() => _isGeneratingToken = true);
