@@ -37,8 +37,8 @@ class ApiConfig {
     _customBaseUrl = url;
   }
 
-  /// Request timeout duration
-  static const Duration timeout = Duration(seconds: 15);
+  /// Request timeout duration (60s to handle cloud backend response)
+  static const Duration timeout = Duration(seconds: 60);
 
   /// Auto-probe candidate URLs to find active backend host
   static Future<String> autoDetectBaseUrl() async {

@@ -56,9 +56,10 @@ export function createApp(): Application {
   // Primary health check endpoint at /health (Task 9)
   app.use('/health', healthRoutes);
 
-  // Versioned and root API routes
+  // Versioned and root API routes (supports /api/v1, /api, and direct root paths)
   app.use('/api/v1', apiRoutes);
   app.use('/api', apiRoutes);
+  app.use('/', apiRoutes);
 
   // 404 handler for undefined routes
   app.use(notFoundHandler);
