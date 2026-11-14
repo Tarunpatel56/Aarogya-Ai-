@@ -479,6 +479,35 @@ export const authController = {
               ambulanceStaffProfile: true,
             },
           });
+        } else {
+          // If a patient or general user enters custom credentials, dynamically create their verified patient account
+          const passwordHash = await passwordService.hash(password);
+          const namePart = cleanEmail.split('@')[0];
+          const patientName = namePart.charAt(0).toUpperCase() + namePart.slice(1);
+          user = (await prisma.user.create({
+            data: {
+              email: cleanEmail,
+              passwordHash,
+              role: Role.PATIENT,
+              verificationStatus: VerificationStatus.VERIFIED,
+              isActive: true,
+              patientProfile: {
+                create: {
+                  fullName: patientName,
+                  dateOfBirth: new Date('1998-01-01'),
+                  gender: 'MALE',
+                  bloodGroup: 'O+',
+                  abhaId: `91-${Date.now().toString().slice(-4)}-${Date.now().toString().slice(-4)}`,
+                },
+              },
+            },
+            include: {
+              patientProfile: true,
+              doctorProfile: true,
+              hospitalAdminProfile: true,
+              ambulanceStaffProfile: true,
+            },
+          })) as any;
         }
       }
 
