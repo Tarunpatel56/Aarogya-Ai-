@@ -7,7 +7,7 @@ export async function ensureSuperAdminAndDefaultAccounts(): Promise<void> {
   try {
     // 1. Super Admin
     const adminEmail = 'superadmin@aarogya.ai';
-    const adminPasswordHash = await passwordService.hash('Admin@12345');
+    const adminPasswordHash = await passwordService.hash('Admin@123');
 
     const admin = await prisma.user.upsert({
       where: { email: adminEmail },
@@ -120,6 +120,7 @@ export async function ensureSuperAdminAndDefaultAccounts(): Promise<void> {
     const doctors = [
       { email: 'doctor@aarogya.ai', pass: 'Doctor@123', name: 'Dr. Aarogya Specialist', spec: 'Cardiology', nmc: 'NMC-CARD-101' },
       { email: 'rahul@gmail.com', pass: 'Doctor@123', name: 'Dr. Rahul Sharma', spec: 'General Medicine', nmc: 'NMC-GEN-102' },
+      { email: 'ronit@gmail.com', pass: 'Ronit@123', name: 'Dr. Ronit Sharma', spec: 'General Physician & Tele-ICU', nmc: 'NMC-RON-103' },
     ];
 
     for (const doc of doctors) {
