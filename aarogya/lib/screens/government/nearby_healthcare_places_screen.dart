@@ -23,7 +23,17 @@ class _NearbyHealthcarePlacesScreenState extends State<NearbyHealthcarePlacesScr
 
   String _selectedCategory = 'ALL';
   int _selectedRadiusKm = 10;
+  String _selectedArea = 'Indore (All)';
   final TextEditingController _searchCtrl = TextEditingController();
+
+  final List<String> _indoreAreas = [
+    'Indore (All)',
+    'Vijay Nagar',
+    'Palasia',
+    'AB Road',
+    'Ring Road',
+    'Rajwada',
+  ];
 
   final List<Map<String, String>> _categories = [
     {'label': 'All Healthcare', 'value': 'ALL', 'icon': 'local_hospital'},
@@ -57,12 +67,18 @@ class _NearbyHealthcarePlacesScreenState extends State<NearbyHealthcarePlacesScr
       if (!mounted) return;
       setState(() => _currentLocation = loc);
 
+      final searchWord = _searchCtrl.text.trim().isNotEmpty
+          ? _searchCtrl.text.trim()
+          : _selectedArea != 'Indore (All)'
+              ? _selectedArea
+              : null;
+
       final res = await _service.searchNearbyHealthcare(
         latitude: loc.latitude,
         longitude: loc.longitude,
         category: _selectedCategory,
         radiusMeters: _selectedRadiusKm * 1000,
-        keyword: _searchCtrl.text.trim().isNotEmpty ? _searchCtrl.text.trim() : null,
+        keyword: searchWord,
       );
 
       if (!mounted) return;
@@ -119,7 +135,7 @@ class _NearbyHealthcarePlacesScreenState extends State<NearbyHealthcarePlacesScr
                     controller: _searchCtrl,
                     onSubmitted: (_) => _loadLocationAndPlaces(),
                     decoration: InputDecoration(
-                      hintText: 'Search hospital, clinic, lab or medicine store...',
+                      hintText: 'Search Indore hospital, clinic, lab or medicine store...',
                       prefixIcon: const Icon(Icons.search_rounded, color: AppColors.primaryTeal),
                       suffixIcon: IconButton(
                         icon: const Icon(Icons.arrow_forward_rounded, color: AppColors.primaryTeal),
@@ -132,6 +148,37 @@ class _NearbyHealthcarePlacesScreenState extends State<NearbyHealthcarePlacesScr
                     ),
                   ),
                   const SizedBox(height: 10),
+                  // Indore Area Chips
+                  SizedBox(
+                    height: 30,
+                    child: ListView.separated(
+                      scrollDirection: Axis.horizontal,
+                      itemCount: _indoreAreas.length,
+                      separatorBuilder: (_, _) => const SizedBox(width: 8),
+                      itemBuilder: (context, idx) {
+                        final area = _indoreAreas[idx];
+                        final isSel = _selectedArea == area;
+                        return ChoiceChip(
+                          label: Text(
+                            area,
+                            style: TextStyle(
+                              color: isSel ? Colors.white : AppColors.textPrimary,
+                              fontSize: 10.5,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          selected: isSel,
+                          selectedColor: AppColors.primaryTeal,
+                          backgroundColor: AppColors.scaffoldBg,
+                          onSelected: (val) {
+                            setState(() => _selectedArea = area);
+                            _loadLocationAndPlaces();
+                          },
+                        );
+                      },
+                    ),
+                  ),
+                  const SizedBox(height: 8),
                   // Category Chips
                   SizedBox(
                     height: 34,

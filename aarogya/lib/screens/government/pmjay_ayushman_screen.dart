@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../../theme/app_theme.dart';
 import '../../services/government_health_service.dart';
+import '../../core/storage/token_storage.dart';
+import 'opd_scan_share_screen.dart';
 import 'nearby_healthcare_places_screen.dart';
 
 class PmjayAyushmanScreen extends StatefulWidget {
@@ -16,6 +18,10 @@ class PmjayAyushmanScreen extends StatefulWidget {
 class _PmjayAyushmanScreenState extends State<PmjayAyushmanScreen> with SingleTickerProviderStateMixin {
   late final GovernmentHealthService _service;
   late final TabController _tabController;
+  final ITokenStorage _tokenStorage = SecureTokenStorage();
+
+  // User Profile Integration
+  Map<String, dynamic>? _userProfile;
 
   // Eligibility Checker
   final TextEditingController _idNumberCtrl = TextEditingController();
@@ -28,6 +34,110 @@ class _PmjayAyushmanScreenState extends State<PmjayAyushmanScreen> with SingleTi
   List<Map<String, dynamic>> _packages = [];
   String _selectedSpecialty = 'ALL';
   final TextEditingController _packageSearchCtrl = TextEditingController();
+
+  // Empanelled Hospitals Explorer (Indore & MP)
+  String _selectedHospitalCity = 'Indore';
+  final List<String> _hospitalCityChips = ['Indore', 'Vijay Nagar', 'Central', 'All Hospitals'];
+  final TextEditingController _hospitalSearchCtrl = TextEditingController();
+
+  final List<Map<String, dynamic>> _empanelledHospitals = [
+    {
+      'name': 'Maharaja Yeshwantrao (MY) Hospital & MGM Medical College',
+      'ownership': 'GOVERNMENT',
+      'city': 'Indore',
+      'address': 'AB Road, Near Sanyogitaganj, Indore',
+      'beds': '1200 Beds',
+      'specialties': 'Cardiology, Neuro, Trauma, Dialysis, Burn Unit, ICU',
+      'cashlessStatus': '100% Cashless (₹5 Lakh Free)',
+      'ayushmanMitraDesk': '+91 731 2527200',
+      'rating': 4.6,
+      'isFreeGovt': true,
+    },
+    {
+      'name': 'Government Super Speciality Hospital Indore',
+      'ownership': 'GOVERNMENT',
+      'city': 'Indore',
+      'address': 'Opposite MY Hospital, Medical Campus, AB Road, Indore',
+      'beds': '450 Beds',
+      'specialties': 'Advanced Cardiology, Neurology, Nephrology, Renal Care',
+      'cashlessStatus': '100% Cashless Super-Speciality',
+      'ayushmanMitraDesk': '+91 731 2580000',
+      'rating': 4.8,
+      'isFreeGovt': true,
+    },
+    {
+      'name': 'Bombay Hospital & Research Centre Indore',
+      'ownership': 'NABH_TRUST',
+      'city': 'Indore',
+      'address': 'Eastern Ring Road, IDA Scheme No. 94/C, Vijay Nagar Area, Indore',
+      'beds': '600 Beds',
+      'specialties': 'Open Heart Surgery, Joint Replacement, Neurosurgery, Oncology',
+      'cashlessStatus': 'PM-JAY Gold Empanelled Cashless',
+      'ayushmanMitraDesk': '+91 731 4771111',
+      'rating': 4.7,
+      'isFreeGovt': false,
+    },
+    {
+      'name': 'Choithram Hospital & Research Centre',
+      'ownership': 'TRUST',
+      'city': 'Indore',
+      'address': '14 Manik Bagh Road, Indore',
+      'beds': '500 Beds',
+      'specialties': 'Hemodialysis, Burn Care, Critical Care, Pediatric Surgery',
+      'cashlessStatus': 'PM-JAY Empanelled',
+      'ayushmanMitraDesk': '+91 731 2470000',
+      'rating': 4.6,
+      'isFreeGovt': false,
+    },
+    {
+      'name': 'Sri Aurobindo Institute of Medical Sciences (SAIMS)',
+      'ownership': 'PRIVATE_MEDICAL',
+      'city': 'Indore',
+      'address': 'Indore-Ujjain Highway, Sanwer Road, Indore',
+      'beds': '1400 Beds',
+      'specialties': 'Dedicated Ayushman Free Ward, Cardiac Stents, Cancer Radiation',
+      'cashlessStatus': '100% Cashless Ward Available',
+      'ayushmanMitraDesk': '+91 731 4231000',
+      'rating': 4.5,
+      'isFreeGovt': false,
+    },
+    {
+      'name': 'District Civil Hospital Indore',
+      'ownership': 'GOVERNMENT',
+      'city': 'Indore',
+      'address': 'Kila Maidan, Fort Road, Near Malharganj, Indore',
+      'beds': '350 Beds',
+      'specialties': 'General Medicine, Maternity, Infant Care, UIP Vaccination',
+      'cashlessStatus': 'Free Government Healthcare',
+      'ayushmanMitraDesk': '+91 731 2410214',
+      'rating': 4.4,
+      'isFreeGovt': true,
+    },
+    {
+      'name': 'Chacha Nehru Bal Chikitsalaya Indore',
+      'ownership': 'GOVERNMENT',
+      'city': 'Indore',
+      'address': 'Sanyogitaganj, MY Hospital Campus, Indore',
+      'beds': '250 Beds',
+      'specialties': 'Pediatric Super-Speciality, Neonatal Intensive Care (NICU)',
+      'cashlessStatus': '100% Free Child Treatment',
+      'ayushmanMitraDesk': '+91 731 2514288',
+      'rating': 4.5,
+      'isFreeGovt': true,
+    },
+    {
+      'name': 'PC Sethi Government Maternity Hospital',
+      'ownership': 'GOVERNMENT',
+      'city': 'Indore',
+      'address': 'Geeta Bhawan Road, Navlakha, Indore',
+      'beds': '150 Beds',
+      'specialties': 'Maternal Delivery, C-Section, JSY & PMMVY Benefits',
+      'cashlessStatus': '100% Cashless Institutional Delivery',
+      'ayushmanMitraDesk': '+91 731 2492100',
+      'rating': 4.6,
+      'isFreeGovt': true,
+    },
+  ];
 
   final List<String> _specialties = [
     'ALL',
@@ -44,8 +154,20 @@ class _PmjayAyushmanScreenState extends State<PmjayAyushmanScreen> with SingleTi
   void initState() {
     super.initState();
     _service = widget.service ?? GovernmentHealthService();
-    _tabController = TabController(length: 2, vsync: this);
+    _tabController = TabController(length: 3, vsync: this);
+    _loadProfile();
     _loadPackages();
+  }
+
+  Future<void> _loadProfile() async {
+    try {
+      final user = await _tokenStorage.getUser();
+      if (mounted) {
+        setState(() {
+          _userProfile = user;
+        });
+      }
+    } catch (_) {}
   }
 
   @override
@@ -53,6 +175,7 @@ class _PmjayAyushmanScreenState extends State<PmjayAyushmanScreen> with SingleTi
     _tabController.dispose();
     _idNumberCtrl.dispose();
     _packageSearchCtrl.dispose();
+    _hospitalSearchCtrl.dispose();
     super.dispose();
   }
 
@@ -139,9 +262,11 @@ class _PmjayAyushmanScreenState extends State<PmjayAyushmanScreen> with SingleTi
           unselectedLabelColor: AppColors.textSecondary,
           indicatorColor: AppColors.primaryTeal,
           indicatorWeight: 3,
-          tabs: const [
-            Tab(icon: Icon(Icons.verified_user_rounded), text: 'Patrata Jaanch (Eligibility)'),
-            Tab(icon: Icon(Icons.medical_services_rounded), text: '1,949+ Packages'),
+          isScrollable: true,
+          tabs: [
+            const Tab(icon: Icon(Icons.verified_user_rounded), text: 'Patrata & Profile'),
+            Tab(icon: const Icon(Icons.local_hospital_rounded), text: 'Empanelled Hospitals (${_empanelledHospitals.length})'),
+            const Tab(icon: Icon(Icons.medical_services_rounded), text: '1,949+ Packages'),
           ],
         ),
       ),
@@ -149,9 +274,212 @@ class _PmjayAyushmanScreenState extends State<PmjayAyushmanScreen> with SingleTi
         controller: _tabController,
         children: [
           _buildEligibilityTab(),
+          _buildEmpanelledHospitalsTab(),
           _buildPackagesTab(),
         ],
       ),
+    );
+  }
+
+  Widget _buildEmpanelledHospitalsTab() {
+    final filtered = _empanelledHospitals.where((h) {
+      final q = _hospitalSearchCtrl.text.trim().toLowerCase();
+      final name = (h['name'] ?? '').toString().toLowerCase();
+      final specs = (h['specialties'] ?? '').toString().toLowerCase();
+      final addr = (h['address'] ?? '').toString().toLowerCase();
+
+      if (_selectedHospitalCity != 'All Hospitals') {
+        final chip = _selectedHospitalCity.toLowerCase();
+        if (!name.contains(chip) && !addr.contains(chip)) return false;
+      }
+
+      if (q.isEmpty) return true;
+      return name.contains(q) || specs.contains(q) || addr.contains(q);
+    }).toList();
+
+    return Column(
+      children: [
+        // Search & Locality Filter
+        Container(
+          padding: const EdgeInsets.all(16),
+          color: Colors.white,
+          child: Column(
+            children: [
+              TextField(
+                controller: _hospitalSearchCtrl,
+                onChanged: (_) => setState(() {}),
+                decoration: InputDecoration(
+                  hintText: 'Search Indore Ayushman hospital or specialty...',
+                  prefixIcon: const Icon(Icons.search_rounded, color: AppColors.primaryTeal),
+                  filled: true,
+                  fillColor: AppColors.scaffoldBg,
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+                ),
+              ),
+              const SizedBox(height: 10),
+              SizedBox(
+                height: 32,
+                child: ListView.separated(
+                  scrollDirection: Axis.horizontal,
+                  itemCount: _hospitalCityChips.length,
+                  separatorBuilder: (_, __) => const SizedBox(width: 8),
+                  itemBuilder: (context, idx) {
+                    final c = _hospitalCityChips[idx];
+                    final isSel = _selectedHospitalCity == c;
+                    return ChoiceChip(
+                      label: Text(c, style: TextStyle(color: isSel ? Colors.white : AppColors.textPrimary, fontSize: 11, fontWeight: FontWeight.bold)),
+                      selected: isSel,
+                      selectedColor: AppColors.primaryTeal,
+                      backgroundColor: AppColors.scaffoldBg,
+                      onSelected: (val) {
+                        setState(() => _selectedHospitalCity = c);
+                      },
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
+        ),
+
+        // Live Empanelment Badge
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          color: const Color(0xFFFFF7ED),
+          child: Row(
+            children: [
+              const Icon(Icons.shield_outlined, size: 14, color: Color(0xFFC2410C)),
+              const SizedBox(width: 6),
+              Text(
+                'Indore Verified PM-JAY Empanelled Network (${filtered.length} Hospitals)',
+                style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Color(0xFFC2410C)),
+              ),
+              const Spacer(),
+              const Text('₹5 Lakh Cashless', style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Color(0xFF9A3412))),
+            ],
+          ),
+        ),
+
+        Expanded(
+          child: filtered.isEmpty
+              ? const Center(child: Text('Koi empanelled hospital nahi mila.', style: TextStyle(color: AppColors.textSecondary)))
+              : ListView.separated(
+                  padding: const EdgeInsets.all(16),
+                  itemCount: filtered.length,
+                  separatorBuilder: (_, __) => const SizedBox(height: 12),
+                  itemBuilder: (context, idx) {
+                    final h = filtered[idx];
+                    final name = h['name']?.toString() ?? 'Hospital';
+                    final beds = h['beds']?.toString() ?? '';
+                    final specs = h['specialties']?.toString() ?? '';
+                    final addr = h['address']?.toString() ?? '';
+                    final deskPhone = h['ayushmanMitraDesk']?.toString() ?? '';
+                    final isFree = h['isFreeGovt'] == true;
+
+                    return Card(
+                      margin: EdgeInsets.zero,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                        side: const BorderSide(color: AppColors.cardBorder),
+                      ),
+                      elevation: 0,
+                      child: Padding(
+                        padding: const EdgeInsets.all(16),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Container(
+                                  padding: const EdgeInsets.all(10),
+                                  decoration: BoxDecoration(
+                                    color: isFree ? const Color(0xFFF0FDF4) : const Color(0xFFFFF7ED),
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  child: Icon(
+                                    Icons.local_hospital_rounded,
+                                    color: isFree ? const Color(0xFF166534) : const Color(0xFFEA580C),
+                                    size: 26,
+                                  ),
+                                ),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(name, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
+                                      const SizedBox(height: 2),
+                                      Text('$beds • $addr', style: const TextStyle(color: AppColors.textSecondary, fontSize: 11)),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 10),
+                            Container(
+                              padding: const EdgeInsets.all(10),
+                              decoration: BoxDecoration(
+                                color: AppColors.scaffoldBg,
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: Row(
+                                children: [
+                                  const Icon(Icons.check_circle_rounded, color: Color(0xFF166534), size: 16),
+                                  const SizedBox(width: 6),
+                                  Expanded(
+                                    child: Text(
+                                      'Suvidhayein: $specs',
+                                      style: const TextStyle(fontSize: 11, color: Color(0xFF166534), fontWeight: FontWeight.w600),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            const SizedBox(height: 12),
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: OutlinedButton.icon(
+                                    onPressed: () {
+                                      ScaffoldMessenger.of(context).showSnackBar(
+                                        SnackBar(content: Text('Ayushman Mitra Desk Helpline: $deskPhone'), backgroundColor: AppColors.primaryTeal),
+                                      );
+                                    },
+                                    icon: const Icon(Icons.call_rounded, size: 16),
+                                    label: Text('Ayushman Mitra ($deskPhone)', style: const TextStyle(fontSize: 11)),
+                                    style: OutlinedButton.styleFrom(
+                                      foregroundColor: AppColors.primaryTeal,
+                                      side: const BorderSide(color: AppColors.primaryTeal),
+                                      padding: const EdgeInsets.symmetric(vertical: 10),
+                                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+                                ElevatedButton.icon(
+                                  onPressed: () {
+                                    Navigator.push(context, MaterialPageRoute(builder: (_) => const OpdScanShareScreen()));
+                                  },
+                                  icon: const Icon(Icons.qr_code_scanner_rounded, size: 16, color: Colors.white),
+                                  label: const Text('OPD Token', style: TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold)),
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: AppColors.primaryTeal,
+                                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  },
+                ),
+        ),
+      ],
     );
   }
 
@@ -196,6 +524,94 @@ class _PmjayAyushmanScreenState extends State<PmjayAyushmanScreen> with SingleTi
               ],
             ),
           ),
+          const SizedBox(height: 16),
+
+          // Linked Patient Profile Ayushman Card
+          if (_userProfile != null) ...[
+            Container(
+              padding: const EdgeInsets.all(18),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: const Color(0xFF166534), width: 1.5),
+                boxShadow: AppColors.cardShadow,
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Row(
+                        children: [
+                          const Icon(Icons.verified_rounded, color: Color(0xFF166534), size: 20),
+                          const SizedBox(width: 6),
+                          Text(
+                            _userProfile?['fullName']?.toString() ?? 'Citizen Patient',
+                            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                          ),
+                        ],
+                      ),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFDCFCE7),
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                        child: const Text('PROFILE LINKED', style: TextStyle(color: Color(0xFF166534), fontSize: 10, fontWeight: FontWeight.bold)),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  const Divider(height: 1),
+                  const SizedBox(height: 8),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text('Linked ABHA / PM-JAY ID', style: TextStyle(fontSize: 11, color: AppColors.textSecondary)),
+                          Text(
+                            _userProfile?['abhaNumber']?.toString() ?? '91-4521-8890-1234',
+                            style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: AppColors.primaryTeal),
+                          ),
+                        ],
+                      ),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          const Text('Available Balance', style: TextStyle(fontSize: 11, color: AppColors.textSecondary)),
+                          const Text(
+                            '₹5,00,000.00',
+                            style: TextStyle(fontSize: 14, fontWeight: FontWeight.w800, color: Color(0xFF166534)),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  SizedBox(
+                    width: double.infinity,
+                    child: OutlinedButton.icon(
+                      onPressed: () {
+                        _tabController.animateTo(1);
+                      },
+                      icon: const Icon(Icons.local_hospital_rounded, size: 16),
+                      label: const Text('View Empanelled Hospitals in Indore ➔', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: const Color(0xFF166534),
+                        side: const BorderSide(color: Color(0xFF166534)),
+                        padding: const EdgeInsets.symmetric(vertical: 10),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 16),
+          ],
           const SizedBox(height: 20),
 
           // Search Form

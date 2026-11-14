@@ -25,7 +25,7 @@ class _MaternalChildScreenState extends State<MaternalChildScreen> with SingleTi
   void initState() {
     super.initState();
     _service = widget.service ?? GovernmentHealthService();
-    _tabController = TabController(length: 2, vsync: this);
+    _tabController = TabController(length: 3, vsync: this);
     _loadMchData();
   }
 
@@ -161,9 +161,11 @@ class _MaternalChildScreenState extends State<MaternalChildScreen> with SingleTi
           unselectedLabelColor: AppColors.textSecondary,
           indicatorColor: AppColors.primaryTeal,
           indicatorWeight: 3,
+          isScrollable: true,
           tabs: const [
-            Tab(icon: Icon(Icons.pregnant_woman_rounded), text: 'Maternal Care (Garbhavastha)'),
+            Tab(icon: Icon(Icons.pregnant_woman_rounded), text: 'Maa ki Suraksha (Maternal)'),
             Tab(icon: Icon(Icons.child_care_rounded), text: 'U-WIN Teekakaran (Child)'),
+            Tab(icon: Icon(Icons.local_hospital_rounded), text: 'Vaccine Centers (Indore)'),
           ],
         ),
       ),
@@ -174,8 +176,189 @@ class _MaternalChildScreenState extends State<MaternalChildScreen> with SingleTi
               children: [
                 _buildMaternalTab(motherProfiles),
                 _buildChildTab(childProfiles),
+                _buildVaccineCentersTab(),
               ],
             ),
+    );
+  }
+
+  Widget _buildVaccineCentersTab() {
+    final centers = [
+      {
+        'name': 'Maharaja Yeshwantrao (MY) Hospital Immunization Wing',
+        'room': 'Room 12, Ground Floor, OPD Block',
+        'address': 'MY Hospital Campus, AB Road, Indore',
+        'vaccinesOffered': 'All UIP Vaccines: BCG, Hep-B, OPV, Pentavalent, Rotavirus, PCV, MR, DPT, Vitamin A, Td',
+        'timings': 'Mon - Sat (09:00 AM - 04:00 PM)',
+        'contact': '+91 731 2527200',
+        'isFree': true,
+      },
+      {
+        'name': 'PC Sethi Government Maternity Hospital',
+        'room': 'Labor Ward & Immunization Room',
+        'address': 'Geeta Bhawan Road, Navlakha, Indore',
+        'vaccinesOffered': 'Birth doses (BCG, Hep B, OPV-0) 24x7 in labor room; Routine Wed & Fri',
+        'timings': 'Birth Doses 24x7; Routine Wed & Fri (09:00 AM - 02:00 PM)',
+        'contact': '+91 731 2492100',
+        'isFree': true,
+      },
+      {
+        'name': 'Chacha Nehru Bal Chikitsalaya (Pediatric Hospital)',
+        'room': 'Pediatric Immunization Counter',
+        'address': 'Sanyogitaganj, Next to MY Hospital, Indore',
+        'vaccinesOffered': 'Pentavalent, Rotavirus, PCV, MR, DPT Booster, JE Japanese Encephalitis, Vitamin A',
+        'timings': 'Mon - Fri (09:30 AM - 03:00 PM)',
+        'contact': '+91 731 2514288',
+        'isFree': true,
+      },
+      {
+        'name': 'District Civil Hospital Indore (Hukumchand)',
+        'room': 'U-WIN Digital Counter & Room 4',
+        'address': 'Kila Maidan, Fort Road, Near Malharganj, Indore',
+        'vaccinesOffered': 'Complete Universal Childhood & Adolescent Immunization (Birth to 16 yrs)',
+        'timings': 'Mon - Sat (09:00 AM - 04:00 PM)',
+        'contact': '+91 731 2410214',
+        'isFree': true,
+      },
+      {
+        'name': 'Urban Primary Health Centers (UPHC Indore Network)',
+        'room': 'Vijay Nagar, Banganga, Khajrana & Scheme 78 UPHCs',
+        'address': 'Multiple Ward Centers across Indore',
+        'vaccinesOffered': 'Weekly Routine Immunization Day for Infants & Pregnant Mothers (Td / Tetanus)',
+        'timings': 'Every Wednesday & Friday (09:00 AM - 02:00 PM)',
+        'contact': '+91 731 2404040',
+        'isFree': true,
+      },
+    ];
+
+    return ListView(
+      padding: const EdgeInsets.all(16),
+      children: [
+        Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: const Color(0xFFF0FDF4),
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: const Color(0xFFBBF7D0)),
+          ),
+          child: const Row(
+            children: [
+              Icon(Icons.health_and_safety_rounded, color: Color(0xFF166534), size: 28),
+              SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('100% Free Sarkari Teekakaran', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: Color(0xFF166534))),
+                    SizedBox(height: 2),
+                    Text(
+                      'Sarkari UIP karyakram ke tehat sabhi teeke Indore ke in kendro par bilkul muft lagaye jaate hain.',
+                      style: TextStyle(fontSize: 11, color: Color(0xFF15803D)),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 16),
+
+        ...centers.map((c) {
+          final name = c['name']!.toString();
+          final room = c['room']!.toString();
+          final addr = c['address']!.toString();
+          final vacs = c['vaccinesOffered']!.toString();
+          final time = c['timings']!.toString();
+          final phone = c['contact']!.toString();
+
+          return Card(
+            margin: const EdgeInsets.only(bottom: 14),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+              side: const BorderSide(color: AppColors.cardBorder),
+            ),
+            elevation: 0,
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFF0FDF4),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: const Icon(Icons.vaccines_rounded, color: Color(0xFF166534), size: 24),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(name, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+                            const SizedBox(height: 2),
+                            Text('$room • $addr', style: const TextStyle(color: AppColors.textSecondary, fontSize: 11)),
+                          ],
+                        ),
+                      ),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
+                        decoration: BoxDecoration(color: const Color(0xFFDCFCE7), borderRadius: BorderRadius.circular(6)),
+                        child: const Text('FREE UIP', style: TextStyle(color: Color(0xFF166534), fontSize: 10, fontWeight: FontWeight.bold)),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 10),
+                  Container(
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(color: AppColors.scaffoldBg, borderRadius: BorderRadius.circular(8)),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('Uplabdh Teeke: $vacs', style: const TextStyle(fontSize: 11, color: Color(0xFF166534), fontWeight: FontWeight.w600)),
+                        const SizedBox(height: 4),
+                        Row(
+                          children: [
+                            const Icon(Icons.access_time_rounded, size: 13, color: Colors.orange),
+                            const SizedBox(width: 4),
+                            Text(time, style: const TextStyle(fontSize: 11, color: AppColors.textSecondary)),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: OutlinedButton.icon(
+                          onPressed: () {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text('Helpline: $phone'), backgroundColor: AppColors.primaryTeal),
+                            );
+                          },
+                          icon: const Icon(Icons.call_rounded, size: 16),
+                          label: Text('Call ($phone)', style: const TextStyle(fontSize: 11)),
+                          style: OutlinedButton.styleFrom(
+                            foregroundColor: AppColors.primaryTeal,
+                            side: const BorderSide(color: AppColors.primaryTeal),
+                            padding: const EdgeInsets.symmetric(vertical: 10),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          );
+        }),
+      ],
     );
   }
 
@@ -504,16 +687,18 @@ class _MaternalChildScreenState extends State<MaternalChildScreen> with SingleTi
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(color: const Color(0xFFF0FDF4), borderRadius: BorderRadius.circular(10), border: Border.all(color: const Color(0xFFBBF7D0))),
-              child: const Row(
+              child: const Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Icon(Icons.shield_rounded, color: Color(0xFF166534), size: 18),
-                  SizedBox(width: 8),
-                  Expanded(
-                    child: Text(
-                      'Yeh teeka shishu ko jaanleva sankraman aur bimariyo se poori suraksha pradaan karta hai. Sabhi sarkari PHC/CHC par muft uplabdh.',
-                      style: TextStyle(color: Color(0xFF166534), fontSize: 11, height: 1.3),
-                    ),
+                  Row(
+                    children: [
+                      Icon(Icons.shield_rounded, color: Color(0xFF166534), size: 18),
+                      SizedBox(width: 8),
+                      Text('Indore Me Yahan Muft Lagwayein:', style: TextStyle(color: Color(0xFF166534), fontWeight: FontWeight.bold, fontSize: 12)),
+                    ],
                   ),
+                  SizedBox(height: 6),
+                  Text('• MY Hospital Immunization Wing (Room 12, Mon-Sat 9 AM - 4 PM)\n• PC Sethi Maternity Hospital (Geeta Bhawan Road)\n• Chacha Nehru Bal Chikitsalaya (Pediatric Wing)\n• Sabhi Ward UPHC Centers (Every Wed & Fri)', style: TextStyle(color: Color(0xFF15803D), fontSize: 11, height: 1.35)),
                 ],
               ),
             ),

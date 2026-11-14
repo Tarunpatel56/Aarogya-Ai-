@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import '../../theme/app_theme.dart';
 import '../../services/patient_service.dart';
 import '../../models/family_member_model.dart';
+import '../government/opd_scan_share_screen.dart';
+import '../government/maternal_child_screen.dart';
+import '../government/pmjay_ayushman_screen.dart';
 
 class FamilyHealthScreen extends StatefulWidget {
   final PatientService? patientService;
@@ -497,6 +500,36 @@ class _FamilyHealthScreenState extends State<FamilyHealthScreen> {
                       ],
                     ),
                 ],
+                const SizedBox(height: 12),
+                const Divider(height: 1),
+                const SizedBox(height: 8),
+                // One-tap family health actions
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    TextButton.icon(
+                      onPressed: () {
+                        Navigator.push(context, MaterialPageRoute(builder: (_) => const OpdScanShareScreen()));
+                      },
+                      icon: const Icon(Icons.qr_code_scanner_rounded, size: 15, color: AppColors.primaryTeal),
+                      label: const Text('OPD Token', style: TextStyle(fontSize: 11, color: AppColors.primaryTeal, fontWeight: FontWeight.bold)),
+                    ),
+                    TextButton.icon(
+                      onPressed: () {
+                        Navigator.push(context, MaterialPageRoute(builder: (_) => const MaternalChildScreen()));
+                      },
+                      icon: const Icon(Icons.vaccines_rounded, size: 15, color: Color(0xFF166534)),
+                      label: const Text('Teekakaran', style: TextStyle(fontSize: 11, color: Color(0xFF166534), fontWeight: FontWeight.bold)),
+                    ),
+                    TextButton.icon(
+                      onPressed: () {
+                        Navigator.push(context, MaterialPageRoute(builder: (_) => const PmjayAyushmanScreen()));
+                      },
+                      icon: const Icon(Icons.shield_rounded, size: 15, color: Color(0xFFEA580C)),
+                      label: const Text('Ayushman', style: TextStyle(fontSize: 11, color: Color(0xFFEA580C), fontWeight: FontWeight.bold)),
+                    ),
+                  ],
+                ),
               ],
             ),
           ),

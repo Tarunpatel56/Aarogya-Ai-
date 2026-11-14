@@ -27,6 +27,9 @@ class _JanAushadhiScreenState extends State<JanAushadhiScreen> with SingleTicker
   String _selectedCategory = 'ALL';
   final List<String> _categories = ['ALL', 'PAIN_FEVER', 'DIABETES', 'HYPERTENSION', 'GASTRO', 'ANTIBIOTIC', 'CARDIAC'];
 
+  String _selectedCity = 'Indore';
+  final List<String> _cityFilterChips = ['Indore', 'Vijay Nagar', 'Palasia', 'Rajwada', 'Bhanwarkua', 'All Kendras'];
+
   @override
   void initState() {
     super.initState();
@@ -65,7 +68,9 @@ class _JanAushadhiScreenState extends State<JanAushadhiScreen> with SingleTicker
   Future<void> _loadKendras() async {
     setState(() => _isLoadingKendras = true);
     try {
-      final list = await _service.getJanAushadhiKendras();
+      final list = await _service.getJanAushadhiKendras(
+        district: _selectedCity == 'All Kendras' ? null : 'Indore',
+      );
       if (mounted) {
         setState(() {
           _kendras = list;
@@ -575,7 +580,7 @@ class _JanAushadhiScreenState extends State<JanAushadhiScreen> with SingleTicker
   }
 
   void _showKendraDetailsSheet(Map<String, dynamic> k) {
-    final name = k['name']?.toString() ?? 'Jan Aushadhi Kendra';
+    final name = k['centerName']?.toString() ?? k['name']?.toString() ?? 'Jan Aushadhi Kendra';
     final address = k['address']?.toString() ?? '';
     final phone = k['contactPhone']?.toString() ?? '+91 1800-180-8080';
     final hours = k['operatingHours']?.toString() ?? '9:00 AM - 9:00 PM';
@@ -695,46 +700,115 @@ class _JanAushadhiScreenState extends State<JanAushadhiScreen> with SingleTicker
   Widget _buildKendrasTab() {
     final filtered = _kendras.where((k) {
       final q = _kendraSearchCtrl.text.trim().toLowerCase();
-      if (q.isEmpty) return true;
-      final name = (k['name'] ?? '').toString().toLowerCase();
+      final name = (k['centerName'] ?? k['name'] ?? '').toString().toLowerCase();
       final city = (k['city'] ?? '').toString().toLowerCase();
+      final address = (k['address'] ?? '').toString().toLowerCase();
       final pin = (k['pincode'] ?? '').toString().toLowerCase();
-      return name.contains(q) || city.contains(q) || pin.contains(q);
+
+      // Filter by city chip
+      if (_selectedCity != 'All Kendras') {
+        final chipLower = _selectedCity.toLowerCase();
+        final matchesChip = name.contains(chipLower) || city.contains(chipLower) || address.contains(chipLower);
+        if (!matchesChip) return false;
+      }
+
+      if (q.isEmpty) return true;
+      return name.contains(q) || city.contains(q) || address.contains(q) || pin.contains(q);
     }).toList();
 
     return Column(
       children: [
+        // Search & City Filter Bar
         Container(
           padding: const EdgeInsets.all(16),
           color: Colors.white,
-          child: TextField(
-            controller: _kendraSearchCtrl,
-            onChanged: (_) => setState(() {}),
-            decoration: InputDecoration(
-              hintText: 'Search Jan Aushadhi Kendra by city or pincode...',
-              prefixIcon: const Icon(Icons.search_rounded, color: AppColors.primaryTeal),
-              filled: true,
-              fillColor: AppColors.scaffoldBg,
-              contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-              border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
-            ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              TextField(
+                controller: _kendraSearchCtrl,
+                onChanged: (_) => setState(() {}),
+                decoration: InputDecoration(
+                  hintText: 'Search Jan Aushadhi Kendra (e.g. MY Hospital, Vijay Nagar)...',
+                  prefixIcon: const Icon(Icons.search_rounded, color: AppColors.primaryTeal),
+                  filled: true,
+                  fillColor: AppColors.scaffoldBg,
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+                ),
+              ),
+              const SizedBox(height: 10),
+              // City / Area Chips
+              SizedBox(
+                height: 32,
+                child: ListView.separated(
+                  scrollDirection: Axis.horizontal,
+                  itemCount: _cityFilterChips.length,
+                  separatorBuilder: (_, __) => const SizedBox(width: 8),
+                  itemBuilder: (context, idx) {
+                    final chip = _cityFilterChips[idx];
+                    final isSel = _selectedCity == chip;
+                    return ChoiceChip(
+                      label: Text(
+                        chip,
+                        style: TextStyle(
+                          color: isSel ? Colors.white : AppColors.textPrimary,
+                          fontSize: 11,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      selected: isSel,
+                      selectedColor: AppColors.primaryTeal,
+                      backgroundColor: AppColors.scaffoldBg,
+                      onSelected: (val) {
+                        setState(() => _selectedCity = chip);
+                        _loadKendras();
+                      },
+                    );
+                  },
+                ),
+              ),
+            ],
           ),
         ),
+
+        // Verified Info Banner
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          color: const Color(0xFFF0FDF4),
+          child: Row(
+            children: [
+              const Icon(Icons.verified_outlined, size: 14, color: Color(0xFF166534)),
+              const SizedBox(width: 6),
+              Text(
+                'Indore Verified PMBJP Kendras (${filtered.length} Centers Found)',
+                style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Color(0xFF166534)),
+              ),
+              const Spacer(),
+              const Text(
+                '50%-90% Savings',
+                style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Color(0xFF15803D)),
+              ),
+            ],
+          ),
+        ),
+
         Expanded(
           child: _isLoadingKendras
               ? const Center(child: CircularProgressIndicator(color: AppColors.primaryTeal))
               : filtered.isEmpty
-                  ? const Center(child: Text('Koi Jan Aushadhi Kendra nahi mila.', style: TextStyle(color: AppColors.textSecondary)))
+                  ? const Center(child: Text('Is area me koi Jan Aushadhi Kendra nahi mila.', style: TextStyle(color: AppColors.textSecondary)))
                   : ListView.separated(
                       padding: const EdgeInsets.all(16),
                       itemCount: filtered.length,
                       separatorBuilder: (_, __) => const SizedBox(height: 12),
                       itemBuilder: (context, idx) {
                         final k = filtered[idx];
-                        final name = k['name']?.toString() ?? 'Jan Aushadhi Kendra';
+                        final name = k['centerName']?.toString() ?? k['name']?.toString() ?? 'Jan Aushadhi Kendra';
                         final address = k['address']?.toString() ?? '';
                         final phone = k['contactPhone']?.toString() ?? '';
                         final hours = k['operatingHours']?.toString() ?? '9:00 AM - 9:00 PM';
+                        final discount = k['savingsDiscount']?.toString() ?? 'Up to 85% Discount';
 
                         return InkWell(
                           onTap: () => _showKendraDetailsSheet(k),
@@ -773,7 +847,23 @@ class _JanAushadhiScreenState extends State<JanAushadhiScreen> with SingleTicker
                                     ),
                                   ],
                                 ),
-                                const SizedBox(height: 10),
+                                const SizedBox(height: 8),
+                                Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xFFDCFCE7),
+                                    borderRadius: BorderRadius.circular(6),
+                                  ),
+                                  child: Text(
+                                    discount,
+                                    style: const TextStyle(
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.bold,
+                                      color: Color(0xFF166534),
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(height: 8),
                                 Text('Samay: $hours', style: const TextStyle(fontSize: 11, color: AppColors.textSecondary)),
                                 const SizedBox(height: 10),
                                 Row(

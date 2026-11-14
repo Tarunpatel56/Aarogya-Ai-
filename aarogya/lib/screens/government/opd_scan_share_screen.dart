@@ -20,15 +20,24 @@ class _OpdScanShareScreenState extends State<OpdScanShareScreen> {
   Map<String, dynamic>? _generatedToken;
   String? _patientProfileId;
 
-  String _selectedHospitalHipId = 'IN0810000001';
+  String _selectedHospitalHipId = 'IN2310000001';
   String _selectedDepartment = 'General Medicine';
+  String _selectedCity = 'Indore';
 
-  final List<Map<String, String>> _demoHospitals = [
-    {'name': 'AIIMS New Delhi (ABDM OPD Counter)', 'hipId': 'IN0810000001'},
-    {'name': 'Safdarjung Hospital OPD Block', 'hipId': 'IN0810000002'},
-    {'name': 'KGMU Lucknow Super-Speciality OPD', 'hipId': 'IN0910000003'},
-    {'name': 'PGIMER Chandigarh OPD Terminal', 'hipId': 'IN0410000004'},
-    {'name': 'District Civil Hospital OPD (Ayushman)', 'hipId': 'IN2310000005'},
+  final List<String> _cityFilterChips = ['Indore', 'Bhopal', 'Delhi', 'All Cities'];
+
+  final List<Map<String, String>> _allHospitals = [
+    {'name': 'Maharaja Yeshwantrao (MY) Hospital Indore (ABDM Smart Counter 01)', 'hipId': 'IN2310000001', 'city': 'Indore'},
+    {'name': 'Government Super Speciality Hospital Indore (ABDM Counter 02)', 'hipId': 'IN2310000002', 'city': 'Indore'},
+    {'name': 'District Civil Hospital Indore (Ayushman OPD Counter)', 'hipId': 'IN2310000008', 'city': 'Indore'},
+    {'name': 'Chacha Nehru Bal Chikitsalaya Indore (Pediatric OPD)', 'hipId': 'IN2310000005', 'city': 'Indore'},
+    {'name': 'PC Sethi Maternity Hospital Indore (MCH OPD)', 'hipId': 'IN2310000006', 'city': 'Indore'},
+    {'name': 'Bombay Hospital & Research Centre Indore (Digital OPD Desk)', 'hipId': 'IN2310000003', 'city': 'Indore'},
+    {'name': 'Choithram Hospital Indore (ABDM Digital Desk)', 'hipId': 'IN2310000004', 'city': 'Indore'},
+    {'name': 'Sri Aurobindo Medical College (SAIMS) Indore', 'hipId': 'IN2310000007', 'city': 'Indore'},
+    {'name': 'AIIMS Bhopal (Central OPD Block)', 'hipId': 'IN2310000009', 'city': 'Bhopal'},
+    {'name': 'AIIMS New Delhi (ABDM OPD Counter)', 'hipId': 'IN0810000001', 'city': 'Delhi'},
+    {'name': 'Safdarjung Hospital OPD Block', 'hipId': 'IN0810000002', 'city': 'Delhi'},
   ];
 
   final List<String> _departments = [
@@ -151,20 +160,51 @@ class _OpdScanShareScreenState extends State<OpdScanShareScreen> {
                 children: [
                   const Text('Hospital & Department Chunein', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
                   const SizedBox(height: 6),
-                  const Text('QR Code scanner ya list se select karein:', style: TextStyle(fontSize: 12, color: AppColors.textSecondary)),
+                  const Text('Indore ya anya shahar chunein aur digital OPD token prapt karein:', style: TextStyle(fontSize: 12, color: AppColors.textSecondary)),
+                  const SizedBox(height: 12),
+
+                  // City Filter Chips
+                  SizedBox(
+                    height: 32,
+                    child: ListView.separated(
+                      scrollDirection: Axis.horizontal,
+                      itemCount: _cityFilterChips.length,
+                      separatorBuilder: (_, __) => const SizedBox(width: 8),
+                      itemBuilder: (context, idx) {
+                        final c = _cityFilterChips[idx];
+                        final isSel = _selectedCity == c;
+                        return ChoiceChip(
+                          label: Text(c, style: TextStyle(color: isSel ? Colors.white : AppColors.textPrimary, fontSize: 11, fontWeight: FontWeight.bold)),
+                          selected: isSel,
+                          selectedColor: AppColors.primaryTeal,
+                          backgroundColor: AppColors.scaffoldBg,
+                          onSelected: (val) {
+                            setState(() {
+                              _selectedCity = c;
+                              final available = _allHospitals.where((h) => c == 'All Cities' || h['city'] == c).toList();
+                              if (available.isNotEmpty) {
+                                _selectedHospitalHipId = available.first['hipId']!;
+                              }
+                            });
+                          },
+                        );
+                      },
+                    ),
+                  ),
                   const SizedBox(height: 14),
 
                   DropdownButtonFormField<String>(
                     value: _selectedHospitalHipId,
                     isExpanded: true,
-                    items: _demoHospitals
+                    items: _allHospitals
+                        .where((h) => _selectedCity == 'All Cities' || h['city'] == _selectedCity)
                         .map((h) => DropdownMenuItem(value: h['hipId'], child: Text(h['name']!, overflow: TextOverflow.ellipsis)))
                         .toList(),
                     onChanged: (val) {
                       if (val != null) setState(() => _selectedHospitalHipId = val);
                     },
                     decoration: InputDecoration(
-                      labelText: 'Hospital (HIP Registry)',
+                      labelText: 'Hospital (Indore & ABDM Registry)',
                       border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
                     ),
                   ),

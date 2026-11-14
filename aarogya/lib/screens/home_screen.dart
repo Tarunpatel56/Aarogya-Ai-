@@ -41,6 +41,9 @@ import '../widgets/home/home_upcoming_consultation.dart';
 import '../widgets/home/home_vitals_summary.dart';
 import '../widgets/home/home_reminders_card.dart';
 import '../widgets/home/home_physio_card.dart';
+import '../models/emergency_model.dart';
+import '../services/emergency_service.dart';
+import 'emergency/live_ambulance_tracking_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   final VoidCallback? onNavigateToAI;
@@ -65,10 +68,12 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateMixin {
   late final PatientService _patientService;
   late final AppointmentService _appointmentService;
+  late final EmergencyService _emergencyService;
 
   UserModel? _currentUser;
   PatientProfileModel? _currentProfile;
   AppointmentModel? _upcomingAppointment;
+  EmergencyModel? _activeEmergency;
 
   bool _isLoadingAppointment = true;
   String _glucoseReading = 'No recent reading';
@@ -88,6 +93,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
 
     _patientService = widget.patientService ?? PatientService(apiClient: widget.authService?.apiClient);
     _appointmentService = widget.appointmentService ?? AppointmentService(apiClient: widget.authService?.apiClient);
+    _emergencyService = EmergencyService(apiClient: widget.authService?.apiClient);
 
     _syncAnimController = AnimationController(
       vsync: this,
@@ -137,7 +143,6 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
     try {
       final appointments = await _appointmentService.getAppointments();
       if (mounted) {
-        // Find earliest upcoming appointment that is CONFIRMED or REQUESTED
         final activeList = appointments.where((a) => a.status == 'CONFIRMED' || a.status == 'REQUESTED').toList();
         setState(() {
           _upcomingAppointment = activeList.isNotEmpty ? activeList.first : null;
@@ -152,6 +157,20 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
         });
       }
     }
+
+    // 3. Check for active emergency ambulance dispatch
+    try {
+      final active = await _emergencyService.getActiveEmergency();
+      if (mounted) {
+        setState(() {
+          if (active != null && active.status != 'COMPLETED' && active.status != 'CANCELLED') {
+            _activeEmergency = active;
+          } else {
+            _activeEmergency = null;
+          }
+        });
+      }
+    } catch (_) {}
   }
 
   void _triggerSync() {
@@ -374,6 +393,109 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                   notificationService: NotificationService(apiClient: widget.authService?.apiClient),
                 ),
                 const SizedBox(height: 16),
+
+                // Active Emergency Ambulance Sticky Radar Banner
+                if (_activeEmergency != null) ...[
+                  InkWell(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => LiveAmbulanceTrackingScreen(initialEmergency: _activeEmergency!),
+                        ),
+                      ).then((_) => _loadData());
+                    },
+                    borderRadius: BorderRadius.circular(16),
+                    child: Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFFEF2F2),
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(color: AppColors.sosRed, width: 2),
+                        boxShadow: [
+                          BoxShadow(
+                            color: AppColors.sosRed.withValues(alpha: 0.25),
+                            blurRadius: 12,
+                            offset: const Offset(0, 4),
+                          ),
+                        ],
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.all(8),
+                                decoration: const BoxDecoration(
+                                  color: AppColors.sosRed,
+                                  shape: BoxShape.circle,
+                                ),
+                                child: const Icon(Icons.emergency_rounded, color: Colors.white, size: 20),
+                              ),
+                              const SizedBox(width: 10),
+                              const Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      '🚨 LIVE AMBULANCE EN ROUTE',
+                                      style: TextStyle(fontWeight: FontWeight.w900, fontSize: 13, color: AppColors.sosRed, letterSpacing: 0.5),
+                                    ),
+                                    Text('Emergency responder assigned to your location', style: TextStyle(fontSize: 11, color: Color(0xFF991B1B))),
+                                  ],
+                                ),
+                              ),
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                decoration: BoxDecoration(
+                                  color: AppColors.sosRed,
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: Text(
+                                  _activeEmergency!.status,
+                                  style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold),
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 12),
+                          const Divider(height: 1, color: Color(0xFFFECACA)),
+                          const SizedBox(height: 10),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'Vehicle: ${_activeEmergency!.assignedVehicleNo}',
+                                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Color(0xFF1E293B)),
+                                  ),
+                                  Text(
+                                    'Driver: ${_activeEmergency!.driverName ?? "EMS Pilot Vikram"}',
+                                    style: const TextStyle(fontSize: 11, color: Color(0xFF64748B)),
+                                  ),
+                                ],
+                              ),
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.end,
+                                children: [
+                                  Text(
+                                    'ETA: ~${_activeEmergency!.estimatedMinutes} mins',
+                                    style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 14, color: AppColors.sosRed),
+                                  ),
+                                  const Text('Tap to open Live Radar →', style: TextStyle(fontSize: 10, color: AppColors.sosRed, fontWeight: FontWeight.bold)),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                ],
 
                 // 2. Emergency SOS Card
                 const HomeSosCard(),

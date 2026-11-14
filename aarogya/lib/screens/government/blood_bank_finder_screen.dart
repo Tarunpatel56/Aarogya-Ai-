@@ -12,26 +12,84 @@ class BloodBankFinderScreen extends StatefulWidget {
   State<BloodBankFinderScreen> createState() => _BloodBankFinderScreenState();
 }
 
-class _BloodBankFinderScreenState extends State<BloodBankFinderScreen> {
+class _BloodBankFinderScreenState extends State<BloodBankFinderScreen> with SingleTickerProviderStateMixin {
   late final GovernmentHealthService _service;
+  late final TabController _tabController;
   bool _isLoading = true;
   List<Map<String, dynamic>> _bloodBanks = [];
 
   String _selectedBloodGroup = 'ALL';
-  String _selectedComponent = 'ALL';
+  String _selectedCity = 'Indore';
   final TextEditingController _searchCtrl = TextEditingController();
 
   final List<String> _bloodGroups = ['ALL', 'A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'];
+  final List<String> _cityChips = ['Indore', 'Vijay Nagar', 'Palasia', 'Bhopal', 'All Banks'];
+
+  // Registered Voluntary Blood Donors community
+  final List<Map<String, dynamic>> _voluntaryDonors = [
+    {
+      'name': 'Rahul Sharma',
+      'bloodGroup': 'O+',
+      'city': 'Indore',
+      'area': 'Vijay Nagar, Indore',
+      'phone': '+91 98260 12345',
+      'availability': 'Ready to Donate Today',
+      'lastDonation': '4 months ago',
+      'verified': true,
+    },
+    {
+      'name': 'Priya Patidar',
+      'bloodGroup': 'B+',
+      'city': 'Indore',
+      'area': 'Old Palasia, Indore',
+      'phone': '+91 98261 54321',
+      'availability': 'Ready to Donate Today',
+      'lastDonation': '6 months ago',
+      'verified': true,
+    },
+    {
+      'name': 'Amitabh Verma',
+      'bloodGroup': 'A+',
+      'city': 'Indore',
+      'area': 'Bhanwarkua, Indore',
+      'phone': '+91 94250 99887',
+      'availability': 'Available on Call',
+      'lastDonation': '5 months ago',
+      'verified': true,
+    },
+    {
+      'name': 'Tarun Patel',
+      'bloodGroup': 'AB+',
+      'city': 'Indore',
+      'area': 'Silicon City / Rau, Indore',
+      'phone': '+91 98270 11223',
+      'availability': 'Ready to Donate Today',
+      'lastDonation': '3 months ago',
+      'verified': true,
+    },
+    {
+      'name': 'Kavita Joshi',
+      'bloodGroup': 'O-',
+      'city': 'Indore',
+      'area': 'Rajwada / MG Road, Indore',
+      'phone': '+91 98263 44556',
+      'availability': 'Universal Donor (Emergency Priority)',
+      'lastDonation': '5 months ago',
+      'verified': true,
+    },
+  ];
 
   @override
   void initState() {
     super.initState();
     _service = widget.service ?? GovernmentHealthService();
+    _tabController = TabController(length: 2, vsync: this);
     _fetchBloodBanks();
   }
 
   @override
   void dispose() {
+    _tabController.dispose();
     _searchCtrl.dispose();
     super.dispose();
   }
@@ -40,8 +98,8 @@ class _BloodBankFinderScreenState extends State<BloodBankFinderScreen> {
     setState(() => _isLoading = true);
     try {
       final banks = await _service.getBloodBanks(
+        city: _selectedCity == 'All Banks' ? null : 'Indore',
         bloodGroup: _selectedBloodGroup,
-        component: _selectedComponent,
       );
       if (mounted) {
         setState(() {
@@ -52,6 +110,170 @@ class _BloodBankFinderScreenState extends State<BloodBankFinderScreen> {
     } catch (_) {
       if (mounted) setState(() => _isLoading = false);
     }
+  }
+
+  void _showRegisterDonorModal() {
+    final nameCtrl = TextEditingController();
+    final phoneCtrl = TextEditingController(text: '+91 ');
+    final areaCtrl = TextEditingController(text: 'Vijay Nagar, Indore');
+    String bloodGroup = 'O+';
+    String availability = 'Ready to Donate Today';
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => StatefulBuilder(
+        builder: (context, setModalState) => Padding(
+          padding: EdgeInsets.only(bottom: MediaQuery.of(ctx).viewInsets.bottom),
+          child: Container(
+            padding: const EdgeInsets.all(24),
+            decoration: const BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+            ),
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Center(
+                    child: Container(
+                      width: 40,
+                      height: 4,
+                      decoration: BoxDecoration(color: Colors.grey.shade300, borderRadius: BorderRadius.circular(2)),
+                    ),
+                  ),
+                  const SizedBox(height: 14),
+                  Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                          color: AppColors.sosLightBg,
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: const Icon(Icons.volunteer_activism_rounded, color: AppColors.sosRed, size: 24),
+                      ),
+                      const SizedBox(width: 12),
+                      const Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text('Voluntary Blood Donor Banein', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                            Text('Raktdaan Mahadaan • Save a Life in Emergency', style: TextStyle(fontSize: 11, color: AppColors.textSecondary)),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 18),
+                  TextField(
+                    controller: nameCtrl,
+                    decoration: InputDecoration(
+                      labelText: 'Aapka Naam (Full Name)',
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                      prefixIcon: const Icon(Icons.person_rounded, color: AppColors.primaryTeal),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: DropdownButtonFormField<String>(
+                          value: bloodGroup,
+                          items: _bloodGroups
+                              .where((g) => g != 'ALL')
+                              .map((g) => DropdownMenuItem(value: g, child: Text(g, style: const TextStyle(fontWeight: FontWeight.bold))))
+                              .toList(),
+                          onChanged: (val) {
+                            if (val != null) setModalState(() => bloodGroup = val);
+                          },
+                          decoration: InputDecoration(
+                            labelText: 'Blood Group',
+                            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: DropdownButtonFormField<String>(
+                          value: availability,
+                          items: const [
+                            DropdownMenuItem(value: 'Ready to Donate Today', child: Text('Ready Today', style: TextStyle(fontSize: 12))),
+                            DropdownMenuItem(value: 'Available on Call', child: Text('On Call', style: TextStyle(fontSize: 12))),
+                          ],
+                          onChanged: (val) {
+                            if (val != null) setModalState(() => availability = val);
+                          },
+                          decoration: InputDecoration(
+                            labelText: 'Availability',
+                            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  TextField(
+                    controller: phoneCtrl,
+                    keyboardType: TextInputType.phone,
+                    decoration: InputDecoration(
+                      labelText: 'Mobile Number (for SOS Helpline)',
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                      prefixIcon: const Icon(Icons.phone_rounded, color: AppColors.primaryTeal),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  TextField(
+                    controller: areaCtrl,
+                    decoration: InputDecoration(
+                      labelText: 'City & Locality (e.g. Palasia / Vijay Nagar, Indore)',
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                      prefixIcon: const Icon(Icons.location_on_rounded, color: AppColors.primaryTeal),
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  ElevatedButton(
+                    onPressed: () {
+                      if (nameCtrl.text.trim().isEmpty || phoneCtrl.text.trim().length < 8) return;
+                      setState(() {
+                        _voluntaryDonors.insert(0, {
+                          'name': nameCtrl.text.trim(),
+                          'bloodGroup': bloodGroup,
+                          'city': 'Indore',
+                          'area': areaCtrl.text.trim(),
+                          'phone': phoneCtrl.text.trim(),
+                          'availability': availability,
+                          'lastDonation': 'Just now registered',
+                          'verified': true,
+                        });
+                      });
+                      Navigator.pop(ctx);
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text('Dhanyawad ${nameCtrl.text.trim()}! Aap safaltapoorvak Raktdata soochi me shamil ho gaye hain.'),
+                          backgroundColor: const Color(0xFF166534),
+                        ),
+                      );
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.sosRed,
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    ),
+                    child: const Center(
+                      child: Text('Register as Voluntary Donor', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14)),
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
   }
 
   void _makeCall(String? phone) {
@@ -149,10 +371,16 @@ class _BloodBankFinderScreenState extends State<BloodBankFinderScreen> {
   Widget build(BuildContext context) {
     final filteredBanks = _bloodBanks.where((b) {
       final q = _searchCtrl.text.trim().toLowerCase();
-      if (q.isEmpty) return true;
       final name = (b['name'] ?? '').toString().toLowerCase();
       final city = (b['city'] ?? '').toString().toLowerCase();
       final state = (b['state'] ?? '').toString().toLowerCase();
+
+      if (_selectedCity != 'All Banks') {
+        final chip = _selectedCity.toLowerCase();
+        if (!name.contains(chip) && !city.contains(chip)) return false;
+      }
+
+      if (q.isEmpty) return true;
       return name.contains(q) || city.contains(q) || state.contains(q);
     }).toList();
 
@@ -160,7 +388,7 @@ class _BloodBankFinderScreenState extends State<BloodBankFinderScreen> {
       backgroundColor: AppColors.scaffoldBg,
       appBar: AppBar(
         title: const Text(
-          'e-RaktKosh Blood Bank Finder',
+          'e-RaktKosh & Blood Donors',
           style: TextStyle(fontWeight: FontWeight.bold, fontSize: 17),
         ),
         backgroundColor: Colors.white,
@@ -168,88 +396,259 @@ class _BloodBankFinderScreenState extends State<BloodBankFinderScreen> {
         foregroundColor: AppColors.textPrimary,
         actions: [
           IconButton(
+            icon: const Icon(Icons.volunteer_activism_rounded, color: AppColors.sosRed),
+            tooltip: 'Raktdata Banein',
+            onPressed: _showRegisterDonorModal,
+          ),
+          IconButton(
             icon: const Icon(Icons.emergency_outlined, color: AppColors.sosRed),
             tooltip: 'Emergency Blood Request',
             onPressed: () => _showEmergencyRequestDialog(context, null),
           ),
         ],
+        bottom: TabBar(
+          controller: _tabController,
+          labelColor: AppColors.sosRed,
+          unselectedLabelColor: AppColors.textSecondary,
+          indicatorColor: AppColors.sosRed,
+          indicatorWeight: 3,
+          tabs: [
+            const Tab(icon: Icon(Icons.bloodtype_rounded), text: 'e-RaktKosh Banks'),
+            Tab(icon: const Icon(Icons.people_alt_rounded), text: 'Voluntary Donors (${_voluntaryDonors.length})'),
+          ],
+        ),
       ),
-      body: SafeArea(
-        child: Column(
-          children: [
-            // Search & Filters Header
-            Container(
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: _showRegisterDonorModal,
+        backgroundColor: AppColors.sosRed,
+        icon: const Icon(Icons.add_rounded, color: Colors.white),
+        label: const Text('Raktdata Banein', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+      ),
+      body: TabBarView(
+        controller: _tabController,
+        children: [
+          // TAB 1: BLOOD BANKS
+          Column(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(16),
+                color: Colors.white,
+                child: Column(
+                  children: [
+                    TextField(
+                      controller: _searchCtrl,
+                      onChanged: (_) => setState(() {}),
+                      decoration: InputDecoration(
+                        hintText: 'Search Indore hospital blood banks...',
+                        prefixIcon: const Icon(Icons.search_rounded, color: AppColors.sosRed),
+                        filled: true,
+                        fillColor: AppColors.scaffoldBg,
+                        contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    // City Filter Chips
+                    SizedBox(
+                      height: 32,
+                      child: ListView.separated(
+                        scrollDirection: Axis.horizontal,
+                        itemCount: _cityChips.length,
+                        separatorBuilder: (_, __) => const SizedBox(width: 8),
+                        itemBuilder: (context, idx) {
+                          final c = _cityChips[idx];
+                          final isSel = _selectedCity == c;
+                          return ChoiceChip(
+                            label: Text(c, style: TextStyle(color: isSel ? Colors.white : AppColors.textPrimary, fontSize: 11, fontWeight: FontWeight.bold)),
+                            selected: isSel,
+                            selectedColor: AppColors.sosRed,
+                            backgroundColor: AppColors.scaffoldBg,
+                            onSelected: (val) {
+                              setState(() => _selectedCity = c);
+                              _fetchBloodBanks();
+                            },
+                          );
+                        },
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    // Blood Group Horizontal Chips
+                    SizedBox(
+                      height: 34,
+                      child: ListView.separated(
+                        scrollDirection: Axis.horizontal,
+                        itemCount: _bloodGroups.length,
+                        separatorBuilder: (_, __) => const SizedBox(width: 8),
+                        itemBuilder: (context, idx) {
+                          final g = _bloodGroups[idx];
+                          final isSel = _selectedBloodGroup == g;
+                          return ChoiceChip(
+                            label: Text(g, style: TextStyle(color: isSel ? Colors.white : AppColors.textPrimary, fontSize: 12, fontWeight: FontWeight.bold)),
+                            selected: isSel,
+                            selectedColor: AppColors.sosRed,
+                            backgroundColor: AppColors.scaffoldBg,
+                            onSelected: (val) {
+                              setState(() => _selectedBloodGroup = g);
+                              _fetchBloodBanks();
+                            },
+                          );
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+              // Content List
+              Expanded(
+                child: _isLoading
+                    ? const Center(child: CircularProgressIndicator(color: AppColors.primaryTeal))
+                    : filteredBanks.isEmpty
+                        ? const Center(
+                            child: Padding(
+                              padding: EdgeInsets.all(32),
+                              child: Text(
+                                'Chune gaye filters ke anuroop koi blood bank nahi mila.',
+                                style: TextStyle(color: AppColors.textSecondary),
+                                textAlign: TextAlign.center,
+                              ),
+                            ),
+                          )
+                        : ListView.separated(
+                            padding: const EdgeInsets.all(16),
+                            itemCount: filteredBanks.length,
+                            separatorBuilder: (_, __) => const SizedBox(height: 12),
+                            itemBuilder: (context, idx) {
+                              return _buildBloodBankCard(filteredBanks[idx]);
+                            },
+                          ),
+              ),
+            ],
+          ),
+
+          // TAB 2: VOLUNTARY DONORS COMMUNITY
+          _buildVoluntaryDonorsList(),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildVoluntaryDonorsList() {
+    return ListView(
+      padding: const EdgeInsets.all(16),
+      children: [
+        // Community Banner
+        Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: const Color(0xFFFEF2F2),
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: const Color(0xFFFECACA)),
+          ),
+          child: Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(10),
+                decoration: const BoxDecoration(
+                  color: Colors.white,
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(Icons.favorite_rounded, color: AppColors.sosRed, size: 24),
+              ),
+              const SizedBox(width: 12),
+              const Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('Indore Raktdata Samuday', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: Color(0xFF991B1B))),
+                    SizedBox(height: 2),
+                    Text(
+                      'Emergency me mareez ke liye sidha voluntary donor se sampark karein ya khud raktdata banein.',
+                      style: TextStyle(fontSize: 11, color: Color(0xFFB91C1C)),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 16),
+
+        ..._voluntaryDonors.map((d) {
+          final name = d['name']?.toString() ?? 'Donor';
+          final bg = d['bloodGroup']?.toString() ?? 'O+';
+          final area = d['area']?.toString() ?? 'Indore';
+          final phone = d['phone']?.toString() ?? '';
+          final avail = d['availability']?.toString() ?? 'Ready';
+          final lastDon = d['lastDonation']?.toString() ?? '';
+
+          return Card(
+            margin: const EdgeInsets.only(bottom: 12),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+              side: const BorderSide(color: AppColors.cardBorder),
+            ),
+            elevation: 0,
+            child: Padding(
               padding: const EdgeInsets.all(16),
-              color: Colors.white,
-              child: Column(
+              child: Row(
                 children: [
-                  TextField(
-                    controller: _searchCtrl,
-                    onChanged: (_) => setState(() {}),
-                    decoration: InputDecoration(
-                      hintText: 'Search city, state or blood bank name...',
-                      prefixIcon: const Icon(Icons.search_rounded, color: AppColors.primaryTeal),
-                      filled: true,
-                      fillColor: AppColors.scaffoldBg,
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+                  Container(
+                    width: 48,
+                    height: 48,
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(
+                      color: AppColors.sosRed,
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                    child: Text(
+                      bg,
+                      style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w900, fontSize: 16),
                     ),
                   ),
-                  const SizedBox(height: 12),
-                  // Blood Group Horizontal Chips
-                  SizedBox(
-                    height: 36,
-                    child: ListView.separated(
-                      scrollDirection: Axis.horizontal,
-                      itemCount: _bloodGroups.length,
-                      separatorBuilder: (_, __) => const SizedBox(width: 8),
-                      itemBuilder: (context, idx) {
-                        final g = _bloodGroups[idx];
-                        final isSel = _selectedBloodGroup == g;
-                        return ChoiceChip(
-                          label: Text(g, style: TextStyle(color: isSel ? Colors.white : AppColors.textPrimary, fontSize: 12, fontWeight: FontWeight.bold)),
-                          selected: isSel,
-                          selectedColor: AppColors.sosRed,
-                          backgroundColor: AppColors.scaffoldBg,
-                          onSelected: (val) {
-                            setState(() => _selectedBloodGroup = g);
-                            _fetchBloodBanks();
-                          },
-                        );
-                      },
+                  const SizedBox(width: 14),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Text(name, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
+                            const SizedBox(width: 6),
+                            const Icon(Icons.verified_rounded, color: AppColors.primaryTeal, size: 16),
+                          ],
+                        ),
+                        const SizedBox(height: 3),
+                        Text(area, style: const TextStyle(color: AppColors.textSecondary, fontSize: 12)),
+                        const SizedBox(height: 4),
+                        Row(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFF0FDF4),
+                                borderRadius: BorderRadius.circular(4),
+                              ),
+                              child: Text(avail, style: const TextStyle(color: Color(0xFF166534), fontSize: 10, fontWeight: FontWeight.bold)),
+                            ),
+                            const SizedBox(width: 8),
+                            Text('Donated: $lastDon', style: const TextStyle(fontSize: 10, color: AppColors.textMuted)),
+                          ],
+                        ),
+                      ],
                     ),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.call_rounded, color: AppColors.primaryTeal, size: 22),
+                    tooltip: 'Call Donor',
+                    onPressed: () => _makeCall(phone),
                   ),
                 ],
               ),
             ),
-
-            // Content List
-            Expanded(
-              child: _isLoading
-                  ? const Center(child: CircularProgressIndicator(color: AppColors.primaryTeal))
-                  : filteredBanks.isEmpty
-                      ? const Center(
-                          child: Padding(
-                            padding: EdgeInsets.all(32),
-                            child: Text(
-                              'Chune gaye filters ke anuroop koi blood bank nahi mila.',
-                              style: TextStyle(color: AppColors.textSecondary),
-                              textAlign: TextAlign.center,
-                            ),
-                          ),
-                        )
-                      : ListView.separated(
-                          padding: const EdgeInsets.all(16),
-                          itemCount: filteredBanks.length,
-                          separatorBuilder: (_, __) => const SizedBox(height: 12),
-                          itemBuilder: (context, idx) {
-                            return _buildBloodBankCard(filteredBanks[idx]);
-                          },
-                        ),
-            ),
-          ],
-        ),
-      ),
+          );
+        }),
+      ],
     );
   }
 
