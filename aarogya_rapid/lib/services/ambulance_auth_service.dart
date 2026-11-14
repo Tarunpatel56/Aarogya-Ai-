@@ -26,6 +26,7 @@ class AmbulanceAuthService {
       body: {
         'email': email.trim().toLowerCase(),
         'password': password,
+        'role': 'AMBULANCE_DRIVER',
       },
       requiresAuth: false,
     );

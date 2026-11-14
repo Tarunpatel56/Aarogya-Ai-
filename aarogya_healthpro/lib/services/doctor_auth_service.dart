@@ -85,6 +85,7 @@ class DoctorAuthService extends ChangeNotifier {
         body: {
           'email': email.trim(),
           'password': password,
+          'role': 'DOCTOR',
         },
         includeAuth: false,
       );

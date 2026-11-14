@@ -91,6 +91,7 @@ export const loginSchema = {
       email: emailSchema.optional(),
       phone: phoneSchema.optional(),
       password: z.string().min(1, 'Password is required'),
+      role: z.string().optional(),
     })
     .refine((data) => Boolean(data.email || data.phone), {
       message: 'Either email or phone number is required',
