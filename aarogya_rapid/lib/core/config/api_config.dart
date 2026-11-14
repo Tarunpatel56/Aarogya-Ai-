@@ -1,11 +1,13 @@
 import 'dart:async';
+
 import 'package:flutter/foundation.dart' show kIsWeb;
 
 class ApiConfig {
   static String? _customBaseUrl;
 
   /// Live Production Cloud Backend Endpoint on Render
-  static const String productionCloudUrl = 'https://aarogya-ai-azgi.onrender.com';
+  static const String productionCloudUrl =
+      'https://aarogya-ai-azgi.onrender.com';
 
   /// Default API base URL based on runtime platform
   static String get defaultBaseUrl {
@@ -59,4 +61,3 @@ class ApiConfig {
     return _customBaseUrl!;
   }
 }
-

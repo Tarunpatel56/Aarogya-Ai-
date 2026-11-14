@@ -269,7 +269,31 @@ export class GovernmentService {
     let facilityName = 'District Civil Hospital (Ayushman)';
     let facilityHfrId = 'IN2300000104';
 
-    if (qr.includes('AIIMS') || qr.toLowerCase().includes('aiims')) {
+    if (qr.includes('MY Hospital') || qr.toLowerCase().includes('myh') || qr === 'IN2310000001') {
+      facilityName = 'Maharaja Yeshwantrao (MY) Hospital Indore';
+      facilityHfrId = 'IN2300000104';
+    } else if (qr.includes('Super Speciality') || qr === 'IN2310000002') {
+      facilityName = 'Government Super Speciality Hospital Indore';
+      facilityHfrId = 'IN2300000105';
+    } else if (qr.includes('Bombay Hospital') || qr === 'IN2310000003') {
+      facilityName = 'Bombay Hospital & Research Centre Indore';
+      facilityHfrId = 'IN2300000106';
+    } else if (qr.includes('Choithram') || qr === 'IN2310000004') {
+      facilityName = 'Choithram Hospital & Research Centre Indore';
+      facilityHfrId = 'IN2300000107';
+    } else if (qr.includes('Chacha Nehru') || qr === 'IN2310000005') {
+      facilityName = 'Chacha Nehru Bal Chikitsalaya (Pediatric OPD) Indore';
+      facilityHfrId = 'IN2300000110';
+    } else if (qr.includes('PC Sethi') || qr === 'IN2310000006') {
+      facilityName = 'PC Sethi Maternity Hospital (MCH OPD) Indore';
+      facilityHfrId = 'IN2300000111';
+    } else if (qr.includes('SAIMS') || qr === 'IN2310000007') {
+      facilityName = 'Sri Aurobindo Institute of Medical Sciences (SAIMS) Indore';
+      facilityHfrId = 'IN2300000108';
+    } else if (qr.includes('Civil Hospital') || qr === 'IN2310000008') {
+      facilityName = 'District Civil Hospital Indore (Ayushman OPD)';
+      facilityHfrId = 'IN2300000109';
+    } else if (qr.includes('AIIMS') || qr.toLowerCase().includes('aiims')) {
       facilityName = 'AIIMS New Delhi (ABDM OPD Counter)';
       facilityHfrId = 'IN2300000101';
     } else if (qr.includes('Safdarjung') || qr.toLowerCase().includes('safdarjung')) {
@@ -281,9 +305,6 @@ export class GovernmentService {
     } else if (qr.includes('PGIMER') || qr.toLowerCase().includes('pgimer')) {
       facilityName = 'PGIMER Chandigarh OPD Terminal';
       facilityHfrId = 'IN0400000108';
-    } else if (qr.includes('MY Hospital') || qr.toLowerCase().includes('myh')) {
-      facilityName = 'Model OPD, MY Hospital Indore';
-      facilityHfrId = 'IN2300000104';
     }
 
     const dept = params.department || 'General Medicine & Family Practice';
@@ -528,6 +549,90 @@ export class GovernmentService {
           operatingHours: '09:00 AM - 09:30 PM',
         },
         {
+          kendraCode: 'PMBJP-K-IND-03',
+          centerName: 'Pradhan Mantri Bhartiya Janaushadhi Kendra - Rajwada / Sarafa',
+          state: 'Madhya Pradesh',
+          district: 'Indore',
+          city: 'Indore',
+          pincode: '452002',
+          address: 'Shop 8, Near Rajwada Palace, MG Road, Indore',
+          latitude: 22.7196,
+          longitude: 75.8577,
+          contactPerson: 'Rajesh Jain',
+          contactPhone: '+91 94250 88211',
+          operatingHours: '09:30 AM - 09:30 PM',
+        },
+        {
+          kendraCode: 'PMBJP-K-IND-04',
+          centerName: 'Pradhan Mantri Bhartiya Janaushadhi Kendra - Bhanwarkua',
+          state: 'Madhya Pradesh',
+          district: 'Indore',
+          city: 'Indore',
+          pincode: '452014',
+          address: 'Near Bhanwarkua Square, Bholaram Ustad Marg, Indore',
+          latitude: 22.6912,
+          longitude: 75.8654,
+          contactPerson: 'Deepak Verma',
+          contactPhone: '+91 98263 77110',
+          operatingHours: '08:30 AM - 10:00 PM',
+        },
+        {
+          kendraCode: 'PMBJP-K-IND-05',
+          centerName: 'Pradhan Mantri Bhartiya Janaushadhi Kendra - Palasia Square',
+          state: 'Madhya Pradesh',
+          district: 'Indore',
+          city: 'Indore',
+          pincode: '452001',
+          address: '12 Industry House Road, Old Palasia, Indore',
+          latitude: 22.7241,
+          longitude: 75.8890,
+          contactPerson: 'Anjali Sharma',
+          contactPhone: '+91 98270 44551',
+          operatingHours: '09:00 AM - 09:00 PM',
+        },
+        {
+          kendraCode: 'PMBJP-K-IND-06',
+          centerName: 'Pradhan Mantri Bhartiya Janaushadhi Kendra - Annapurna',
+          state: 'Madhya Pradesh',
+          district: 'Indore',
+          city: 'Indore',
+          pincode: '452009',
+          address: 'Opposite Annapurna Temple Gate, Annapurna Road, Indore',
+          latitude: 22.6980,
+          longitude: 75.8340,
+          contactPerson: 'Mukesh Gupta',
+          contactPhone: '+91 94253 66120',
+          operatingHours: '08:30 AM - 09:30 PM',
+        },
+        {
+          kendraCode: 'PMBJP-K-IND-07',
+          centerName: 'Pradhan Mantri Bhartiya Janaushadhi Kendra - PC Sethi Hospital',
+          state: 'Madhya Pradesh',
+          district: 'Indore',
+          city: 'Indore',
+          pincode: '452001',
+          address: 'PC Sethi Hospital Campus, Geeta Bhawan Road, Indore',
+          latitude: 22.7092,
+          longitude: 75.8812,
+          contactPerson: 'Kavita Solanki',
+          contactPhone: '+91 98269 33214',
+          operatingHours: '08:00 AM - 08:00 PM',
+        },
+        {
+          kendraCode: 'PMBJP-K-IND-08',
+          centerName: 'Pradhan Mantri Bhartiya Janaushadhi Kendra - Bombay Hospital Area',
+          state: 'Madhya Pradesh',
+          district: 'Indore',
+          city: 'Indore',
+          pincode: '452010',
+          address: 'Scheme No 94/C, Ring Road, Near Bombay Hospital, Indore',
+          latitude: 22.7565,
+          longitude: 75.8972,
+          contactPerson: 'Pawan Tiwari',
+          contactPhone: '+91 98262 11099',
+          operatingHours: '09:00 AM - 10:00 PM',
+        },
+        {
           kendraCode: 'PMBJP-K-BHO-01',
           centerName: 'Pradhan Mantri Bhartiya Janaushadhi Kendra - AIIMS Bhopal',
           state: 'Madhya Pradesh',
@@ -647,7 +752,107 @@ export class GovernmentService {
         longitude: 75.8711,
         totalBeds: 1200,
         accreditations: ['NABH_ROUTINE', 'PMJAY_EMPANELLED'],
-        servicesOffered: ['24x7 Emergency Trauma', 'Cardiology', 'Pediatrics', 'Burn Unit', 'Blood Bank'],
+        servicesOffered: ['24x7 Emergency Trauma', 'Cardiology', 'Pediatrics', 'Burn Unit', 'Blood Bank', 'Cashless Ayushman Ward'],
+        verificationStatus: 'VERIFIED',
+      },
+      {
+        hfrId: 'IN2300000105',
+        facilityName: 'Government Super Speciality Hospital Indore',
+        facilityType: 'HOSPITAL',
+        systemOfMedicine: 'ALLOPATHY',
+        ownership: 'GOVT',
+        state: 'Madhya Pradesh',
+        district: 'Indore',
+        city: 'Indore',
+        address: 'Opposite MY Hospital, Medical Campus, AB Road, Indore',
+        pincode: '452001',
+        contactPhone: '+91 731 2580000',
+        emergencyPhone: '0731-2580000',
+        latitude: 22.7160,
+        longitude: 75.8722,
+        totalBeds: 450,
+        accreditations: ['NABH_EXCELLENCE', 'PMJAY_EMPANELLED'],
+        servicesOffered: ['Cardiology & Cath Lab', 'Neurology', 'Nephrology & Dialysis', 'Organ Transplant'],
+        verificationStatus: 'VERIFIED',
+      },
+      {
+        hfrId: 'IN2300000106',
+        facilityName: 'Bombay Hospital & Research Centre Indore',
+        facilityType: 'HOSPITAL',
+        systemOfMedicine: 'ALLOPATHY',
+        ownership: 'TRUST',
+        state: 'Madhya Pradesh',
+        district: 'Indore',
+        city: 'Indore',
+        address: 'Eastern Ring Road, IDA Scheme No. 94/C, Indore',
+        pincode: '452010',
+        contactPhone: '+91 731 4771111',
+        emergencyPhone: '0731-4771111',
+        latitude: 22.7561,
+        longitude: 75.8968,
+        totalBeds: 600,
+        accreditations: ['NABH_EXCELLENCE', 'PMJAY_EMPANELLED'],
+        servicesOffered: ['Cardio-Thoracic Surgery', 'Joint Replacement', 'Neurosurgery', 'Cancer Center'],
+        verificationStatus: 'VERIFIED',
+      },
+      {
+        hfrId: 'IN2300000107',
+        facilityName: 'Choithram Hospital & Research Centre',
+        facilityType: 'HOSPITAL',
+        systemOfMedicine: 'ALLOPATHY',
+        ownership: 'TRUST',
+        state: 'Madhya Pradesh',
+        district: 'Indore',
+        city: 'Indore',
+        address: '14 Manik Bagh Road, Indore',
+        pincode: '452014',
+        contactPhone: '+91 731 2470000',
+        emergencyPhone: '0731-2470000',
+        latitude: 22.6936,
+        longitude: 75.8451,
+        totalBeds: 500,
+        accreditations: ['NABH_ROUTINE', 'PMJAY_EMPANELLED'],
+        servicesOffered: ['24x7 Critical Care', 'Hemodialysis Unit', 'Burn & Plastic Surgery', 'Pediatric ICU'],
+        verificationStatus: 'VERIFIED',
+      },
+      {
+        hfrId: 'IN2300000108',
+        facilityName: 'Sri Aurobindo Institute of Medical Sciences (SAIMS)',
+        facilityType: 'HOSPITAL',
+        systemOfMedicine: 'ALLOPATHY',
+        ownership: 'PRIVATE',
+        state: 'Madhya Pradesh',
+        district: 'Indore',
+        city: 'Indore',
+        address: 'Indore-Ujjain Highway, Sanwer Road, Indore',
+        pincode: '453555',
+        contactPhone: '+91 731 4231000',
+        emergencyPhone: '0731-4231000',
+        latitude: 22.8021,
+        longitude: 75.8432,
+        totalBeds: 1400,
+        accreditations: ['NABH_EXCELLENCE', 'PMJAY_EMPANELLED'],
+        servicesOffered: ['Free Ayushman Bharat Ward', 'Cardiac Surgery', 'Oncology', 'Kidney Transplant'],
+        verificationStatus: 'VERIFIED',
+      },
+      {
+        hfrId: 'IN2300000109',
+        facilityName: 'District Civil Hospital Indore',
+        facilityType: 'HOSPITAL',
+        systemOfMedicine: 'ALLOPATHY',
+        ownership: 'GOVT',
+        state: 'Madhya Pradesh',
+        district: 'Indore',
+        city: 'Indore',
+        address: 'Kila Maidan, Fort Road, Near Malharganj, Indore',
+        pincode: '452006',
+        contactPhone: '+91 731 2410214',
+        emergencyPhone: '0731-2410214',
+        latitude: 22.7291,
+        longitude: 75.8423,
+        totalBeds: 350,
+        accreditations: ['PMJAY_EMPANELLED', 'KAYAKALP_AWARDED'],
+        servicesOffered: ['General Medicine', 'Free Diagnostics', 'Maternal Delivery', 'UIP Vaccination'],
         verificationStatus: 'VERIFIED',
       },
       {
