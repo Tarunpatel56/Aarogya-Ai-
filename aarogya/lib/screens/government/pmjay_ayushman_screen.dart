@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+
 import '../../theme/app_theme.dart';
 import '../../services/government_health_service.dart';
 import '../../core/storage/token_storage.dart';
+import '../../features/ayushman/views/ayushman_web_screen.dart';
 import 'opd_scan_share_screen.dart';
 import 'nearby_healthcare_places_screen.dart';
 
@@ -15,7 +17,8 @@ class PmjayAyushmanScreen extends StatefulWidget {
   State<PmjayAyushmanScreen> createState() => _PmjayAyushmanScreenState();
 }
 
-class _PmjayAyushmanScreenState extends State<PmjayAyushmanScreen> with SingleTickerProviderStateMixin {
+class _PmjayAyushmanScreenState extends State<PmjayAyushmanScreen>
+    with SingleTickerProviderStateMixin {
   late final GovernmentHealthService _service;
   late final TabController _tabController;
   final ITokenStorage _tokenStorage = SecureTokenStorage();
@@ -37,7 +40,12 @@ class _PmjayAyushmanScreenState extends State<PmjayAyushmanScreen> with SingleTi
 
   // Empanelled Hospitals Explorer (Indore & MP)
   String _selectedHospitalCity = 'Indore';
-  final List<String> _hospitalCityChips = ['Indore', 'Vijay Nagar', 'Central', 'All Hospitals'];
+  final List<String> _hospitalCityChips = [
+    'Indore',
+    'Vijay Nagar',
+    'Central',
+    'All Hospitals',
+  ];
   final TextEditingController _hospitalSearchCtrl = TextEditingController();
 
   final List<Map<String, dynamic>> _empanelledHospitals = [
@@ -69,9 +77,11 @@ class _PmjayAyushmanScreenState extends State<PmjayAyushmanScreen> with SingleTi
       'name': 'Bombay Hospital & Research Centre Indore',
       'ownership': 'NABH_TRUST',
       'city': 'Indore',
-      'address': 'Eastern Ring Road, IDA Scheme No. 94/C, Vijay Nagar Area, Indore',
+      'address':
+          'Eastern Ring Road, IDA Scheme No. 94/C, Vijay Nagar Area, Indore',
       'beds': '600 Beds',
-      'specialties': 'Open Heart Surgery, Joint Replacement, Neurosurgery, Oncology',
+      'specialties':
+          'Open Heart Surgery, Joint Replacement, Neurosurgery, Oncology',
       'cashlessStatus': 'PM-JAY Gold Empanelled Cashless',
       'ayushmanMitraDesk': '+91 731 4771111',
       'rating': 4.7,
@@ -83,7 +93,8 @@ class _PmjayAyushmanScreenState extends State<PmjayAyushmanScreen> with SingleTi
       'city': 'Indore',
       'address': '14 Manik Bagh Road, Indore',
       'beds': '500 Beds',
-      'specialties': 'Hemodialysis, Burn Care, Critical Care, Pediatric Surgery',
+      'specialties':
+          'Hemodialysis, Burn Care, Critical Care, Pediatric Surgery',
       'cashlessStatus': 'PM-JAY Empanelled',
       'ayushmanMitraDesk': '+91 731 2470000',
       'rating': 4.6,
@@ -95,7 +106,8 @@ class _PmjayAyushmanScreenState extends State<PmjayAyushmanScreen> with SingleTi
       'city': 'Indore',
       'address': 'Indore-Ujjain Highway, Sanwer Road, Indore',
       'beds': '1400 Beds',
-      'specialties': 'Dedicated Ayushman Free Ward, Cardiac Stents, Cancer Radiation',
+      'specialties':
+          'Dedicated Ayushman Free Ward, Cardiac Stents, Cancer Radiation',
       'cashlessStatus': '100% Cashless Ward Available',
       'ayushmanMitraDesk': '+91 731 4231000',
       'rating': 4.5,
@@ -107,7 +119,8 @@ class _PmjayAyushmanScreenState extends State<PmjayAyushmanScreen> with SingleTi
       'city': 'Indore',
       'address': 'Kila Maidan, Fort Road, Near Malharganj, Indore',
       'beds': '350 Beds',
-      'specialties': 'General Medicine, Maternity, Infant Care, UIP Vaccination',
+      'specialties':
+          'General Medicine, Maternity, Infant Care, UIP Vaccination',
       'cashlessStatus': 'Free Government Healthcare',
       'ayushmanMitraDesk': '+91 731 2410214',
       'rating': 4.4,
@@ -119,7 +132,8 @@ class _PmjayAyushmanScreenState extends State<PmjayAyushmanScreen> with SingleTi
       'city': 'Indore',
       'address': 'Sanyogitaganj, MY Hospital Campus, Indore',
       'beds': '250 Beds',
-      'specialties': 'Pediatric Super-Speciality, Neonatal Intensive Care (NICU)',
+      'specialties':
+          'Pediatric Super-Speciality, Neonatal Intensive Care (NICU)',
       'cashlessStatus': '100% Free Child Treatment',
       'ayushmanMitraDesk': '+91 731 2514288',
       'rating': 4.5,
@@ -147,7 +161,7 @@ class _PmjayAyushmanScreenState extends State<PmjayAyushmanScreen> with SingleTi
     'General Surgery',
     'Nephrology',
     'Obstetrics & Gynaecology',
-    'Paediatrics'
+    'Paediatrics',
   ];
 
   @override
@@ -183,7 +197,10 @@ class _PmjayAyushmanScreenState extends State<PmjayAyushmanScreen> with SingleTi
     final idNum = _idNumberCtrl.text.trim();
     if (idNum.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Kripya card number darj karein'), backgroundColor: AppColors.sosRed),
+        const SnackBar(
+          content: Text('Kripya card number darj karein'),
+          backgroundColor: AppColors.sosRed,
+        ),
       );
       return;
     }
@@ -204,7 +221,10 @@ class _PmjayAyushmanScreenState extends State<PmjayAyushmanScreen> with SingleTi
       if (mounted) {
         setState(() => _isCheckingEligibility = false);
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Eligibility check me truti: $e'), backgroundColor: AppColors.sosRed),
+          SnackBar(
+            content: Text('Eligibility check me truti: $e'),
+            backgroundColor: AppColors.sosRed,
+          ),
         );
       }
     }
@@ -231,7 +251,9 @@ class _PmjayAyushmanScreenState extends State<PmjayAyushmanScreen> with SingleTi
   void _callHelpline() {
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
-        content: Text('Ayushman Bharat National Toll-Free: 14555 / 1800-111-565'),
+        content: Text(
+          'Ayushman Bharat National Toll-Free: 14555 / 1800-111-565',
+        ),
         backgroundColor: AppColors.primaryTeal,
       ),
     );
@@ -251,7 +273,10 @@ class _PmjayAyushmanScreenState extends State<PmjayAyushmanScreen> with SingleTi
         foregroundColor: AppColors.textPrimary,
         actions: [
           IconButton(
-            icon: const Icon(Icons.support_agent_rounded, color: AppColors.primaryTeal),
+            icon: const Icon(
+              Icons.support_agent_rounded,
+              color: AppColors.primaryTeal,
+            ),
             tooltip: 'Toll-Free 14555',
             onPressed: _callHelpline,
           ),
@@ -264,9 +289,18 @@ class _PmjayAyushmanScreenState extends State<PmjayAyushmanScreen> with SingleTi
           indicatorWeight: 3,
           isScrollable: true,
           tabs: [
-            const Tab(icon: Icon(Icons.verified_user_rounded), text: 'Patrata & Profile'),
-            Tab(icon: const Icon(Icons.local_hospital_rounded), text: 'Empanelled Hospitals (${_empanelledHospitals.length})'),
-            const Tab(icon: Icon(Icons.medical_services_rounded), text: '1,949+ Packages'),
+            const Tab(
+              icon: Icon(Icons.verified_user_rounded),
+              text: 'Patrata & Profile',
+            ),
+            Tab(
+              icon: const Icon(Icons.local_hospital_rounded),
+              text: 'Empanelled Hospitals (${_empanelledHospitals.length})',
+            ),
+            const Tab(
+              icon: Icon(Icons.medical_services_rounded),
+              text: '1,949+ Packages',
+            ),
           ],
         ),
       ),
@@ -310,11 +344,20 @@ class _PmjayAyushmanScreenState extends State<PmjayAyushmanScreen> with SingleTi
                 onChanged: (_) => setState(() {}),
                 decoration: InputDecoration(
                   hintText: 'Search Indore Ayushman hospital or specialty...',
-                  prefixIcon: const Icon(Icons.search_rounded, color: AppColors.primaryTeal),
+                  prefixIcon: const Icon(
+                    Icons.search_rounded,
+                    color: AppColors.primaryTeal,
+                  ),
                   filled: true,
                   fillColor: AppColors.scaffoldBg,
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 14,
+                    vertical: 10,
+                  ),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide.none,
+                  ),
                 ),
               ),
               const SizedBox(height: 10),
@@ -328,7 +371,14 @@ class _PmjayAyushmanScreenState extends State<PmjayAyushmanScreen> with SingleTi
                     final c = _hospitalCityChips[idx];
                     final isSel = _selectedHospitalCity == c;
                     return ChoiceChip(
-                      label: Text(c, style: TextStyle(color: isSel ? Colors.white : AppColors.textPrimary, fontSize: 11, fontWeight: FontWeight.bold)),
+                      label: Text(
+                        c,
+                        style: TextStyle(
+                          color: isSel ? Colors.white : AppColors.textPrimary,
+                          fontSize: 11,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
                       selected: isSel,
                       selectedColor: AppColors.primaryTeal,
                       backgroundColor: AppColors.scaffoldBg,
@@ -349,21 +399,41 @@ class _PmjayAyushmanScreenState extends State<PmjayAyushmanScreen> with SingleTi
           color: const Color(0xFFFFF7ED),
           child: Row(
             children: [
-              const Icon(Icons.shield_outlined, size: 14, color: Color(0xFFC2410C)),
+              const Icon(
+                Icons.shield_outlined,
+                size: 14,
+                color: Color(0xFFC2410C),
+              ),
               const SizedBox(width: 6),
               Text(
                 'Indore Verified PM-JAY Empanelled Network (${filtered.length} Hospitals)',
-                style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Color(0xFFC2410C)),
+                style: const TextStyle(
+                  fontSize: 11,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFFC2410C),
+                ),
               ),
               const Spacer(),
-              const Text('₹5 Lakh Cashless', style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Color(0xFF9A3412))),
+              const Text(
+                '₹5 Lakh Cashless',
+                style: TextStyle(
+                  fontSize: 10,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF9A3412),
+                ),
+              ),
             ],
           ),
         ),
 
         Expanded(
           child: filtered.isEmpty
-              ? const Center(child: Text('Koi empanelled hospital nahi mila.', style: TextStyle(color: AppColors.textSecondary)))
+              ? const Center(
+                  child: Text(
+                    'Koi empanelled hospital nahi mila.',
+                    style: TextStyle(color: AppColors.textSecondary),
+                  ),
+                )
               : ListView.separated(
                   padding: const EdgeInsets.all(16),
                   itemCount: filtered.length,
@@ -395,23 +465,40 @@ class _PmjayAyushmanScreenState extends State<PmjayAyushmanScreen> with SingleTi
                                 Container(
                                   padding: const EdgeInsets.all(10),
                                   decoration: BoxDecoration(
-                                    color: isFree ? const Color(0xFFF0FDF4) : const Color(0xFFFFF7ED),
+                                    color: isFree
+                                        ? const Color(0xFFF0FDF4)
+                                        : const Color(0xFFFFF7ED),
                                     borderRadius: BorderRadius.circular(12),
                                   ),
                                   child: Icon(
                                     Icons.local_hospital_rounded,
-                                    color: isFree ? const Color(0xFF166534) : const Color(0xFFEA580C),
+                                    color: isFree
+                                        ? const Color(0xFF166534)
+                                        : const Color(0xFFEA580C),
                                     size: 26,
                                   ),
                                 ),
                                 const SizedBox(width: 12),
                                 Expanded(
                                   child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
-                                      Text(name, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
+                                      Text(
+                                        name,
+                                        style: const TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 15,
+                                        ),
+                                      ),
                                       const SizedBox(height: 2),
-                                      Text('$beds • $addr', style: const TextStyle(color: AppColors.textSecondary, fontSize: 11)),
+                                      Text(
+                                        '$beds • $addr',
+                                        style: const TextStyle(
+                                          color: AppColors.textSecondary,
+                                          fontSize: 11,
+                                        ),
+                                      ),
                                     ],
                                   ),
                                 ),
@@ -426,12 +513,20 @@ class _PmjayAyushmanScreenState extends State<PmjayAyushmanScreen> with SingleTi
                               ),
                               child: Row(
                                 children: [
-                                  const Icon(Icons.check_circle_rounded, color: Color(0xFF166534), size: 16),
+                                  const Icon(
+                                    Icons.check_circle_rounded,
+                                    color: Color(0xFF166534),
+                                    size: 16,
+                                  ),
                                   const SizedBox(width: 6),
                                   Expanded(
                                     child: Text(
                                       'Suvidhayein: $specs',
-                                      style: const TextStyle(fontSize: 11, color: Color(0xFF166534), fontWeight: FontWeight.w600),
+                                      style: const TextStyle(
+                                        fontSize: 11,
+                                        color: Color(0xFF166534),
+                                        fontWeight: FontWeight.w600,
+                                      ),
                                     ),
                                   ),
                                 ],
@@ -443,31 +538,73 @@ class _PmjayAyushmanScreenState extends State<PmjayAyushmanScreen> with SingleTi
                                 Expanded(
                                   child: OutlinedButton.icon(
                                     onPressed: () {
-                                      ScaffoldMessenger.of(context).showSnackBar(
-                                        SnackBar(content: Text('Ayushman Mitra Desk Helpline: $deskPhone'), backgroundColor: AppColors.primaryTeal),
+                                      ScaffoldMessenger.of(
+                                        context,
+                                      ).showSnackBar(
+                                        SnackBar(
+                                          content: Text(
+                                            'Ayushman Mitra Desk Helpline: $deskPhone',
+                                          ),
+                                          backgroundColor:
+                                              AppColors.primaryTeal,
+                                        ),
                                       );
                                     },
-                                    icon: const Icon(Icons.call_rounded, size: 16),
-                                    label: Text('Ayushman Mitra ($deskPhone)', style: const TextStyle(fontSize: 11)),
+                                    icon: const Icon(
+                                      Icons.call_rounded,
+                                      size: 16,
+                                    ),
+                                    label: Text(
+                                      'Ayushman Mitra ($deskPhone)',
+                                      style: const TextStyle(fontSize: 11),
+                                    ),
                                     style: OutlinedButton.styleFrom(
                                       foregroundColor: AppColors.primaryTeal,
-                                      side: const BorderSide(color: AppColors.primaryTeal),
-                                      padding: const EdgeInsets.symmetric(vertical: 10),
-                                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                                      side: const BorderSide(
+                                        color: AppColors.primaryTeal,
+                                      ),
+                                      padding: const EdgeInsets.symmetric(
+                                        vertical: 10,
+                                      ),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
                                     ),
                                   ),
                                 ),
                                 const SizedBox(width: 8),
                                 ElevatedButton.icon(
                                   onPressed: () {
-                                    Navigator.push(context, MaterialPageRoute(builder: (_) => const OpdScanShareScreen()));
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (_) =>
+                                            const OpdScanShareScreen(),
+                                      ),
+                                    );
                                   },
-                                  icon: const Icon(Icons.qr_code_scanner_rounded, size: 16, color: Colors.white),
-                                  label: const Text('OPD Token', style: TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold)),
+                                  icon: const Icon(
+                                    Icons.qr_code_scanner_rounded,
+                                    size: 16,
+                                    color: Colors.white,
+                                  ),
+                                  label: const Text(
+                                    'OPD Token',
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor: AppColors.primaryTeal,
-                                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 12,
+                                      vertical: 10,
+                                    ),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
                                   ),
                                 ),
                               ],
@@ -494,7 +631,11 @@ class _PmjayAyushmanScreenState extends State<PmjayAyushmanScreen> with SingleTi
             padding: const EdgeInsets.all(18),
             decoration: BoxDecoration(
               gradient: const LinearGradient(
-                colors: [Color(0xFFE65100), Color(0xFFF57C00), Color(0xFFFF9800)],
+                colors: [
+                  Color(0xFFE65100),
+                  Color(0xFFF57C00),
+                  Color(0xFFFF9800),
+                ],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               ),
@@ -513,15 +654,84 @@ class _PmjayAyushmanScreenState extends State<PmjayAyushmanScreen> with SingleTi
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text('PM-JAY GOLDEN CARD', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13, letterSpacing: 0.5)),
+                    Text(
+                      'PM-JAY GOLDEN CARD',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 13,
+                        letterSpacing: 0.5,
+                      ),
+                    ),
                     Icon(Icons.shield_rounded, color: Colors.white, size: 24),
                   ],
                 ),
                 SizedBox(height: 12),
-                Text('₹5,00,000 Saalana Muft Ilaaj', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w800, fontSize: 20)),
+                Text(
+                  '₹5,00,000 Saalana Muft Ilaaj',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w800,
+                    fontSize: 20,
+                  ),
+                ),
                 SizedBox(height: 4),
-                Text('Prati parivaar cash-less aur paper-less upchar sabhi empanelled sarkari aur private hospitals me.', style: TextStyle(color: Colors.white70, fontSize: 12)),
+                Text(
+                  'Prati parivaar cash-less aur paper-less upchar sabhi empanelled sarkari aur private hospitals me.',
+                  style: TextStyle(color: Colors.white70, fontSize: 12),
+                ),
               ],
+            ),
+          ),
+          const SizedBox(height: 16),
+
+          // ── Download Ayushman Card CTA ───────────────────────────────────
+          InkWell(
+            onTap: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const AyushmanWebScreen()),
+            ),
+            borderRadius: BorderRadius.circular(14),
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+              decoration: BoxDecoration(
+                gradient: const LinearGradient(
+                  colors: [Color(0xFF5B21B6), Color(0xFF7C3AED)],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+                borderRadius: BorderRadius.circular(14),
+                boxShadow: [
+                  BoxShadow(
+                    color: const Color(0xFF7C3AED).withValues(alpha: 0.25),
+                    blurRadius: 10,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
+              ),
+              child: const Row(
+                children: [
+                  Icon(Icons.download_for_offline_rounded, color: Colors.white, size: 26),
+                  SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Download Ayushman Card (PDF)',
+                          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14),
+                        ),
+                        SizedBox(height: 2),
+                        Text(
+                          'NHA official portal se card PDF mein download karein',
+                          style: TextStyle(color: Colors.white70, fontSize: 11),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Icon(Icons.arrow_forward_ios_rounded, color: Colors.white70, size: 14),
+                ],
+              ),
             ),
           ),
           const SizedBox(height: 16),
@@ -544,21 +754,39 @@ class _PmjayAyushmanScreenState extends State<PmjayAyushmanScreen> with SingleTi
                     children: [
                       Row(
                         children: [
-                          const Icon(Icons.verified_rounded, color: Color(0xFF166534), size: 20),
+                          const Icon(
+                            Icons.verified_rounded,
+                            color: Color(0xFF166534),
+                            size: 20,
+                          ),
                           const SizedBox(width: 6),
                           Text(
-                            _userProfile?['fullName']?.toString() ?? 'Citizen Patient',
-                            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                            _userProfile?['fullName']?.toString() ??
+                                'Citizen Patient',
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
+                            ),
                           ),
                         ],
                       ),
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 3,
+                        ),
                         decoration: BoxDecoration(
                           color: const Color(0xFFDCFCE7),
                           borderRadius: BorderRadius.circular(6),
                         ),
-                        child: const Text('PROFILE LINKED', style: TextStyle(color: Color(0xFF166534), fontSize: 10, fontWeight: FontWeight.bold)),
+                        child: const Text(
+                          'PROFILE LINKED',
+                          style: TextStyle(
+                            color: Color(0xFF166534),
+                            fontSize: 10,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                       ),
                     ],
                   ),
@@ -571,20 +799,41 @@ class _PmjayAyushmanScreenState extends State<PmjayAyushmanScreen> with SingleTi
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text('Linked ABHA / PM-JAY ID', style: TextStyle(fontSize: 11, color: AppColors.textSecondary)),
+                          const Text(
+                            'Linked ABHA / PM-JAY ID',
+                            style: TextStyle(
+                              fontSize: 11,
+                              color: AppColors.textSecondary,
+                            ),
+                          ),
                           Text(
-                            _userProfile?['abhaNumber']?.toString() ?? '91-4521-8890-1234',
-                            style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: AppColors.primaryTeal),
+                            _userProfile?['abhaNumber']?.toString() ??
+                                '91-4521-8890-1234',
+                            style: const TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.bold,
+                              color: AppColors.primaryTeal,
+                            ),
                           ),
                         ],
                       ),
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.end,
                         children: [
-                          const Text('Available Balance', style: TextStyle(fontSize: 11, color: AppColors.textSecondary)),
+                          const Text(
+                            'Available Balance',
+                            style: TextStyle(
+                              fontSize: 11,
+                              color: AppColors.textSecondary,
+                            ),
+                          ),
                           const Text(
                             '₹5,00,000.00',
-                            style: TextStyle(fontSize: 14, fontWeight: FontWeight.w800, color: Color(0xFF166534)),
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w800,
+                              color: Color(0xFF166534),
+                            ),
                           ),
                         ],
                       ),
@@ -598,12 +847,20 @@ class _PmjayAyushmanScreenState extends State<PmjayAyushmanScreen> with SingleTi
                         _tabController.animateTo(1);
                       },
                       icon: const Icon(Icons.local_hospital_rounded, size: 16),
-                      label: const Text('View Empanelled Hospitals in Indore ➔', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
+                      label: const Text(
+                        'View Empanelled Hospitals in Indore ➔',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 12,
+                        ),
+                      ),
                       style: OutlinedButton.styleFrom(
                         foregroundColor: const Color(0xFF166534),
                         side: const BorderSide(color: Color(0xFF166534)),
                         padding: const EdgeInsets.symmetric(vertical: 10),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
                       ),
                     ),
                   ),
@@ -626,24 +883,44 @@ class _PmjayAyushmanScreenState extends State<PmjayAyushmanScreen> with SingleTi
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text('Apni Patrata (Eligibility) Check Karein', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
+                const Text(
+                  'Apni Patrata (Eligibility) Check Karein',
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+                ),
                 const SizedBox(height: 6),
-                const Text('Aapke paas jo dastavez ho usse check karein:', style: TextStyle(fontSize: 12, color: AppColors.textSecondary)),
+                const Text(
+                  'Aapke paas jo dastavez ho usse check karein:',
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: AppColors.textSecondary,
+                  ),
+                ),
                 const SizedBox(height: 14),
 
                 DropdownButtonFormField<String>(
                   value: _selectedIdType,
                   items: const [
-                    DropdownMenuItem(value: 'AADHAAR', child: Text('Aadhaar Card Number')),
-                    DropdownMenuItem(value: 'RATION_CARD', child: Text('Ration Card Number (NFSA / BPL)')),
-                    DropdownMenuItem(value: 'PMJAY_ID', child: Text('PM-JAY Family ID / HH ID')),
+                    DropdownMenuItem(
+                      value: 'AADHAAR',
+                      child: Text('Aadhaar Card Number'),
+                    ),
+                    DropdownMenuItem(
+                      value: 'RATION_CARD',
+                      child: Text('Ration Card Number (NFSA / BPL)'),
+                    ),
+                    DropdownMenuItem(
+                      value: 'PMJAY_ID',
+                      child: Text('PM-JAY Family ID / HH ID'),
+                    ),
                   ],
                   onChanged: (val) {
                     if (val != null) setState(() => _selectedIdType = val);
                   },
                   decoration: InputDecoration(
                     labelText: 'Dastavez Type',
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
                   ),
                 ),
                 const SizedBox(height: 12),
@@ -651,9 +928,16 @@ class _PmjayAyushmanScreenState extends State<PmjayAyushmanScreen> with SingleTi
                   controller: _idNumberCtrl,
                   decoration: InputDecoration(
                     labelText: 'Enter Card / Document Number',
-                    hintText: _selectedIdType == 'AADHAAR' ? '12-digit number' : 'Document identifier',
-                    prefixIcon: const Icon(Icons.badge_rounded, color: AppColors.primaryTeal),
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                    hintText: _selectedIdType == 'AADHAAR'
+                        ? '12-digit number'
+                        : 'Document identifier',
+                    prefixIcon: const Icon(
+                      Icons.badge_rounded,
+                      color: AppColors.primaryTeal,
+                    ),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
                   ),
                 ),
                 const SizedBox(height: 16),
@@ -662,12 +946,27 @@ class _PmjayAyushmanScreenState extends State<PmjayAyushmanScreen> with SingleTi
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.primaryTeal,
                     padding: const EdgeInsets.symmetric(vertical: 14),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
                   ),
                   child: _isCheckingEligibility
-                      ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
+                      ? const SizedBox(
+                          height: 20,
+                          width: 20,
+                          child: CircularProgressIndicator(
+                            color: Colors.white,
+                            strokeWidth: 2,
+                          ),
+                        )
                       : const Center(
-                          child: Text('Patrata Jaanch Karein (Verify Status)', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                          child: Text(
+                            'Patrata Jaanch Karein (Verify Status)',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
                         ),
                 ),
               ],
@@ -686,7 +985,11 @@ class _PmjayAyushmanScreenState extends State<PmjayAyushmanScreen> with SingleTi
   Widget _buildEligibilityResultCard(Map<String, dynamic> result) {
     final isEligible = result['isEligible'] == true;
     final beneficiary = result['beneficiaryName']?.toString() ?? 'Citizen';
-    final familyMembers = (result['familyMembers'] as List<dynamic>?)?.map((e) => e.toString()).toList() ?? [];
+    final familyMembers =
+        (result['familyMembers'] as List<dynamic>?)
+            ?.map((e) => e.toString())
+            .toList() ??
+        [];
     final state = result['state']?.toString() ?? 'All India';
 
     return Container(
@@ -694,7 +997,9 @@ class _PmjayAyushmanScreenState extends State<PmjayAyushmanScreen> with SingleTi
       decoration: BoxDecoration(
         color: isEligible ? const Color(0xFFF0FDF4) : const Color(0xFFFEF2F2),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: isEligible ? const Color(0xFFBBF7D0) : const Color(0xFFFECACA)),
+        border: Border.all(
+          color: isEligible ? const Color(0xFFBBF7D0) : const Color(0xFFFECACA),
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -703,17 +1008,23 @@ class _PmjayAyushmanScreenState extends State<PmjayAyushmanScreen> with SingleTi
             children: [
               Icon(
                 isEligible ? Icons.check_circle_rounded : Icons.cancel_rounded,
-                color: isEligible ? const Color(0xFF166534) : const Color(0xFF991B1B),
+                color: isEligible
+                    ? const Color(0xFF166534)
+                    : const Color(0xFF991B1B),
                 size: 28,
               ),
               const SizedBox(width: 10),
               Expanded(
                 child: Text(
-                  isEligible ? 'Aap PM-JAY Ayushman Card ke liye Patra (Eligible) hain!' : 'Yeh dastavez PM-JAY database me darj nahi mila.',
+                  isEligible
+                      ? 'Aap PM-JAY Ayushman Card ke liye Patra (Eligible) hain!'
+                      : 'Yeh dastavez PM-JAY database me darj nahi mila.',
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 15,
-                    color: isEligible ? const Color(0xFF166534) : const Color(0xFF991B1B),
+                    color: isEligible
+                        ? const Color(0xFF166534)
+                        : const Color(0xFF991B1B),
                   ),
                 ),
               ),
@@ -723,14 +1034,28 @@ class _PmjayAyushmanScreenState extends State<PmjayAyushmanScreen> with SingleTi
             const SizedBox(height: 12),
             const Divider(height: 1),
             const SizedBox(height: 12),
-            Text('Labharthi (Beneficiary): $beneficiary', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+            Text(
+              'Labharthi (Beneficiary): $beneficiary',
+              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+            ),
             const SizedBox(height: 4),
-            Text('Rajya: $state', style: const TextStyle(fontSize: 12, color: AppColors.textSecondary)),
+            Text(
+              'Rajya: $state',
+              style: const TextStyle(
+                fontSize: 12,
+                color: AppColors.textSecondary,
+              ),
+            ),
             const SizedBox(height: 8),
             if (familyMembers.isNotEmpty) ...[
-              const Text('Parivaar ke Sadasya (Covered Family Members):', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
+              const Text(
+                'Parivaar ke Sadasya (Covered Family Members):',
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
+              ),
               const SizedBox(height: 4),
-              ...familyMembers.map((m) => Text('• $m', style: const TextStyle(fontSize: 12))),
+              ...familyMembers.map(
+                (m) => Text('• $m', style: const TextStyle(fontSize: 12)),
+              ),
             ],
           ],
         ],
@@ -751,15 +1076,27 @@ class _PmjayAyushmanScreenState extends State<PmjayAyushmanScreen> with SingleTi
                 onSubmitted: (_) => _loadPackages(),
                 decoration: InputDecoration(
                   hintText: 'Search procedure (e.g. Heart surgery, Knee, Dialysis)...',
-                  prefixIcon: const Icon(Icons.search_rounded, color: AppColors.primaryTeal),
+                  prefixIcon: const Icon(
+                    Icons.search_rounded,
+                    color: AppColors.primaryTeal,
+                  ),
                   suffixIcon: IconButton(
-                    icon: const Icon(Icons.arrow_forward_rounded, color: AppColors.primaryTeal),
+                    icon: const Icon(
+                      Icons.arrow_forward_rounded,
+                      color: AppColors.primaryTeal,
+                    ),
                     onPressed: _loadPackages,
                   ),
                   filled: true,
                   fillColor: AppColors.scaffoldBg,
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 14,
+                    vertical: 10,
+                  ),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide.none,
+                  ),
                 ),
               ),
               const SizedBox(height: 10),
@@ -773,7 +1110,14 @@ class _PmjayAyushmanScreenState extends State<PmjayAyushmanScreen> with SingleTi
                     final sp = _specialties[idx];
                     final isSel = _selectedSpecialty == sp;
                     return ChoiceChip(
-                      label: Text(sp, style: TextStyle(color: isSel ? Colors.white : AppColors.textPrimary, fontSize: 11, fontWeight: FontWeight.bold)),
+                      label: Text(
+                        sp,
+                        style: TextStyle(
+                          color: isSel ? Colors.white : AppColors.textPrimary,
+                          fontSize: 11,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
                       selected: isSel,
                       selectedColor: AppColors.primaryTeal,
                       backgroundColor: AppColors.scaffoldBg,
@@ -790,74 +1134,115 @@ class _PmjayAyushmanScreenState extends State<PmjayAyushmanScreen> with SingleTi
         ),
         Expanded(
           child: _isLoadingPackages
-              ? const Center(child: CircularProgressIndicator(color: AppColors.primaryTeal))
+              ? const Center(
+                  child: CircularProgressIndicator(
+                    color: AppColors.primaryTeal,
+                  ),
+                )
               : _packages.isEmpty
-                  ? const Center(child: Text('Koi PM-JAY package nahi mila.', style: TextStyle(color: AppColors.textSecondary)))
-                  : ListView.separated(
-                      padding: const EdgeInsets.all(16),
-                      itemCount: _packages.length,
-                      separatorBuilder: (_, __) => const SizedBox(height: 12),
-                      itemBuilder: (context, idx) {
-                        final p = _packages[idx];
-                        final name = p['procedureName']?.toString() ?? 'Medical Procedure';
-                        final code = p['packageCode']?.toString() ?? '';
-                        final specialty = p['specialty']?.toString() ?? '';
-                        final rate = (p['rate'] as num?)?.toDouble() ?? 0.0;
-                        final preAuth = p['preAuthRequired'] == true;
+              ? const Center(
+                  child: Text(
+                    'Koi PM-JAY package nahi mila.',
+                    style: TextStyle(color: AppColors.textSecondary),
+                  ),
+                )
+              : ListView.separated(
+                  padding: const EdgeInsets.all(16),
+                  itemCount: _packages.length,
+                  separatorBuilder: (_, __) => const SizedBox(height: 12),
+                  itemBuilder: (context, idx) {
+                    final p = _packages[idx];
+                    final name =
+                        p['procedureName']?.toString() ?? 'Medical Procedure';
+                    final code = p['packageCode']?.toString() ?? '';
+                    final specialty = p['specialty']?.toString() ?? '';
+                    final rate = (p['rate'] as num?)?.toDouble() ?? 0.0;
+                    final preAuth = p['preAuthRequired'] == true;
 
-                        return InkWell(
-                          onTap: () => _showPackageDetailsSheet(p),
+                    return InkWell(
+                      onTap: () => _showPackageDetailsSheet(p),
+                      borderRadius: BorderRadius.circular(16),
+                      child: Container(
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
                           borderRadius: BorderRadius.circular(16),
-                          child: Container(
-                            padding: const EdgeInsets.all(16),
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(16),
-                              border: Border.all(color: AppColors.cardBorder),
-                              boxShadow: AppColors.cardShadow,
-                            ),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
+                          border: Border.all(color: AppColors.cardBorder),
+                          boxShadow: AppColors.cardShadow,
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Expanded(
-                                      child: Text(
-                                        name,
-                                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: AppColors.textPrimary),
-                                      ),
+                                Expanded(
+                                  child: Text(
+                                    name,
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 14,
+                                      color: AppColors.textPrimary,
                                     ),
-                                    Text(
-                                      '₹${rate.toStringAsFixed(0)}',
-                                      style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 16, color: AppColors.primaryTeal),
-                                    ),
-                                  ],
+                                  ),
                                 ),
-                                const SizedBox(height: 4),
-                                Row(
-                                  children: [
-                                    Text('Code: $code | $specialty', style: const TextStyle(fontSize: 11, color: AppColors.textSecondary)),
-                                    const Spacer(),
-                                    if (preAuth)
-                                      Container(
-                                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                                        decoration: BoxDecoration(
-                                          color: Colors.amber.shade50,
-                                          borderRadius: BorderRadius.circular(6),
-                                        ),
-                                        child: Text('Pre-Auth Required', style: TextStyle(fontSize: 10, color: Colors.amber.shade900, fontWeight: FontWeight.bold)),
-                                      ),
-                                  ],
+                                Text(
+                                  '₹${rate.toStringAsFixed(0)}',
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.w800,
+                                    fontSize: 16,
+                                    color: AppColors.primaryTeal,
+                                  ),
                                 ),
-                                const SizedBox(height: 6),
-                                Text('Tap to view coverage & empaneled hospital benefits →', style: TextStyle(fontSize: 11, color: Colors.grey.shade600, fontStyle: FontStyle.italic)),
                               ],
                             ),
-                          ),
-                        );
-                      },
-                    ),
+                            const SizedBox(height: 4),
+                            Row(
+                              children: [
+                                Text(
+                                  'Code: $code | $specialty',
+                                  style: const TextStyle(
+                                    fontSize: 11,
+                                    color: AppColors.textSecondary,
+                                  ),
+                                ),
+                                const Spacer(),
+                                if (preAuth)
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 6,
+                                      vertical: 2,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: Colors.amber.shade50,
+                                      borderRadius: BorderRadius.circular(6),
+                                    ),
+                                    child: Text(
+                                      'Pre-Auth Required',
+                                      style: TextStyle(
+                                        fontSize: 10,
+                                        color: Colors.amber.shade900,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ),
+                              ],
+                            ),
+                            const SizedBox(height: 6),
+                            Text(
+                              'Tap to view coverage & empaneled hospital benefits →',
+                              style: TextStyle(
+                                fontSize: 11,
+                                color: Colors.grey.shade600,
+                                fontStyle: FontStyle.italic,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  },
+                ),
         ),
       ],
     );
@@ -888,7 +1273,10 @@ class _PmjayAyushmanScreenState extends State<PmjayAyushmanScreen> with SingleTi
               child: Container(
                 width: 40,
                 height: 4,
-                decoration: BoxDecoration(color: Colors.grey.shade300, borderRadius: BorderRadius.circular(2)),
+                decoration: BoxDecoration(
+                  color: Colors.grey.shade300,
+                  borderRadius: BorderRadius.circular(2),
+                ),
               ),
             ),
             const SizedBox(height: 16),
@@ -900,16 +1288,33 @@ class _PmjayAyushmanScreenState extends State<PmjayAyushmanScreen> with SingleTi
                     color: const Color(0xFFFEF3C7),
                     borderRadius: BorderRadius.circular(14),
                   ),
-                  child: const Icon(Icons.shield_rounded, color: Color(0xFFD97706), size: 28),
+                  child: const Icon(
+                    Icons.shield_rounded,
+                    color: Color(0xFFD97706),
+                    size: 28,
+                  ),
                 ),
                 const SizedBox(width: 14),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(name, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                      Text(
+                        name,
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
                       const SizedBox(height: 2),
-                      Text('PM-JAY Scheme Code: $code • $specialty', style: const TextStyle(fontSize: 11, color: AppColors.primaryTeal, fontWeight: FontWeight.bold)),
+                      Text(
+                        'PM-JAY Scheme Code: $code • $specialty',
+                        style: const TextStyle(
+                          fontSize: 11,
+                          color: AppColors.primaryTeal,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
                     ],
                   ),
                 ),
@@ -931,18 +1336,48 @@ class _PmjayAyushmanScreenState extends State<PmjayAyushmanScreen> with SingleTi
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text('Sarkari Nishulk Package Mulya', style: TextStyle(fontSize: 11, color: Color(0xFF15803D), fontWeight: FontWeight.bold)),
-                      Text('₹${rate.toStringAsFixed(0)}', style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w900, color: Color(0xFF166534))),
-                      const Text('100% Cashless Coverage under PM-JAY', style: TextStyle(fontSize: 11, color: Color(0xFF15803D))),
+                      const Text(
+                        'Sarkari Nishulk Package Mulya',
+                        style: TextStyle(
+                          fontSize: 11,
+                          color: Color(0xFF15803D),
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      Text(
+                        '₹${rate.toStringAsFixed(0)}',
+                        style: const TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.w900,
+                          color: Color(0xFF166534),
+                        ),
+                      ),
+                      const Text(
+                        '100% Cashless Coverage under PM-JAY',
+                        style: TextStyle(
+                          fontSize: 11,
+                          color: Color(0xFF15803D),
+                        ),
+                      ),
                     ],
                   ),
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 6,
+                    ),
                     decoration: BoxDecoration(
                       color: Colors.green.shade100,
                       borderRadius: BorderRadius.circular(8),
                     ),
-                    child: const Text('FREE', style: TextStyle(fontWeight: FontWeight.w900, color: Color(0xFF166534), fontSize: 14)),
+                    child: const Text(
+                      'FREE',
+                      style: TextStyle(
+                        fontWeight: FontWeight.w900,
+                        color: Color(0xFF166534),
+                        fontSize: 14,
+                      ),
+                    ),
                   ),
                 ],
               ),
@@ -950,24 +1385,62 @@ class _PmjayAyushmanScreenState extends State<PmjayAyushmanScreen> with SingleTi
             const SizedBox(height: 14),
             Container(
               padding: const EdgeInsets.all(14),
-              decoration: BoxDecoration(color: AppColors.scaffoldBg, borderRadius: BorderRadius.circular(12)),
+              decoration: BoxDecoration(
+                color: AppColors.scaffoldBg,
+                borderRadius: BorderRadius.circular(12),
+              ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Row(
                     children: [
-                      const Icon(Icons.info_outline_rounded, size: 16, color: AppColors.primaryTeal),
+                      const Icon(
+                        Icons.info_outline_rounded,
+                        size: 16,
+                        color: AppColors.primaryTeal,
+                      ),
                       const SizedBox(width: 6),
-                      const Text('Package me kya kya shamil hai:', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
+                      const Text(
+                        'Package me kya kya shamil hai:',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 12,
+                        ),
+                      ),
                     ],
                   ),
                   const SizedBox(height: 6),
-                  const Text('• Operation / Treatment fee and OT charges', style: TextStyle(fontSize: 12, color: AppColors.textSecondary)),
-                  const Text('• 3-5 Din tak ka hospital stay aur ward bedding', style: TextStyle(fontSize: 12, color: AppColors.textSecondary)),
-                  const Text('• Dawaiyan, test aur discharge ke baad 15 din ki dawa', style: TextStyle(fontSize: 12, color: AppColors.textSecondary)),
+                  const Text(
+                    '• Operation / Treatment fee and OT charges',
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: AppColors.textSecondary,
+                    ),
+                  ),
+                  const Text(
+                    '• 3-5 Din tak ka hospital stay aur ward bedding',
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: AppColors.textSecondary,
+                    ),
+                  ),
+                  const Text(
+                    '• Dawaiyan, test aur discharge ke baad 15 din ki dawa',
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: AppColors.textSecondary,
+                    ),
+                  ),
                   if (preAuth) ...[
                     const SizedBox(height: 6),
-                    Text('• Pre-Authorization: Ayushman Mitra dwara pehle approved karwaya jayega', style: TextStyle(fontSize: 11, color: Colors.amber.shade900, fontWeight: FontWeight.bold)),
+                    Text(
+                      '• Pre-Authorization: Ayushman Mitra dwara pehle approved karwaya jayega',
+                      style: TextStyle(
+                        fontSize: 11,
+                        color: Colors.amber.shade900,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                   ],
                 ],
               ),
@@ -979,30 +1452,58 @@ class _PmjayAyushmanScreenState extends State<PmjayAyushmanScreen> with SingleTi
                   child: ElevatedButton.icon(
                     onPressed: () {
                       Navigator.pop(ctx);
-                      Navigator.push(context, MaterialPageRoute(builder: (_) => const NearbyHealthcarePlacesScreen()));
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const NearbyHealthcarePlacesScreen(),
+                        ),
+                      );
                     },
-                    icon: const Icon(Icons.local_hospital_rounded, color: Colors.white, size: 18),
-                    label: const Text('Nazdeeki Hospital Dekhein', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                    icon: const Icon(
+                      Icons.local_hospital_rounded,
+                      color: Colors.white,
+                      size: 18,
+                    ),
+                    label: const Text(
+                      'Nazdeeki Hospital Dekhein',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.primaryTeal,
                       padding: const EdgeInsets.symmetric(vertical: 14),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
                     ),
                   ),
                 ),
                 const SizedBox(width: 10),
                 OutlinedButton.icon(
                   onPressed: () {
-                    Clipboard.setData(ClipboardData(text: '$name (Code: $code)'));
-                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Package details copy ho gayi!')));
+                    Clipboard.setData(
+                      ClipboardData(text: '$name (Code: $code)'),
+                    );
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Package details copy ho gayi!'),
+                      ),
+                    );
                   },
                   icon: const Icon(Icons.copy_rounded, size: 16),
                   label: const Text('Copy'),
                   style: OutlinedButton.styleFrom(
                     foregroundColor: AppColors.primaryTeal,
                     side: const BorderSide(color: AppColors.primaryTeal),
-                    padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    padding: const EdgeInsets.symmetric(
+                      vertical: 14,
+                      horizontal: 16,
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
                   ),
                 ),
               ],

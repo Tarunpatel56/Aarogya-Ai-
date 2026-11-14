@@ -9,6 +9,7 @@ import 'opd_scan_share_screen.dart';
 import 'maternal_child_screen.dart';
 import 'nearby_healthcare_places_screen.dart';
 import '../profile/family_health_screen.dart';
+import '../../features/ayushman/views/ayushman_web_screen.dart';
 
 class GovernmentDashboardScreen extends StatelessWidget {
   const GovernmentDashboardScreen({super.key});
@@ -161,6 +162,21 @@ class GovernmentDashboardScreen extends StatelessWidget {
                 badgeColor: Colors.amber.shade50,
                 badgeTextColor: Colors.amber.shade900,
                 onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const PmjayAyushmanScreen())),
+              ),
+              const SizedBox(height: 12),
+
+              // 4b. Ayushman Card Download (NHA Official Portal)
+              _buildServiceCard(
+                context,
+                title: 'Ayushman Card Download',
+                subtitle: 'NHA official portal se apna Ayushman Bharat (PM-JAY) card PDF mein download karein aur in-app dekhein.',
+                icon: Icons.download_for_offline_rounded,
+                iconColor: const Color(0xFF7C3AED),
+                iconBg: const Color(0xFFEDE9FE),
+                badgeText: 'Official NHA Portal',
+                badgeColor: Colors.purple.shade50,
+                badgeTextColor: Colors.purple.shade800,
+                onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const AyushmanWebScreen())),
               ),
               const SizedBox(height: 12),
 
