@@ -71,6 +71,7 @@ class MediaPipePoseService {
     required int width,
     required int height,
     int rotation = 0,
+    int rowStride = 0,
   }) async {
     if (!_isInitialized) return null;
 
@@ -84,6 +85,7 @@ class MediaPipePoseService {
         'width': width,
         'height': height,
         'rotation': rotation,
+        'rowStride': rowStride,
       });
 
       if (res != null && res['status'] == 'success') {

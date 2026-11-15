@@ -314,24 +314,31 @@ class ExerciseStateMachine {
   }
 
   void _auditPosture(JointAngleSnapshot angles, PoseDetectionFrame frame) {
+    const trunkErr = 'Back seedhi rakhein (Keep back straight)';
+    const neckErr = 'Gardan seedhi rakhein (Keep neck aligned)';
+
     // 1. Trunk Excessive Forward Lean Check (55 deg threshold for clinical natural movement)
     if (config.maxPermissibleTrunkLean != null && angles.trunkInclinationAngle != null) {
       final double maxLean = config.maxPermissibleTrunkLean! + 10.0;
       if (angles.trunkInclinationAngle! > maxLean) {
-        const err = 'Keep your back straight; avoid excessive forward lean.';
-        if (!_currentRepErrors.contains(err)) {
-          _currentRepErrors.add(err);
-          if (!_allSessionErrors.contains(err)) _allSessionErrors.add(err);
+        if (!_currentRepErrors.contains(trunkErr)) {
+          _currentRepErrors.add(trunkErr);
+          if (!_allSessionErrors.contains(trunkErr)) _allSessionErrors.add(trunkErr);
         }
+      } else {
+        _currentRepErrors.remove(trunkErr);
       }
     }
 
     // 2. Head Tilt Check in Standing Exercises (Permits natural gaze toward smartphone preview)
-    if (angles.neckTiltAngle != null && angles.neckTiltAngle! > 55.0 && exerciseType != ExerciseType.neckMovement) {
-      const err = 'Keep your neck aligned and chin tucked.';
-      if (!_currentRepErrors.contains(err)) {
-        _currentRepErrors.add(err);
-        if (!_allSessionErrors.contains(err)) _allSessionErrors.add(err);
+    if (angles.neckTiltAngle != null && exerciseType != ExerciseType.neckMovement) {
+      if (angles.neckTiltAngle! > 55.0) {
+        if (!_currentRepErrors.contains(neckErr)) {
+          _currentRepErrors.add(neckErr);
+          if (!_allSessionErrors.contains(neckErr)) _allSessionErrors.add(neckErr);
+        }
+      } else {
+        _currentRepErrors.remove(neckErr);
       }
     }
   }

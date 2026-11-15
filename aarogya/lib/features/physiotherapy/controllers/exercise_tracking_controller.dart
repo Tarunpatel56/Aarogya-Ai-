@@ -66,6 +66,8 @@ class ExerciseTrackingController extends GetxController {
     if (repEvent.feedbackMessage != null && repEvent.feedbackMessage!.isNotEmpty) {
       activeFeedbackCue.value = repEvent.feedbackMessage!;
       ttsCoach.speakCue(repEvent.feedbackMessage!);
+    } else if (!_stateMachine.hasActivePostureError) {
+      activeFeedbackCue.value = 'Position Sahi Hai (Good Form)';
     }
 
     // 4. Milestone Check

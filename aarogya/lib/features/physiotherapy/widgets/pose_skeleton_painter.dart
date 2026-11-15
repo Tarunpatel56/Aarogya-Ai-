@@ -94,7 +94,7 @@ class PoseSkeletonPainter extends CustomPainter {
     // 3. Map landmark coordinates (X mirrored if front camera)
     final Map<int, Offset> points = {};
     for (final lm in frame.landmarks) {
-      if (lm.visibility >= 0.35) {
+      if (lm.visibility >= 0.20) {
         final double xNorm = isFrontCamera ? (1.0 - lm.x) : lm.x;
         final double yNorm = lm.y;
 
@@ -136,9 +136,5 @@ class PoseSkeletonPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(covariant PoseSkeletonPainter oldDelegate) {
-    return oldDelegate.frame != frame ||
-        oldDelegate.hasPostureError != hasPostureError ||
-        oldDelegate.isFrontCamera != isFrontCamera;
-  }
+  bool shouldRepaint(covariant PoseSkeletonPainter oldDelegate) => true;
 }

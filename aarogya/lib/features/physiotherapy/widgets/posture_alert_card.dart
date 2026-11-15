@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 class PostureAlertCard extends StatelessWidget {
   final String message;
   final bool isError;
+  final bool isGoodPosture;
   final bool isAudioEnabled;
   final VoidCallback? onToggleAudio;
 
@@ -10,6 +11,7 @@ class PostureAlertCard extends StatelessWidget {
     super.key,
     required this.message,
     this.isError = false,
+    this.isGoodPosture = false,
     this.isAudioEnabled = true,
     this.onToggleAudio,
   });
@@ -18,9 +20,27 @@ class PostureAlertCard extends StatelessWidget {
   Widget build(BuildContext context) {
     if (message.isEmpty) return const SizedBox.shrink();
 
-    final bgColor = isError
-        ? const Color(0xFFDC2626).withValues(alpha: 0.90) // Red warning
-        : const Color(0xFF0F172A).withValues(alpha: 0.88); // Dark Teal/Navy guidance
+    final Color bgColor;
+    final Color borderColor;
+    final IconData iconData;
+    final Color iconColor;
+
+    if (isError) {
+      bgColor = const Color(0xFFDC2626).withValues(alpha: 0.92); // Vivid Red
+      borderColor = const Color(0xFFFCA5A5);
+      iconData = Icons.warning_amber_rounded;
+      iconColor = Colors.white;
+    } else if (isGoodPosture) {
+      bgColor = const Color(0xFF15803D).withValues(alpha: 0.92); // Clinical Emerald Green
+      borderColor = const Color(0xFF86EFAC);
+      iconData = Icons.check_circle_rounded;
+      iconColor = const Color(0xFF86EFAC);
+    } else {
+      bgColor = const Color(0xFF0F172A).withValues(alpha: 0.88); // Dark Slate/Navy
+      borderColor = Colors.white.withValues(alpha: 0.2);
+      iconData = Icons.record_voice_over_rounded;
+      iconColor = const Color(0xFF00E5FF);
+    }
 
     return AnimatedContainer(
       duration: const Duration(milliseconds: 250),
@@ -30,12 +50,12 @@ class PostureAlertCard extends StatelessWidget {
         color: bgColor,
         borderRadius: BorderRadius.circular(14),
         border: Border.all(
-          color: isError ? const Color(0xFFFCA5A5) : Colors.white.withValues(alpha: 0.2),
-          width: 1.2,
+          color: borderColor,
+          width: 1.5,
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.25),
+            color: Colors.black.withValues(alpha: 0.3),
             blurRadius: 8,
             offset: const Offset(0, 3),
           ),
@@ -44,8 +64,8 @@ class PostureAlertCard extends StatelessWidget {
       child: Row(
         children: [
           Icon(
-            isError ? Icons.warning_amber_rounded : Icons.record_voice_over_rounded,
-            color: isError ? Colors.white : const Color(0xFF00E5FF),
+            iconData,
+            color: iconColor,
             size: 20,
           ),
           const SizedBox(width: 10),
@@ -54,7 +74,7 @@ class PostureAlertCard extends StatelessWidget {
               message,
               style: const TextStyle(
                 color: Colors.white,
-                fontSize: 12.5,
+                fontSize: 13,
                 fontWeight: FontWeight.bold,
               ),
             ),

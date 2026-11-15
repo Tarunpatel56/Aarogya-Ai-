@@ -84,66 +84,102 @@ class PoseLandmarkerManager(
         )
     }
 
-    private fun getModelPath(): String {
+    private fun getOrExtractModelBuffer(): java.nio.ByteBuffer? {
         val targetFile = java.io.File(context.filesDir, MODEL_PATH)
-        if (targetFile.exists() && targetFile.length() > 1000000) {
-            return targetFile.absolutePath
-        }
+        if (!targetFile.exists() || targetFile.length() < 1000000) {
+            val assetCandidates = listOf(
+                MODEL_PATH,
+                "flutter_assets/assets/models/$MODEL_PATH",
+                "assets/models/$MODEL_PATH"
+            )
 
-        val assetCandidates = listOf(
-            MODEL_PATH,
-            "flutter_assets/assets/models/$MODEL_PATH",
-            "assets/models/$MODEL_PATH"
-        )
-
-        for (candidate in assetCandidates) {
-            try {
-                context.assets.open(candidate).use { input ->
-                    java.io.FileOutputStream(targetFile).use { output ->
-                        input.copyTo(output)
+            for (candidate in assetCandidates) {
+                try {
+                    context.assets.open(candidate).use { input ->
+                        java.io.FileOutputStream(targetFile).use { output ->
+                            input.copyTo(output)
+                        }
                     }
+                    if (targetFile.exists() && targetFile.length() > 1000000) {
+                        android.util.Log.i("MediaPipePose", "Extracted model to ${targetFile.absolutePath} from $candidate (${targetFile.length()} bytes)")
+                        break
+                    }
+                } catch (e: Exception) {
+                    android.util.Log.d("MediaPipePose", "Candidate $candidate not found: ${e.message}")
                 }
-                if (targetFile.exists() && targetFile.length() > 1000000) {
-                    android.util.Log.i("MediaPipePose", "Extracted model to ${targetFile.absolutePath} from $candidate (${targetFile.length()} bytes)")
-                    return targetFile.absolutePath
-                }
-            } catch (e: Exception) {
-                android.util.Log.d("MediaPipePose", "Candidate $candidate not found: ${e.message}")
             }
         }
 
         if (targetFile.exists() && targetFile.length() > 0) {
-            return targetFile.absolutePath
+            return try {
+                val fis = java.io.FileInputStream(targetFile)
+                val channel = fis.channel
+                val buffer = channel.map(java.nio.channels.FileChannel.MapMode.READ_ONLY, 0, targetFile.length())
+                fis.close()
+                buffer
+            } catch (e: Exception) {
+                android.util.Log.e("MediaPipePose", "Failed to map model file to ByteBuffer: ${e.message}", e)
+                null
+            }
         }
 
-        return MODEL_PATH
+        return null
     }
 
     private fun tryInit(delegate: Delegate, minConfidence: Float): Boolean {
-        return try {
-            val resolvedModelPath = getModelPath()
-            android.util.Log.i("MediaPipePose", "Initializing PoseLandmarker with model path: $resolvedModelPath, delegate: $delegate")
-
-            val baseOptionsBuilder = BaseOptions.builder()
-                .setModelAssetPath(resolvedModelPath)
+        // Attempt 1: Direct Asset Path from APK assets
+        try {
+            android.util.Log.i("MediaPipePose", "Attempting PoseLandmarker init via AssetPath: $MODEL_PATH, delegate: $delegate")
+            val baseOptions = BaseOptions.builder()
+                .setModelAssetPath(MODEL_PATH)
                 .setDelegate(delegate)
+                .build()
 
-            val optionsBuilder = PoseLandmarker.PoseLandmarkerOptions.builder()
-                .setBaseOptions(baseOptionsBuilder.build())
+            val options = PoseLandmarker.PoseLandmarkerOptions.builder()
+                .setBaseOptions(baseOptions)
                 .setMinPoseDetectionConfidence(minConfidence)
                 .setMinPosePresenceConfidence(minConfidence)
                 .setMinTrackingConfidence(minConfidence)
                 .setRunningMode(RunningMode.IMAGE)
+                .build()
 
-            poseLandmarker = PoseLandmarker.createFromOptions(context, optionsBuilder.build())
+            poseLandmarker = PoseLandmarker.createFromOptions(context, options)
             activeDelegate = if (delegate == Delegate.GPU) "GPU" else "CPU"
-            true
+            android.util.Log.i("MediaPipePose", "PoseLandmarker successfully initialized via AssetPath ($activeDelegate)")
+            return true
+        } catch (t: Throwable) {
+            android.util.Log.w("MediaPipePose", "AssetPath init failed with delegate $delegate: ${t.message}. Trying direct buffer fallback...")
+        }
+
+        // Attempt 2: Direct memory-mapped model buffer from internal storage
+        try {
+            val buffer = getOrExtractModelBuffer()
+            if (buffer != null) {
+                android.util.Log.i("MediaPipePose", "Attempting PoseLandmarker init via MappedByteBuffer, delegate: $delegate")
+                val baseOptions = BaseOptions.builder()
+                    .setModelAssetBuffer(buffer)
+                    .setDelegate(delegate)
+                    .build()
+
+                val options = PoseLandmarker.PoseLandmarkerOptions.builder()
+                    .setBaseOptions(baseOptions)
+                    .setMinPoseDetectionConfidence(minConfidence)
+                    .setMinPosePresenceConfidence(minConfidence)
+                    .setMinTrackingConfidence(minConfidence)
+                    .setRunningMode(RunningMode.IMAGE)
+                    .build()
+
+                poseLandmarker = PoseLandmarker.createFromOptions(context, options)
+                activeDelegate = if (delegate == Delegate.GPU) "GPU" else "CPU"
+                android.util.Log.i("MediaPipePose", "PoseLandmarker successfully initialized via ByteBuffer ($activeDelegate)")
+                return true
+            }
         } catch (t: Throwable) {
             lastInitErrorMessage = "${t.javaClass.simpleName}: ${t.message}"
-            android.util.Log.e("MediaPipePose", "tryInit failed for delegate $delegate: $lastInitErrorMessage", t)
-            poseLandmarker = null
-            false
+            android.util.Log.e("MediaPipePose", "ByteBuffer init failed with delegate $delegate: $lastInitErrorMessage", t)
         }
+
+        return false
     }
 
     /**
@@ -189,7 +225,8 @@ class PoseLandmarkerManager(
         rgbaBytes: ByteArray,
         width: Int,
         height: Int,
-        rotationDegrees: Int = 0
+        rotationDegrees: Int = 0,
+        rowStride: Int = 0
     ): Map<String, Any> {
         val landmarker = poseLandmarker ?: return mapOf(
             "status" to "error",
@@ -226,12 +263,18 @@ class PoseLandmarkerManager(
                 val jpegBytes = out.toByteArray()
                 bitmap = BitmapFactory.decodeByteArray(jpegBytes, 0, jpegBytes.size)
             }
-            // 4. Check if single Y luminance plane (width * height)
+            // 4. Check if camera Y luminance plane (width * height with row stride)
             else if (rgbaBytes.size >= width * height) {
+                val effectiveStride = if (rowStride > 0) rowStride else (if (height > 0) rgbaBytes.size / height else width)
                 val pixels = IntArray(width * height)
-                for (i in 0 until (width * height)) {
-                    val y = rgbaBytes[i].toInt() and 0xFF
-                    pixels[i] = -0x1000000 or (y shl 16) or (y shl 8) or y
+                for (row in 0 until height) {
+                    val rowStart = row * effectiveStride
+                    val pixelRowStart = row * width
+                    val maxCols = minOf(width, rgbaBytes.size - rowStart)
+                    for (col in 0 until maxCols) {
+                        val y = rgbaBytes[rowStart + col].toInt() and 0xFF
+                        pixels[pixelRowStart + col] = -0x1000000 or (y shl 16) or (y shl 8) or y
+                    }
                 }
                 bitmap = Bitmap.createBitmap(pixels, width, height, Bitmap.Config.ARGB_8888)
             }

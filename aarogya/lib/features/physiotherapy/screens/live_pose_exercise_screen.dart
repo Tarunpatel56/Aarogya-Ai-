@@ -282,6 +282,75 @@ class _LivePoseExerciseScreenState extends State<LivePoseExerciseScreen> {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
+                  // Prominent Floating Posture Status Pill (Position Sahi Hai ya Nahi)
+                  Obx(() {
+                    if (!poseCtrl.isPersonDetected.value) {
+                      return Container(
+                        margin: const EdgeInsets.only(bottom: 8),
+                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 5),
+                        decoration: BoxDecoration(
+                          color: Colors.amber.shade900.withValues(alpha: 0.88),
+                          borderRadius: BorderRadius.circular(20),
+                          border: Border.all(color: Colors.amber, width: 1.2),
+                        ),
+                        child: const Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(Icons.person_search_rounded, color: Colors.white, size: 15),
+                            SizedBox(width: 6),
+                            Text(
+                              'Camera Ke Samne Aaiye (Detecting Person...)',
+                              style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 11.5),
+                            ),
+                          ],
+                        ),
+                      );
+                    }
+
+                    final isErr = trackCtrl.hasActivePostureError.value;
+                    return Container(
+                      margin: const EdgeInsets.only(bottom: 8),
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+                      decoration: BoxDecoration(
+                        color: isErr
+                            ? const Color(0xFFDC2626).withValues(alpha: 0.90)
+                            : const Color(0xFF16A34A).withValues(alpha: 0.90),
+                        borderRadius: BorderRadius.circular(20),
+                        border: Border.all(
+                          color: isErr ? const Color(0xFFFCA5A5) : const Color(0xFF86EFAC),
+                          width: 1.5,
+                        ),
+                        boxShadow: [
+                          BoxShadow(
+                            color: (isErr ? Colors.red : Colors.green).withValues(alpha: 0.35),
+                            blurRadius: 8,
+                            spreadRadius: 1,
+                          ),
+                        ],
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            isErr ? Icons.error_outline_rounded : Icons.check_circle_rounded,
+                            color: Colors.white,
+                            size: 16,
+                          ),
+                          const SizedBox(width: 6),
+                          Text(
+                            isErr ? 'POSITION GALAT HAI (Posture Error)' : 'POSITION BILKUL SAHI HAI (Good Form)',
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.w900,
+                              fontSize: 12,
+                              letterSpacing: 0.3,
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  }),
+
                   // Real-Time Spoken & Visual Coaching Card
                   Obx(
                     () {
@@ -289,10 +358,12 @@ class _LivePoseExerciseScreenState extends State<LivePoseExerciseScreen> {
                           ? trackCtrl.activeFeedbackCue.value
                           : poseCtrl.guidanceMessage.value;
                       final isErr = trackCtrl.hasActivePostureError.value;
+                      final isGood = poseCtrl.isPersonDetected.value && !isErr;
 
                       return PostureAlertCard(
                         message: cue,
                         isError: isErr,
+                        isGoodPosture: isGood,
                         isAudioEnabled: trackCtrl.ttsCoach.isEnabled,
                         onToggleAudio: () {
                           final next = !trackCtrl.ttsCoach.isEnabled;

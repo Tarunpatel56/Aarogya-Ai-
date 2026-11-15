@@ -1,5 +1,6 @@
 import 'package:camera/camera.dart';
 import 'package:get/get.dart';
+import 'package:permission_handler/permission_handler.dart';
 import '../models/pose_landmark_model.dart';
 import '../services/mediapipe_pose_service.dart';
 
@@ -47,8 +48,14 @@ class PoseEstimationController extends GetxController {
           : 'Assisted Mode Active: Camera running.';
     }
 
-    // 2. Initialize Camera
+    // 2. Request Camera permission & initialize hardware
     try {
+      final permStatus = await Permission.camera.request();
+      if (!permStatus.isGranted) {
+        guidanceMessage.value = 'Camera permission is required for AI posture tracking.';
+        return;
+      }
+
       _availableCameras = await availableCameras();
       if (_availableCameras.isEmpty) {
         guidanceMessage.value = 'No camera found on device.';
@@ -98,12 +105,13 @@ class PoseEstimationController extends GetxController {
         final plane = image.planes.first;
         final sensorOrientation = cameraController!.description.sensorOrientation;
 
-        // Process directly via MediaPipe native channel
+        // Process directly via MediaPipe native channel with rowStride
         final frame = await _poseService.processCameraFrame(
           bytes: plane.bytes,
           width: image.width,
           height: image.height,
           rotation: sensorOrientation,
+          rowStride: plane.bytesPerRow,
         );
 
         if (frame != null) {

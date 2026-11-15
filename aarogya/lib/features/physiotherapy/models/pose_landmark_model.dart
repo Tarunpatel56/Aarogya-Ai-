@@ -63,7 +63,7 @@ class PoseLandmark {
     this.presence = 1.0,
   });
 
-  bool get isReliable => visibility >= 0.50;
+  bool get isReliable => visibility >= 0.25;
 
   factory PoseLandmark.fromJson(Map<String, dynamic> json) {
     return PoseLandmark(
@@ -110,7 +110,7 @@ class PoseDetectionFrame {
     return null;
   }
 
-  bool isLandmarkVisible(PoseLandmarkType type, {double threshold = 0.50}) {
+  bool isLandmarkVisible(PoseLandmarkType type, {double threshold = 0.25}) {
     final lm = getLandmark(type);
     return lm != null && lm.visibility >= threshold;
   }

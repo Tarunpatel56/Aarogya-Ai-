@@ -65,6 +65,7 @@ class MainActivity : FlutterActivity() {
                     val width = call.argument<Int>("width") ?: 0
                     val height = call.argument<Int>("height") ?: 0
                     val rotation = call.argument<Int>("rotation") ?: 0
+                    val rowStride = call.argument<Int>("rowStride") ?: 0
 
                     if (bytes == null || width <= 0 || height <= 0) {
                         result.error("INVALID_ARGUMENT", "Invalid buffer dimensions or null bytes", null)
@@ -72,7 +73,7 @@ class MainActivity : FlutterActivity() {
                     }
 
                     backgroundExecutor.execute {
-                        val detectionResult = poseManager?.detectFromRgbaBuffer(bytes, width, height, rotation) ?: mapOf(
+                        val detectionResult = poseManager?.detectFromRgbaBuffer(bytes, width, height, rotation, rowStride) ?: mapOf(
                             "status" to "error",
                             "message" to "PoseLandmarkerManager is not initialized"
                         )
