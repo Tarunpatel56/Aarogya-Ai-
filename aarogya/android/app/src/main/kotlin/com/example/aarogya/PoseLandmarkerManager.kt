@@ -45,6 +45,15 @@ class PoseLandmarkerManager(
             "left_ankle", "right_ankle", "left_heel", "right_heel",
             "left_foot_index", "right_foot_index"
         )
+
+        init {
+            try {
+                System.loadLibrary("mediapipe_tasks_vision_jni")
+                android.util.Log.i("MediaPipePose", "mediapipe_tasks_vision_jni pre-loaded successfully")
+            } catch (t: Throwable) {
+                android.util.Log.w("MediaPipePose", "Native lib pre-load deferred: ${t.message}")
+            }
+        }
     }
 
     private var lastInitErrorMessage: String? = null
