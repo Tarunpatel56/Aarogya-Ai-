@@ -4,6 +4,7 @@ import '../../models/patient_profile_model.dart';
 import '../../models/user_model.dart';
 import '../../screens/notifications/notifications_screen.dart';
 import '../../services/notification_service.dart';
+import '../../core/localization/language_selector_widget.dart';
 
 class HomeHeader extends StatelessWidget {
   final UserModel? user;
@@ -110,6 +111,11 @@ class HomeHeader extends StatelessWidget {
             ],
           ),
         ),
+        const SizedBox(width: 8),
+
+        // Quick Language Switcher [ English | हिन्दी ]
+        const LanguageSelectorWidget(compact: true),
+        const SizedBox(width: 8),
 
         // Notification Bell
         IconButton(

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import '../../theme/app_theme.dart';
 import 'abha_management_screen.dart';
 import 'blood_bank_finder_screen.dart';
@@ -19,9 +20,9 @@ class GovernmentDashboardScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: AppColors.scaffoldBg,
       appBar: AppBar(
-        title: const Text(
-          'Government Health Services',
-          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 17),
+        title: Text(
+          Get.locale?.languageCode == 'hi' ? 'सरकारी स्वास्थ्य सेवाएं' : 'Government Health Services',
+          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 17),
         ),
         backgroundColor: Colors.white,
         elevation: 0.5,
@@ -99,17 +100,23 @@ class GovernmentDashboardScreen extends StatelessWidget {
               ),
               const SizedBox(height: 20),
 
-              const Text(
-                'Pramukh Sarkari Suvidhayein (Core Services)',
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: AppColors.textPrimary),
+              Text(
+                Get.locale?.languageCode == 'hi'
+                    ? 'प्रमुख सरकारी स्वास्थ्य सुविधाएं'
+                    : 'Core Government Services',
+                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: AppColors.textPrimary),
               ),
               const SizedBox(height: 12),
 
               // 1. ABHA & ABDM Card
               _buildServiceCard(
                 context,
-                title: 'Ayushman Bharat Health Account (ABHA)',
-                subtitle: '14-digit ABHA ID banayein, medical records link karein aur consent manage karein.',
+                title: Get.locale?.languageCode == 'hi'
+                    ? 'आयुष्मान भारत स्वास्थ्य खाता (ABHA)'
+                    : 'Ayushman Bharat Health Account (ABHA)',
+                subtitle: Get.locale?.languageCode == 'hi'
+                    ? '14 अंकों का आभा आईडी बनाएं, मेडिकल रिकॉर्ड लिंक करें एवं सहमति प्रबंधित करें।'
+                    : 'Create 14-digit ABHA ID, link digital health records & manage consent.',
                 icon: Icons.health_and_safety_rounded,
                 iconColor: const Color(0xFF00796B),
                 iconBg: const Color(0xFFE0F2F1),
@@ -123,12 +130,16 @@ class GovernmentDashboardScreen extends StatelessWidget {
               // 2. e-RaktKosh Blood Bank Finder
               _buildServiceCard(
                 context,
-                title: 'e-RaktKosh Blood Bank Finder',
-                subtitle: 'Sarkari blood banks me live blood stock, components aur emergency SOS anurodh.',
+                title: Get.locale?.languageCode == 'hi'
+                    ? 'ई-रक्तकोश रक्त बैंक निर्देशिका'
+                    : 'e-RaktKosh Blood Bank Finder',
+                subtitle: Get.locale?.languageCode == 'hi'
+                    ? 'सरकारी रक्त बैंकों में उपलब्ध रक्त समूह, घटक एवं आपातकालीन अनुरोध।'
+                    : 'Live blood stock availability in government blood banks and emergency requests.',
                 icon: Icons.bloodtype_rounded,
                 iconColor: AppColors.sosRed,
                 iconBg: AppColors.sosLightBg,
-                badgeText: 'Verified Stock',
+                badgeText: Get.locale?.languageCode == 'hi' ? 'सत्यापित स्टॉक' : 'Verified Stock',
                 badgeColor: Colors.red.shade50,
                 badgeTextColor: Colors.red.shade800,
                 onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const BloodBankFinderScreen())),
@@ -138,12 +149,16 @@ class GovernmentDashboardScreen extends StatelessWidget {
               // 3. PM Jan Aushadhi (PMBJP)
               _buildServiceCard(
                 context,
-                title: 'PM Jan Aushadhi Kendra (PMBJP)',
-                subtitle: 'Sasti Generic Dawaiyan (70%+ Bachat) aur nazdeeki Jan Aushadhi Kendra locator.',
+                title: Get.locale?.languageCode == 'hi'
+                    ? 'प्रधानमंत्री जन औषधि केंद्र (PMBJP)'
+                    : 'PM Jan Aushadhi Kendra (PMBJP)',
+                subtitle: Get.locale?.languageCode == 'hi'
+                    ? 'किफायती जेनेरिक दवाइयां (70%+ बचत) एवं निकटतम केंद्र खोजें।'
+                    : 'Affordable generic medicines with up to 80% savings and nearby store locator.',
                 icon: Icons.medication_rounded,
                 iconColor: const Color(0xFF0284C7),
                 iconBg: const Color(0xFFE0F2FE),
-                badgeText: '50-80% Bachat',
+                badgeText: Get.locale?.languageCode == 'hi' ? '50-80% बचत' : '50-80% Savings',
                 badgeColor: Colors.blue.shade50,
                 badgeTextColor: Colors.blue.shade800,
                 onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const JanAushadhiScreen())),
@@ -153,12 +168,16 @@ class GovernmentDashboardScreen extends StatelessWidget {
               // 4. PM-JAY Ayushman Bharat
               _buildServiceCard(
                 context,
-                title: 'Ayushman Bharat (PM-JAY)',
-                subtitle: '₹5 Lakhs muft cashless ilaaj, patrata jaanch (Eligibility) aur 1,949+ packages.',
+                title: Get.locale?.languageCode == 'hi'
+                    ? 'आयुष्मान भारत (PM-JAY)'
+                    : 'Ayushman Bharat (PM-JAY)',
+                subtitle: Get.locale?.languageCode == 'hi'
+                    ? 'प्रति परिवार प्रति वर्ष ₹5 लाख तक निःशुल्क उपचार एवं पात्रता जांच।'
+                    : 'Free cashless healthcare up to ₹5 Lakhs per family per year and eligibility check.',
                 icon: Icons.shield_rounded,
                 iconColor: const Color(0xFFD97706),
                 iconBg: const Color(0xFFFEF3C7),
-                badgeText: '₹5L Family Cover',
+                badgeText: Get.locale?.languageCode == 'hi' ? '₹5 लाख बीमा' : '₹5L Family Cover',
                 badgeColor: Colors.amber.shade50,
                 badgeTextColor: Colors.amber.shade900,
                 onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const PmjayAyushmanScreen())),
@@ -168,8 +187,12 @@ class GovernmentDashboardScreen extends StatelessWidget {
               // 4b. Ayushman Card Download (NHA Official Portal)
               _buildServiceCard(
                 context,
-                title: 'Ayushman Card Download',
-                subtitle: 'NHA official portal se apna Ayushman Bharat (PM-JAY) card PDF mein download karein aur in-app dekhein.',
+                title: Get.locale?.languageCode == 'hi'
+                    ? 'आयुष्मान कार्ड डाउनलोड'
+                    : 'Ayushman Card Download',
+                subtitle: Get.locale?.languageCode == 'hi'
+                    ? 'एनएचए आधिकारिक पोर्टल से आयुष्मान कार्ड पीडीएफ डाउनलोड करें एवं देखें।'
+                    : 'Download official Ayushman Bharat card PDF from NHA portal and view in-app.',
                 icon: Icons.download_for_offline_rounded,
                 iconColor: const Color(0xFF7C3AED),
                 iconBg: const Color(0xFFEDE9FE),
@@ -183,12 +206,16 @@ class GovernmentDashboardScreen extends StatelessWidget {
               // 5. OPD Scan & Share
               _buildServiceCard(
                 context,
-                title: 'ABDM OPD Scan & Share',
-                subtitle: 'Hospital OPD counter par bina line me lage instant digital token prapt karein.',
+                title: Get.locale?.languageCode == 'hi'
+                    ? 'ओपीडी स्कैन एवं शेयर'
+                    : 'ABDM OPD Scan & Share',
+                subtitle: Get.locale?.languageCode == 'hi'
+                    ? 'अस्पताल ओपीडी काउंटर पर कतार में लगे बिना तुरंत डिजिटल टोकन प्राप्त करें।'
+                    : 'Instant digital OPD token registration at hospital counters without queues.',
                 icon: Icons.qr_code_scanner_rounded,
                 iconColor: const Color(0xFF059669),
                 iconBg: const Color(0xFFD1FAE5),
-                badgeText: 'Instant Token',
+                badgeText: Get.locale?.languageCode == 'hi' ? 'तुरंत टोकन' : 'Instant Token',
                 badgeColor: const Color(0xFFECFDF5),
                 badgeTextColor: const Color(0xFF065F46),
                 onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const OpdScanShareScreen())),
@@ -198,8 +225,12 @@ class GovernmentDashboardScreen extends StatelessWidget {
               // 6. Maa & Shishu (MCH / U-WIN)
               _buildServiceCard(
                 context,
-                title: 'Maa & Shishu Suraksha (MCH / U-WIN)',
-                subtitle: 'Garbhavastha tracking, PMSMA high-risk alerts aur bachho ka U-WIN teekakaran.',
+                title: Get.locale?.languageCode == 'hi'
+                    ? 'मातृ एवं शिशु स्वास्थ्य सुरक्षा (U-WIN)'
+                    : 'Maternal & Child Healthcare (U-WIN)',
+                subtitle: Get.locale?.languageCode == 'hi'
+                    ? 'गर्भावस्था निगरानी, उच्च जोखिम चेतावनी एवं बच्चों का सार्वभौमिक टीकाकरण।'
+                    : 'Pregnancy tracking, high-risk alerts and comprehensive universal immunization.',
                 icon: Icons.pregnant_woman_rounded,
                 iconColor: const Color(0xFF7C3AED),
                 iconBg: const Color(0xFFEDE9FE),
@@ -213,12 +244,16 @@ class GovernmentDashboardScreen extends StatelessWidget {
               // 7. National Health Registries (HFR & HPR)
               _buildServiceCard(
                 context,
-                title: 'Health Registries (HFR & HPR)',
-                subtitle: 'Rashtriya certified hospital aur NMC verified doctor direct khojein.',
+                title: Get.locale?.languageCode == 'hi'
+                    ? 'राष्ट्रीय स्वास्थ्य निर्देशिका (HFR एवं HPR)'
+                    : 'Health Registries (HFR & HPR)',
+                subtitle: Get.locale?.languageCode == 'hi'
+                    ? 'राष्ट्रीय प्रमाणित अस्पताल एवं एनएमसी सत्यापित चिकित्सक खोजें।'
+                    : 'Search certified national healthcare facilities and verified medical practitioners.',
                 icon: Icons.verified_user_rounded,
                 iconColor: const Color(0xFF2563EB),
                 iconBg: const Color(0xFFDBEAFE),
-                badgeText: 'National Directory',
+                badgeText: Get.locale?.languageCode == 'hi' ? 'राष्ट्रीय निर्देशिका' : 'National Directory',
                 badgeColor: Colors.indigo.shade50,
                 badgeTextColor: Colors.indigo.shade800,
                 onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const HealthRegistryScreen())),
@@ -229,12 +264,16 @@ class GovernmentDashboardScreen extends StatelessWidget {
               // 9. Nearby Healthcare Places (Google Places API New)
               _buildServiceCard(
                 context,
-                title: 'Nearby Healthcare & Pharmacy Finder',
-                subtitle: 'Google Maps Places API dwara nazdeeki hospital, lab, clinic aur medical store khojein.',
+                title: Get.locale?.languageCode == 'hi'
+                    ? 'निकटतम स्वास्थ्य केंद्र एवं औषधि स्टोर'
+                    : 'Nearby Healthcare & Pharmacy Finder',
+                subtitle: Get.locale?.languageCode == 'hi'
+                    ? 'निकटतम अस्पताल, पैथोलॉजी लैब, क्लिनिक एवं मेडिकल स्टोर खोजें।'
+                    : 'Locate nearby hospitals, diagnostic labs, clinics and pharmacies.',
                 icon: Icons.place_rounded,
                 iconColor: const Color(0xFF0F766E),
                 iconBg: const Color(0xFFCCFBF1),
-                badgeText: 'Google Places API',
+                badgeText: 'Google Places',
                 badgeColor: Colors.teal.shade50,
                 badgeTextColor: Colors.teal.shade800,
                 onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const NearbyHealthcarePlacesScreen())),
@@ -244,12 +283,16 @@ class GovernmentDashboardScreen extends StatelessWidget {
               // 10. Family Health Management & Isolated Profiles
               _buildServiceCard(
                 context,
-                title: 'Parivaar Swasthya Prabandhan (Family Health)',
-                subtitle: 'Ghar ke sadasyo ke alag-alag health profile, ABHA, prescriptions aur records manage karein.',
+                title: Get.locale?.languageCode == 'hi'
+                    ? 'पारिवारिक स्वास्थ्य प्रबंधन'
+                    : 'Family Health Management',
+                subtitle: Get.locale?.languageCode == 'hi'
+                    ? 'परिवार के सदस्यों के स्वास्थ्य प्रोफ़ाइल, आभा आईडी एवं रिकॉर्ड का सुरक्षित प्रबंधन।'
+                    : 'Manage independent health profiles, ABHA IDs, prescriptions and records for dependents.',
                 icon: Icons.people_alt_rounded,
                 iconColor: const Color(0xFFB45309),
                 iconBg: const Color(0xFFFEF3C7),
-                badgeText: 'Consent Isolated',
+                badgeText: Get.locale?.languageCode == 'hi' ? 'सुरक्षित प्रबंधन' : 'Isolated Profiles',
                 badgeColor: Colors.amber.shade50,
                 badgeTextColor: Colors.amber.shade900,
                 onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const FamilyHealthScreen())),

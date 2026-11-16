@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 import '../../theme/app_theme.dart';
 
@@ -46,17 +47,17 @@ class HomeQuickActions extends StatelessWidget {
           children: [
             Expanded(
               child: Row(
-                children: const [
-                  Icon(
+                children: [
+                  const Icon(
                     Icons.smart_toy_outlined,
                     color: AppColors.primaryTeal,
                     size: 19,
                   ),
-                  SizedBox(width: 6),
+                  const SizedBox(width: 6),
                   Flexible(
                     child: Text(
-                      'Quick Healthcare Actions',
-                      style: TextStyle(
+                      'quick_healthcare_actions'.tr,
+                      style: const TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w800,
                         color: AppColors.textPrimary,
@@ -68,9 +69,9 @@ class HomeQuickActions extends StatelessWidget {
               ),
             ),
             const SizedBox(width: 8),
-            const Text(
-              'AI Powered',
-              style: TextStyle(
+            Text(
+              'ai_powered'.tr,
+              style: const TextStyle(
                 fontSize: 11.5,
                 fontWeight: FontWeight.w600,
                 color: AppColors.primaryTeal,
@@ -108,15 +109,15 @@ class HomeQuickActions extends StatelessWidget {
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
-                      children: const [
+                      children: [
                         Text(
-                          'Talk-to-Talk Voice Assistant',
-                          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: Colors.white),
+                          'talk_voice_assistant'.tr,
+                          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: Colors.white),
                         ),
-                        SizedBox(height: 2),
+                        const SizedBox(height: 2),
                         Text(
-                          'Bol ke baat karein • Hindi & English voice mode',
-                          style: TextStyle(fontSize: 11, color: Color(0xFFCCFBF1)),
+                          'talk_voice_sub'.tr,
+                          style: const TextStyle(fontSize: 11, color: Color(0xFFCCFBF1)),
                         ),
                       ],
                     ),
@@ -127,9 +128,9 @@ class HomeQuickActions extends StatelessWidget {
                       color: const Color(0xFF00BFA5),
                       borderRadius: BorderRadius.circular(20),
                     ),
-                    child: const Text(
-                      'Live Voice',
-                      style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Color(0xFF042F2C)),
+                    child: Text(
+                      'live_voice'.tr,
+                      style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Color(0xFF042F2C)),
                     ),
                   ),
                 ],
@@ -146,8 +147,8 @@ class HomeQuickActions extends StatelessWidget {
                 icon: Icons.chat_bubble_outline_rounded,
                 iconBg: const Color(0xFF00665B),
                 iconColor: Colors.white,
-                title: 'Ask Aarogya',
-                subtitle: 'AI Assistant',
+                title: 'ask_aarogya'.tr,
+                subtitle: 'ask_aarogya_sub'.tr,
                 onTap: onNavigateToAI,
               ),
             ),
@@ -159,8 +160,8 @@ class HomeQuickActions extends StatelessWidget {
                 icon: Icons.crop_free_rounded,
                 iconBg: const Color(0xFFEDE9FE),
                 iconColor: const Color(0xFF6D28D9),
-                title: 'Scan Medicine',
-                subtitle: 'OCR Reader',
+                title: 'scan_medicine'.tr,
+                subtitle: 'scan_medicine_sub'.tr,
                 onTap: onOpenOcrScanner,
               ),
             ),
@@ -172,8 +173,8 @@ class HomeQuickActions extends StatelessWidget {
                 icon: Icons.person_search_outlined,
                 iconBg: const Color(0xFFE0F2F1),
                 iconColor: AppColors.primaryTeal,
-                title: 'Find Doctors',
-                subtitle: 'Book Visit',
+                title: 'find_doctors'.tr,
+                subtitle: 'find_doctors_sub'.tr,
                 onTap: onOpenDoctorDirectory,
               ),
             ),
@@ -195,8 +196,8 @@ class HomeQuickActions extends StatelessWidget {
                     icon: Icons.psychology_outlined,
                     iconBg: const Color(0xFFE0F2FE),
                     iconColor: const Color(0xFF0284C7),
-                    title: 'Brain MRI',
-                    subtitle: 'Tumor AI',
+                    title: 'brain_mri'.tr,
+                    subtitle: 'brain_mri_sub'.tr,
                     onTap: onOpenBrainMri!,
                   ),
                 ),
@@ -208,8 +209,8 @@ class HomeQuickActions extends StatelessWidget {
                     icon: Icons.air,
                     iconBg: const Color(0xFFEFF6FF),
                     iconColor: const Color(0xFF2563EB),
-                    title: 'Chest X-Ray',
-                    subtitle: 'Lungs AI',
+                    title: 'lung_xray'.tr,
+                    subtitle: 'lung_xray_sub'.tr,
                     onTap: onOpenLungXray!,
                   ),
                 ),
@@ -225,8 +226,8 @@ class HomeQuickActions extends StatelessWidget {
                       icon: Icons.face_retouching_natural,
                       iconBg: const Color(0xFFFAF5FF),
                       iconColor: const Color(0xFF9333EA),
-                      title: 'Skin Lesion',
-                      subtitle: 'Derma AI',
+                      title: 'skin_analysis'.tr,
+                      subtitle: 'skin_analysis_sub'.tr,
                       onTap: onOpenSkinAnalysis!,
                     ),
                   ),
@@ -238,8 +239,8 @@ class HomeQuickActions extends StatelessWidget {
                       icon: Icons.remove_red_eye_outlined,
                       iconBg: const Color(0xFFE0F2F1),
                       iconColor: const Color(0xFF00897B),
-                      title: 'Eye AI',
-                      subtitle: 'Ocular Scan',
+                      title: 'eye_analysis'.tr,
+                      subtitle: 'eye_analysis_sub'.tr,
                       onTap: onOpenEyeAnalysis!,
                     ),
                   ),
@@ -258,8 +259,8 @@ class HomeQuickActions extends StatelessWidget {
                       icon: Icons.health_and_safety_outlined,
                       iconBg: const Color(0xFFE8F5E9),
                       iconColor: const Color(0xFF00796B),
-                      title: 'Symptom Triage',
-                      subtitle: 'Clinical AI',
+                      title: 'symptom_checker'.tr,
+                      subtitle: 'symptom_checker_sub'.tr,
                       onTap: onOpenSymptomChecker!,
                     ),
                   ),
@@ -272,8 +273,8 @@ class HomeQuickActions extends StatelessWidget {
                       icon: Icons.biotech_outlined,
                       iconBg: const Color(0xFFE1F5FE),
                       iconColor: const Color(0xFF0288D1),
-                      title: 'Lab Report',
-                      subtitle: 'Doc Analyzer',
+                      title: 'medical_reports'.tr,
+                      subtitle: 'medical_reports_sub'.tr,
                       onTap: onOpenReportAnalyzer!,
                     ),
                   ),
@@ -285,8 +286,8 @@ class HomeQuickActions extends StatelessWidget {
                       icon: Icons.accessibility_new_rounded,
                       iconBg: const Color(0xFFF0FDF4),
                       iconColor: const Color(0xFF16A34A),
-                      title: 'Physio',
-                      subtitle: 'Rehab Plans',
+                      title: 'physio_ai'.tr,
+                      subtitle: 'physio_ai_sub'.tr,
                       onTap: onOpenPhysio!,
                     ),
                   ),
@@ -303,8 +304,8 @@ class HomeQuickActions extends StatelessWidget {
                       icon: Icons.local_hospital_outlined,
                       iconBg: const Color(0xFFFEF2F2),
                       iconColor: const Color(0xFFDC2626),
-                      title: 'Nearby Hospitals',
-                      subtitle: 'Live ICU Beds',
+                      title: 'nearby_hospitals'.tr,
+                      subtitle: 'nearby_hospitals_sub'.tr,
                       onTap: onOpenNearbyHospitals!,
                     ),
                   ),
@@ -316,8 +317,8 @@ class HomeQuickActions extends StatelessWidget {
                       icon: Icons.description_outlined,
                       iconBg: const Color(0xFFF0FDF4),
                       iconColor: const Color(0xFF0F766E),
-                      title: 'Digital Rx',
-                      subtitle: 'Doctor Orders',
+                      title: 'prescriptions'.tr,
+                      subtitle: 'prescriptions_sub'.tr,
                       onTap: onOpenPrescriptions!,
                     ),
                   ),
@@ -329,8 +330,8 @@ class HomeQuickActions extends StatelessWidget {
                       icon: Icons.restaurant_menu_rounded,
                       iconBg: const Color(0xFFECFDF5),
                       iconColor: const Color(0xFF059669),
-                      title: 'Daily Diet Plan',
-                      subtitle: 'BMI & Illness Custom',
+                      title: 'diet_plan'.tr,
+                      subtitle: 'diet_plan_sub'.tr,
                       onTap: onOpenDietPlan!,
                     ),
                   ),

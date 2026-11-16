@@ -5,6 +5,17 @@
 -keep interface com.google.mediapipe.** { *; }
 -keep enum com.google.mediapipe.** { *; }
 -dontwarn com.google.mediapipe.**
+-allowaccessmodification
+
+# 1b. Google Common & Flogger logging framework (required for MediaPipe Graph.<clinit>)
+-keep class com.google.common.flogger.** { *; }
+-dontwarn com.google.common.flogger.**
+-keep class com.google.common.base.** { *; }
+-dontwarn com.google.common.base.**
+
+# 1c. AndroidX MultiDex
+-keep class androidx.multidex.** { *; }
+-dontwarn androidx.multidex.**
 
 # 2. Protocol Buffers & Google Serialization
 -keep class com.google.protobuf.** { *; }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import '../../theme/app_theme.dart';
 import '../../services/government_health_service.dart';
 import '../../core/storage/token_storage.dart';
@@ -124,19 +125,26 @@ class _OpdScanShareScreenState extends State<OpdScanShareScreen> {
                 borderRadius: BorderRadius.circular(16),
                 border: Border.all(color: const Color(0xFFBBF7D0)),
               ),
-              child: const Row(
+              child: Row(
                 children: [
-                  Icon(Icons.qr_code_scanner_rounded, color: AppColors.primaryTeal, size: 36),
-                  SizedBox(width: 14),
+                  const Icon(Icons.qr_code_scanner_rounded, color: AppColors.primaryTeal, size: 36),
+                  const SizedBox(width: 14),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('Line Me Lagna Band!', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: Color(0xFF166534))),
-                        SizedBox(height: 4),
                         Text(
-                          'Hospital OPD Counter par laga QR code scan karein aur 10 second me digital OPD Token prapt karein.',
-                          style: TextStyle(fontSize: 12, color: Color(0xFF15803D)),
+                          Get.locale?.languageCode == 'hi'
+                              ? 'कतार मुक्त त्वरित ओपीडी टोकन'
+                              : 'Queue-Free Instant OPD Token',
+                          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: Color(0xFF166534)),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          Get.locale?.languageCode == 'hi'
+                              ? 'अस्पताल ओपीडी काउंटर पर क्यूआर कोड स्कैन करें और 10 सेकंड में डिजिटल ओपीडी टोकन प्राप्त करें।'
+                              : 'Scan the hospital OPD counter QR code and get your digital OPD token within 10 seconds.',
+                          style: const TextStyle(fontSize: 12, color: Color(0xFF15803D)),
                         ),
                       ],
                     ),
@@ -158,9 +166,19 @@ class _OpdScanShareScreenState extends State<OpdScanShareScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text('Hospital & Department Chunein', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
+                  Text(
+                    Get.locale?.languageCode == 'hi'
+                        ? 'अस्पताल एवं विभाग चुनें'
+                        : 'Select Hospital & Department',
+                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+                  ),
                   const SizedBox(height: 6),
-                  const Text('Indore ya anya shahar chunein aur digital OPD token prapt karein:', style: TextStyle(fontSize: 12, color: AppColors.textSecondary)),
+                  Text(
+                    Get.locale?.languageCode == 'hi'
+                        ? 'इंदौर अथवा अन्य शहर चुनकर त्वरित डिजिटल ओपीडी टोकन प्राप्त करें:'
+                        : 'Select Indore or other cities to obtain an instant digital OPD token:',
+                    style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
+                  ),
                   const SizedBox(height: 12),
 
                   // City Filter Chips

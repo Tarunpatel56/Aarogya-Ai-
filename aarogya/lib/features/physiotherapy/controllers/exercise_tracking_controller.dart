@@ -63,20 +63,39 @@ class ExerciseTrackingController extends GetxController {
     hasActivePostureError.value = _stateMachine.hasActivePostureError;
 
     // 3. Audio & Visual Coaching
+    final isHindi = Get.locale?.languageCode == 'hi';
     if (repEvent.feedbackMessage != null && repEvent.feedbackMessage!.isNotEmpty) {
-      activeFeedbackCue.value = repEvent.feedbackMessage!;
-      ttsCoach.speakCue(repEvent.feedbackMessage!);
+      final msg = repEvent.feedbackMessage!;
+      final localized = _localizeCue(msg, isHindi);
+      activeFeedbackCue.value = localized;
+      ttsCoach.speakCue(localized);
     } else if (!_stateMachine.hasActivePostureError) {
-      activeFeedbackCue.value = 'Position Sahi Hai (Good Form)';
+      final goodFormCue = isHindi ? 'मुद्रा बिल्कुल सही है' : 'Good Form';
+      activeFeedbackCue.value = goodFormCue;
     }
 
     // 4. Milestone Check
     if (completedReps.value >= targetReps && !isSessionCompleted.value) {
       isSessionCompleted.value = true;
-      const doneCue = 'Target repetitions completed! Excellent rehabilitation work.';
+      final doneCue = isHindi
+          ? 'लक्ष्य पुनरावृत्तियां पूर्ण हुईं! उत्कृष्ट व्यायाम प्रदर्शन।'
+          : 'Target repetitions completed! Excellent rehabilitation work.';
       activeFeedbackCue.value = doneCue;
       ttsCoach.speakCue(doneCue, highPriority: true);
     }
+  }
+
+  String _localizeCue(String cue, bool isHindi) {
+    if (!isHindi) {
+      if (cue.contains('Back') || cue.contains('पीठ')) return 'Keep your back straight';
+      if (cue.contains('neck') || cue.contains('गर्दन')) return 'Keep your neck aligned';
+      if (cue.contains('Form') || cue.contains('मुद्रा')) return 'Good Form';
+      return cue;
+    }
+    if (cue.contains('Back') || cue.contains('straight')) return 'अपनी पीठ सीधी रखें';
+    if (cue.contains('neck') || cue.contains('aligned')) return 'अपनी गर्दन सीधी रखें';
+    if (cue.contains('Good') || cue.contains('Form')) return 'मुद्रा बिल्कुल सही है';
+    return cue;
   }
 
   void resetExercise() {

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:get/get.dart';
 import '../../theme/app_theme.dart';
 import '../../services/government_health_service.dart';
 import '../../services/device_location_service.dart';
@@ -277,13 +278,15 @@ class _NearbyHealthcarePlacesScreenState extends State<NearbyHealthcarePlacesScr
               child: _isLoading
                   ? const Center(child: CircularProgressIndicator(color: AppColors.primaryTeal))
                   : _places.isEmpty
-                      ? const Center(
+                      ? Center(
                           child: Padding(
-                            padding: EdgeInsets.all(32),
+                            padding: const EdgeInsets.all(32),
                             child: Text(
-                              'Is radius me koi verified healthcare suvidha nahi mili.\nKripya radius badhayein ya doosra keyword search karein.',
+                              Get.locale?.languageCode == 'hi'
+                                  ? 'इस दायरे में कोई सत्यापित स्वास्थ्य सुविधा नहीं मिली।\nकृपया दायरा बढ़ाएं अथवा दूसरा कीवर्ड खोजें।'
+                                  : 'No verified healthcare facilities found in this radius.\nPlease expand radius or search another keyword.',
                               textAlign: TextAlign.center,
-                              style: TextStyle(color: AppColors.textSecondary),
+                              style: const TextStyle(color: AppColors.textSecondary),
                             ),
                           ),
                         )
@@ -519,11 +522,14 @@ class _NearbyHealthcarePlacesScreenState extends State<NearbyHealthcarePlacesScr
                 ),
                 IconButton(
                   icon: const Icon(Icons.copy_rounded, size: 18, color: AppColors.primaryTeal),
-                  tooltip: 'Pata Copy Karein',
+                  tooltip: Get.locale?.languageCode == 'hi' ? 'पता कॉपी करें' : 'Copy Address',
                   onPressed: () {
                     Clipboard.setData(ClipboardData(text: address));
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Pata clipboard par copy ho gaya!'), duration: Duration(seconds: 2)),
+                      SnackBar(
+                        content: Text(Get.locale?.languageCode == 'hi' ? 'पता क्लिपबोर्ड पर कॉपी हो गया!' : 'Address copied to clipboard!'),
+                        duration: const Duration(seconds: 2),
+                      ),
                     );
                   },
                 ),

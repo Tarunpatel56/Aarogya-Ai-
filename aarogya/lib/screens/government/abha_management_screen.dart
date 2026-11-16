@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import '../../theme/app_theme.dart';
 import '../../services/government_health_service.dart';
 import '../../core/storage/token_storage.dart';
@@ -77,9 +78,10 @@ class _AbhaManagementScreenState extends State<AbhaManagementScreen> {
   }
 
   Future<void> _sendOtp() async {
+    final isHindi = Get.locale?.languageCode == 'hi';
     final aadhaar = _aadhaarController.text.trim();
     if (aadhaar.length < 12) {
-      _showMessage('Kripya 12-digit Aadhaar number darj karein', isError: true);
+      _showMessage(isHindi ? 'कृपया 12 अंकों का आधार नंबर दर्ज करें' : 'Please enter 12-digit Aadhaar number', isError: true);
       return;
     }
 
@@ -89,23 +91,24 @@ class _AbhaManagementScreenState extends State<AbhaManagementScreen> {
       setState(() {
         _isOtpSent = true;
       });
-      _showMessage('Aadhaar OTP safalta-purvak bheja gaya (Sandbox OTP: 123456)');
+      _showMessage(isHindi ? 'आधार ओटीपी सफलतापूर्वक भेजा गया (ओटीपी: 123456)' : 'Aadhaar OTP sent successfully (Sandbox OTP: 123456)');
     } catch (e) {
-      _showMessage('OTP bhejne me dikkat aayi: ${e.toString()}', isError: true);
+      _showMessage(isHindi ? 'ओटीपी भेजने में त्रुटि: ${e.toString()}' : 'Failed to send OTP: ${e.toString()}', isError: true);
     } finally {
       setState(() => _isSubmitting = false);
     }
   }
 
   Future<void> _verifyOtpAndCreate() async {
+    final isHindi = Get.locale?.languageCode == 'hi';
     final otp = _otpController.text.trim();
     if (otp.length < 6) {
-      _showMessage('Kripya 6-digit OTP darj karein', isError: true);
+      _showMessage(isHindi ? 'कृपया 6 अंकों का ओटीपी दर्ज करें' : 'Please enter 6-digit OTP', isError: true);
       return;
     }
 
     if (_patientProfileId == null) {
-      _showMessage('Patient profile ID uplabdh nahi hai. Kripya login check karein.', isError: true);
+      _showMessage(isHindi ? 'रोगी प्रोफ़ाइल आईडी उपलब्ध नहीं है। कृपया लॉगिन जांचें।' : 'Patient profile ID not found. Please log in.', isError: true);
       return;
     }
 
@@ -463,17 +466,21 @@ class _AbhaManagementScreenState extends State<AbhaManagementScreen> {
                 child: const Icon(Icons.health_and_safety_rounded, color: AppColors.primaryTeal, size: 28),
               ),
               const SizedBox(width: 14),
-              const Expanded(
+              Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Apna ABHA ID Banayein ya Link Karein',
-                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                      Get.locale?.languageCode == 'hi'
+                          ? 'अपना आभा (ABHA) खाता बनाएं अथवा लिंक करें'
+                          : 'Create or Link Your ABHA Account',
+                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                     ),
                     Text(
-                      'National Digital Health Mission se direct juden',
-                      style: TextStyle(color: AppColors.textSecondary, fontSize: 12),
+                      Get.locale?.languageCode == 'hi'
+                          ? 'राष्ट्रीय डिजिटल स्वास्थ्य मिशन से सीधे जुड़ें'
+                          : 'Directly connect with National Digital Health Mission',
+                      style: const TextStyle(color: AppColors.textSecondary, fontSize: 12),
                     ),
                   ],
                 ),
@@ -648,7 +655,10 @@ class _AbhaManagementScreenState extends State<AbhaManagementScreen> {
                                 side: const BorderSide(color: AppColors.sosRed),
                                 padding: const EdgeInsets.symmetric(vertical: 6),
                               ),
-                              child: const Text('Deny (Mana Karein)', style: TextStyle(fontSize: 12)),
+                              child: Text(
+                                Get.locale?.languageCode == 'hi' ? 'अस्वीकार करें' : 'Deny',
+                                style: const TextStyle(fontSize: 12),
+                              ),
                             ),
                           ),
                           const SizedBox(width: 8),
@@ -660,7 +670,10 @@ class _AbhaManagementScreenState extends State<AbhaManagementScreen> {
                                 foregroundColor: Colors.white,
                                 padding: const EdgeInsets.symmetric(vertical: 6),
                               ),
-                              child: const Text('Grant (Manzoor Karein)', style: TextStyle(fontSize: 12)),
+                              child: Text(
+                                Get.locale?.languageCode == 'hi' ? 'स्वीकार करें' : 'Grant Consent',
+                                style: const TextStyle(fontSize: 12),
+                              ),
                             ),
                           ),
                         ],

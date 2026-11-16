@@ -297,26 +297,26 @@ class CommunityService {
         'therapeuticClass': 'Analgesic & Antipyretic (Bukhar aur Dard Nivarak)',
         'standardIndications': [
           'Bukhar utarne aur taapman normal karne ke liye (Fever reduction)',
-          'Sar dard, badan dard aur daant dard me turant aaram',
-          'Thakan aur halka jodon ka dard'
+          'सिर दर्द, बदन दर्द एवं दंत वेदना में तुरंत आराम',
+          'थकान एवं जोड़ों के हल्के दर्द में राहत'
         ],
         'simpleUsesHindi': [
           'Bukhar utarne aur shareer thanda karne ke liye (Fever)',
-          'Sar dard, badan dard aur daant dard me turant aaram',
-          'Thakan aur halka jodon ka dard'
+          'सिर दर्द, बदन दर्द एवं दंत वेदना में तुरंत आराम',
+          'थकान एवं जोड़ों के हल्के दर्द में राहत'
         ],
-        'safeDosageHindi': 'Din me 3-4 baar se zyada na lein (4-6 ghante ka antar rakhein). 24 ghante me 4,000 mg (4 gram) se zyada galti se bhi na lein!',
-        'genericSavingsHindi': 'PM Jan Aushadhi Kendra par ₹10-₹15 me 10 goli milti hain (Branded Dolo/Crosin ₹35-₹50 me aati hai - 70%+ bachat)!',
-        'commonSideEffects': ['Khali pet lene par halki ulti ya acidity', 'Halka pet dard'],
+        'safeDosageHindi': 'दिन में 3-4 बार से अधिक न लें (4-6 घंटे का अंतराल रखें)। 24 घंटे में 4,000 मिलीग्राम से अधिक कदापि न लें।',
+        'genericSavingsHindi': 'प्रधानमंत्री जन औषधि केंद्र पर ₹10-₹15 में 10 गोलियां उपलब्ध (ब्रांडेड ₹35-₹50 - 70%+ बचत)।',
+        'commonSideEffects': ['खाली पेट लेने पर हल्का जी मिचलाना या अम्लता (एसिडिटी)', 'हल्का पेट दर्द'],
         'severeWarnings': [
-          '24 ghante me 4,000 mg se zyada dose lene par liver damage ka khatra hota hai.',
-          'Sharab (Alcohol) ke sath bilkul na lein.'
+          '24 घंटे में 4,000 मिलीग्राम से अधिक खुराक लेने पर यकृत (लिवर) क्षति का जोखिम रहता है।',
+          'मदिरा (अल्कोहल) के साथ सेवन कदापि न करें।'
         ],
         'contraindications': ['Severe active liver failure or hepatic impairment'],
         'pregnancySafety': 'SAFE',
-        'alcoholInteraction': 'Sharab ke sath lene se liver damage ka khatra drastically badhta hai.',
-        'foodInstructions': 'Khane ke baad ya pehle ek glass taaze paani ke sath le sakte hain.',
-        'disclaimer': 'Aam bukhar aur dard ke liye surakshit hai. Agar bukhar 3 din se zyada rahe to doctor ko zaroor dikhayein.'
+        'alcoholInteraction': 'शराब के साथ लेने से लिवर क्षति का अत्यधिक जोखिम रहता है।',
+        'foodInstructions': 'भोजन के उपरांत अथवा पूर्व एक गिलास ताजे पानी के साथ सेवन कर सकते हैं।',
+        'disclaimer': 'सामान्य ज्वर एवं दर्द हेतु सुरक्षित। यदि बुखार 3 दिन से अधिक रहे तो चिकित्सक से परामर्श लें।'
       };
     }
 
@@ -331,24 +331,24 @@ class CommunityService {
         'genericName': 'Pantoprazole 40mg + Domperidone 30mg SR',
         'therapeuticClass': 'Proton Pump Inhibitor (PPI) & Prokinetic (Acidity & Gas)',
         'standardIndications': [
-          'Seene me tez jalan (Heartburn), acidity aur gas se turant rahat',
-          'Khana gale me wapas aana (Acid Reflux) aur khatti dakar rokna',
-          'Ulti aur ji michlana theek karna'
+          'सीने में जलन (हार्टबर्न), अम्लता एवं गैस से तुरंत राहत',
+          'अम्ल प्रतिवाह (एसिड रिफ्लक्स) एवं खट्टी डकार में रोकथाम',
+          'उल्टी एवं जी मिचलाना ठीक करना'
         ],
         'simpleUsesHindi': [
-          'Seene me tez jalan (Heartburn), acidity aur gas se turant rahat',
-          'Khana gale me wapas aana (Acid Reflux) aur khatti dakar rokna',
-          'Ulti aur ji michlana theek karna'
+          'सीने में जलन (हार्टबर्न), अम्लता एवं गैस से तुरंत राहत',
+          'अम्ल प्रतिवाह (एसिड रिफ्लक्स) एवं खट्टी डकार में रोकथाम',
+          'उल्टी एवं जी मिचलाना ठीक करना'
         ],
-        'safeDosageHindi': 'Subah khali pet (nahaar munh) 1 capsule gungune paani ke sath lein, khana khane se 30-45 minute pehle.',
-        'genericSavingsHindi': 'PM Jan Aushadhi Kendra par ₹25-₹35 me 10 capsule milte hain (Branded Pan-D ₹150-₹220 me - 80%+ bachat)!',
-        'commonSideEffects': ['Halka sar dard', 'Muh sukhna ya halka dast'],
-        'severeWarnings': ['Lagatar 2-3 hafte se zyada bina doctor ki salah ke na lein.'],
+        'safeDosageHindi': 'प्रातः काल खाली पेट (भोजन से 30-45 मिनट पूर्व) गुनगुने पानी के साथ 1 कैप्सूल लें।',
+        'genericSavingsHindi': 'जन औषधि केंद्र पर ₹25-₹35 में 10 कैप्सूल उपलब्ध (ब्रांडेड ₹150-₹220 - 80%+ बचत)।',
+        'commonSideEffects': ['हल्का सिर दर्द', 'मुख सूखना अथवा हल्का दस्त'],
+        'severeWarnings': ['लगातार 2-3 सप्ताह से अधिक चिकित्सक के परामर्श के बिना न लें।'],
         'contraindications': ['Gastrointestinal hemorrhage or bowel obstruction'],
         'pregnancySafety': 'CAUTION',
-        'alcoholInteraction': 'Sharab se pet me acid badhta hai, isliye sharab se parhez karein.',
-        'foodInstructions': 'Subah khana khane se 30 minute pehle khali pet lein.',
-        'disclaimer': 'Acidity me behad asardar hai. Roz subah nahaar munh lena labhdayak hai.'
+        'alcoholInteraction': 'शराब से पेट में अम्ल बढ़ता है, अतः मदिरा सेवन से बचें।',
+        'foodInstructions': 'प्रातः काल भोजन से 30 मिनट पूर्व खाली पेट सेवन करें।',
+        'disclaimer': 'अम्लता (एसिडिटी) में अत्यधिक प्रभावी। प्रातः काल खाली पेट लेना लाभकारी है।'
       };
     }
 
@@ -359,24 +359,24 @@ class CommunityService {
         'genericName': 'Ibuprofen 400mg + Paracetamol 325mg',
         'therapeuticClass': 'NSAID & Analgesic (Tez Dard aur Sujan Nivarak)',
         'standardIndications': [
-          'Tez badan dard, daant dard aur chot lagne par dard me aaram',
-          'Jodon me sujan, kamar dard aur moch (sprain) me turant rahat',
-          'Tez bukhar aur sharir tootne par asardar'
+          'तीव्र बदन दर्द, दंत वेदना एवं चोट के दर्द में राहत',
+          'जोड़ों में सूजन, कमर दर्द एवं मोच में तुरंत आराम',
+          'तीव्र ज्वर एवं शारीरिक पीड़ा में प्रभावी'
         ],
         'simpleUsesHindi': [
-          'Tez badan dard, daant dard aur chot lagne par dard me aaram',
-          'Jodon me sujan, kamar dard aur moch (sprain) me turant rahat',
-          'Tez bukhar aur sharir tootne par asardar'
+          'तीव्र बदन दर्द, दंत वेदना एवं चोट के दर्द में राहत',
+          'जोड़ों में सूजन, कमर दर्द एवं मोच में तुरंत आराम',
+          'तीव्र ज्वर एवं शारीरिक पीड़ा में प्रभावी'
         ],
-        'safeDosageHindi': 'Hamesha khana khane ya doodh peene ke BAAD hi lein. Khali pet bilkul na lein! Din me 2-3 baar se zyada na lein.',
-        'genericSavingsHindi': 'Jan Aushadhi Kendra par ₹12-₹18 me 10 goli milti hain (Branded ₹45-₹65).',
-        'commonSideEffects': ['Khali pet lene par pet me jalan aur acidity', 'Halka ji michlana'],
-        'severeWarnings': ['Pet me ulcer ya bleeding ki history wale mareez ise na lein.'],
+        'safeDosageHindi': 'सदा भोजन अथवा दूध पीने के उपरांत ही लें। खाली पेट कदापि न लें। दिन में 2-3 बार से अधिक न लें।',
+        'genericSavingsHindi': 'जन औषधि केंद्र पर ₹12-₹18 में 10 गोलियां उपलब्ध (ब्रांडेड ₹45-₹65 - भारी बचत)।',
+        'commonSideEffects': ['खाली पेट लेने पर उदर में जलन एवं अम्लता', 'हल्का जी मिचलाना'],
+        'severeWarnings': ['पेट में अल्सर अथवा रक्तस्राव के इतिहास वाले रोगी इसका सेवन न करें।'],
         'contraindications': ['Active peptic ulcer disease', 'Severe kidney disease'],
         'pregnancySafety': 'CONTRAINDICATED',
-        'alcoholInteraction': 'Sharab ke sath lene se pet me bleeding ka khatra hota hai.',
-        'foodInstructions': 'Hamesha pet bhar kar khana khane ke baad ek glass paani ke sath lein.',
-        'disclaimer:': 'Tez dard ke liye asardar hai. Khali pet kabhi na lein.'
+        'alcoholInteraction': 'शराब के साथ लेने पर पेट में रक्तस्राव का जोखिम रहता है।',
+        'foodInstructions': 'सदा भोजन के उपरांत एक गिलास पानी के साथ सेवन करें।',
+        'disclaimer:': 'तीव्र दर्द हेतु अत्यधिक असरदार। खाली पेट कभी न लें।'
       };
     }
 
@@ -387,24 +387,24 @@ class CommunityService {
         'genericName': 'Mefenamic Acid 250mg + Dicyclomine 10mg',
         'therapeuticClass': 'Antispasmodic & NSAID (Pet Dard aur Marod Nivarak)',
         'standardIndications': [
-          'Mahilao me mahwari (Periods) ke dauran hone wale asahaniya pet dard me aaram',
-          'Pet me tez marod, cramps aur loose motion ke dard me rahat',
-          'Kidney stone ya intestine me aithan ka dard dur karne me'
+          'मासिक धर्म के दौरान असहनीय पेट दर्द एवं ऐंठन में आराम',
+          'पेट में तीव्र मरोड़, ऐंठन एवं दस्त के दर्द में राहत',
+          'गुर्दे की पथरी अथवा आंतों की ऐंठन का दर्द दूर करने में'
         ],
         'simpleUsesHindi': [
-          'Mahilao me mahwari (Periods) ke dauran hone wale asahaniya pet dard me aaram',
-          'Pet me tez marod, cramps aur loose motion ke dard me rahat',
-          'Kidney stone ya intestine me aithan ka dard dur karne me'
+          'मासिक धर्म के दौरान असहनीय पेट दर्द एवं ऐंठन में आराम',
+          'पेट में तीव्र मरोड़, ऐंठन एवं दस्त के दर्द में राहत',
+          'गुर्दे की पथरी अथवा आंतों की ऐंठन का दर्द दूर करने में'
         ],
-        'safeDosageHindi': 'Jab pet me tez dard ya cramps uthein tab 1 goli lein. Din me 2-3 baar se zyada na lein.',
-        'genericSavingsHindi': 'Jan Aushadhi Kendra par ₹15-₹22 me 10 goli milti hain (Branded ₹55-₹80).',
-        'commonSideEffects': ['Muh sukhna', 'Halki susti ya chakkar aana'],
-        'severeWarnings': ['Bina dard ke regular roop se na lein.'],
+        'safeDosageHindi': 'तीव्र उदर शूल अथवा ऐंठन होने पर 1 गोली लें। दिन में 2-3 बार से अधिक न लें।',
+        'genericSavingsHindi': 'जन औषधि केंद्र पर ₹15-₹22 में 10 गोलियां उपलब्ध (ब्रांडेड ₹55-₹80 - 70%+ बचत)।',
+        'commonSideEffects': ['मुख सूखना', 'हल्की सुस्ती अथवा चक्कर आना'],
+        'severeWarnings': ['बिना दर्द के नियमित रूप से इसका सेवन न करें।'],
         'contraindications': ['Glaucoma', 'Severe urinary blockage'],
         'pregnancySafety': 'CAUTION',
-        'alcoholInteraction': 'Sharab ke sath lene se chakkar aur susti badh sakti hai.',
-        'foodInstructions': 'Khana khane ke baad paani ke sath lein.',
-        'disclaimer': 'Periods aur aithan ke dard me turant rahat deti hai.'
+        'alcoholInteraction': 'शराब के साथ सेवन करने पर चक्कर एवं सुस्ती बढ़ सकती है।',
+        'foodInstructions': 'भोजन के उपरांत पानी के साथ सेवन करें।',
+        'disclaimer': 'मासिक धर्म एवं ऐंठन के दर्द में तुरंत राहत प्रदान करती है।'
       };
     }
 
@@ -415,24 +415,24 @@ class CommunityService {
         'genericName': 'Azithromycin 500mg',
         'therapeuticClass': 'Macrolide Antibiotic (Bacterial Infection Nivarak)',
         'standardIndications': [
-          'Gale me kharash, tonsils, pakan aur chest infection me rahat',
-          'Khansi, balgham aur saans ki nali ka bacterial infection theek karna',
-          'Kaan aur skin ke bacterial infection me asardar'
+          'गले में खराश, टॉन्सिल एवं छाती के संक्रमण में राहत',
+          'खांसी, कफ एवं श्वसन नली के जीवाणु संक्रमण का उपचार',
+          'कर्ण (कान) एवं त्वचा के जीवाणु संक्रमण में असरदार'
         ],
         'simpleUsesHindi': [
-          'Gale me kharash, tonsils, pakan aur chest infection me rahat',
-          'Khansi, balgham aur saans ki nali ka bacterial infection theek karna',
-          'Kaan aur skin ke bacterial infection me asardar'
+          'गले में खराश, टॉन्सिल एवं छाती के संक्रमण में राहत',
+          'खांसी, कफ एवं श्वसन नली के जीवाणु संक्रमण का उपचार',
+          'कर्ण (कान) एवं त्वचा के जीवाणु संक्रमण में असरदार'
         ],
-        'safeDosageHindi': 'Din me sirf 1 goli (500mg), nishchit samay par. Lagatar 3 ya 5 din tak doctor ke anusar. Course adhura na chodein!',
-        'genericSavingsHindi': 'Jan Aushadhi Kendra par 3 goli ₹20-₹28 me milti hain (Branded ₹110-₹140 - 80%+ bachat)!',
-        'commonSideEffects': ['Halka dast (loose stools)', 'Pet me gudgudahat'],
-        'severeWarnings': ['Sadharan sardi-zukam me bina doctor ke na lein. Poora course karna zaroori hai.'],
+        'safeDosageHindi': 'दिन में केवल 1 गोली (500 मिग्रा) नियत समय पर। चिकित्सक के परामर्शानुसार 3 या 5 दिन का संपूर्ण कोर्स करें।',
+        'genericSavingsHindi': 'जन औषधि केंद्र पर 3 गोलियां ₹20-₹28 में उपलब्ध (ब्रांडेड ₹110-₹140 - 80%+ बचत)।',
+        'commonSideEffects': ['हल्के दस्त', 'पेट में भारीपन'],
+        'severeWarnings': ['साधारण सर्दी-जुकाम में चिकित्सक के बिना न लें। पूरा कोर्स करना अनिवार्य है।'],
         'contraindications': ['Macrolide antibiotic hypersensitivity'],
         'pregnancySafety': 'SAFE',
-        'alcoholInteraction': 'Sharab antibiotic ke asar ko kam karti hai.',
-        'foodInstructions': 'Khane se 1 ghanta pehle ya khane ke 2 ghante baad lein.',
-        'disclaimer': 'Doctor ke parchi par bataye dino tak poora course karein.'
+        'alcoholInteraction': 'शराब एंटीबायोटिक के प्रभाव को क्षीण करती है।',
+        'foodInstructions': 'भोजन से 1 घंटा पूर्व अथवा भोजन के 2 घंटे उपरांत लें।',
+        'disclaimer': 'चिकित्सक द्वारा बताए गए दिनों तक संपूर्ण कोर्स पूरा करें।'
       };
     }
 
@@ -454,7 +454,7 @@ class CommunityService {
         ],
         'safeDosageHindi': 'Raat ko sote samay 1 goli paani ke sath lein. Din me driving ke waqt na lein kyunki neend aati hai.',
         'genericSavingsHindi': 'Jan Aushadhi Kendra par 10 goli sirf ₹6-₹10 me milti hain (Branded ₹30-₹50).',
-        'commonSideEffects': ['Susti aur neend aana (Drowsiness)', 'Muh sukhna'],
+        'commonSideEffects': ['Susti aur neend aana (Drowsiness)', 'मुख सूखना'],
         'severeWarnings': ['Ise lene ke baad gaadi chalana ya bhari machine chalana avoid karein.'],
         'contraindications': ['Severe kidney failure'],
         'pregnancySafety': 'SAFE',
@@ -480,7 +480,7 @@ class CommunityService {
       ],
       'safeDosageHindi': 'Doctor ya registered pharmacist dwara bataye anusaar niyamit samay par lein. Apne man se dose na badhayein.',
       'genericSavingsHindi': 'PM Jan Aushadhi Kendra par iski generic dawa 50% se 80% saste daamo me uplabdh ho sakti hai.',
-      'commonSideEffects': ['Halki ulti ya ji michlana', 'Halka sar dard ya susti', 'Pet me halki gas'],
+      'commonSideEffects': ['Halki ulti ya ji michlana', 'हल्का सिर दर्द ya susti', 'Pet me halki gas'],
       'severeWarnings': [
         'Doctor dwara batayi gayi matra se zyada galti se bhi na lein.',
         'Agar saans lene me takleef ya allergy ke lakshan dikhein to turant doctor se milein.'

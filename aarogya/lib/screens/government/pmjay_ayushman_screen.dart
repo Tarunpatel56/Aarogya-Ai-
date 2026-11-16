@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:get/get.dart';
 
 import '../../theme/app_theme.dart';
 import '../../services/government_health_service.dart';
@@ -196,9 +197,10 @@ class _PmjayAyushmanScreenState extends State<PmjayAyushmanScreen>
   Future<void> _checkEligibility() async {
     final idNum = _idNumberCtrl.text.trim();
     if (idNum.isEmpty) {
+      final isHindi = Get.locale?.languageCode == 'hi';
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Kripya card number darj karein'),
+        SnackBar(
+          content: Text(isHindi ? 'कृपया कार्ड नंबर दर्ज करें' : 'Please enter card number'),
           backgroundColor: AppColors.sosRed,
         ),
       );
@@ -709,22 +711,26 @@ class _PmjayAyushmanScreenState extends State<PmjayAyushmanScreen>
                   ),
                 ],
               ),
-              child: const Row(
+              child: Row(
                 children: [
-                  Icon(Icons.download_for_offline_rounded, color: Colors.white, size: 26),
-                  SizedBox(width: 12),
+                  const Icon(Icons.download_for_offline_rounded, color: Colors.white, size: 26),
+                  const SizedBox(width: 12),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Download Ayushman Card (PDF)',
-                          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14),
+                          Get.locale?.languageCode == 'hi'
+                              ? 'आयुष्मान कार्ड डाउनलोड (PDF)'
+                              : 'Download Ayushman Card (PDF)',
+                          style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14),
                         ),
-                        SizedBox(height: 2),
+                        const SizedBox(height: 2),
                         Text(
-                          'NHA official portal se card PDF mein download karein',
-                          style: TextStyle(color: Colors.white70, fontSize: 11),
+                          Get.locale?.languageCode == 'hi'
+                              ? 'एनएचए आधिकारिक पोर्टल से कार्ड पीडीएफ डाउनलोड करें'
+                              : 'Download card PDF from NHA official portal',
+                          style: const TextStyle(color: Colors.white70, fontSize: 11),
                         ),
                       ],
                     ),
@@ -883,14 +889,18 @@ class _PmjayAyushmanScreenState extends State<PmjayAyushmanScreen>
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
-                  'Apni Patrata (Eligibility) Check Karein',
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+                Text(
+                  Get.locale?.languageCode == 'hi'
+                      ? 'अपनी पात्रता जांचें'
+                      : 'Check Eligibility',
+                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
                 ),
                 const SizedBox(height: 6),
-                const Text(
-                  'Aapke paas jo dastavez ho usse check karein:',
-                  style: TextStyle(
+                Text(
+                  Get.locale?.languageCode == 'hi'
+                      ? 'उपलब्ध दस्तावेज चुनकर पात्रता सत्यापित करें:'
+                      : 'Verify status using available identification document:',
+                  style: const TextStyle(
                     fontSize: 12,
                     color: AppColors.textSecondary,
                   ),
@@ -959,10 +969,12 @@ class _PmjayAyushmanScreenState extends State<PmjayAyushmanScreen>
                             strokeWidth: 2,
                           ),
                         )
-                      : const Center(
+                      : Center(
                           child: Text(
-                            'Patrata Jaanch Karein (Verify Status)',
-                            style: TextStyle(
+                            Get.locale?.languageCode == 'hi'
+                                ? 'पात्रता सत्यापित करें'
+                                : 'Verify Eligibility Status',
+                            style: const TextStyle(
                               color: Colors.white,
                               fontWeight: FontWeight.bold,
                             ),

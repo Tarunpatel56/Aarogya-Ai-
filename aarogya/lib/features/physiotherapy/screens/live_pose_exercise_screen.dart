@@ -293,21 +293,28 @@ class _LivePoseExerciseScreenState extends State<LivePoseExerciseScreen> {
                           borderRadius: BorderRadius.circular(20),
                           border: Border.all(color: Colors.amber, width: 1.2),
                         ),
-                        child: const Row(
+                        child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            Icon(Icons.person_search_rounded, color: Colors.white, size: 15),
-                            SizedBox(width: 6),
+                            const Icon(Icons.person_search_rounded, color: Colors.white, size: 15),
+                            const SizedBox(width: 6),
                             Text(
-                              'Camera Ke Samne Aaiye (Detecting Person...)',
-                              style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 11.5),
+                              Get.locale?.languageCode == 'hi'
+                                  ? 'कृपया कैमरे के सामने खड़े हों (जांच जारी...)'
+                                  : 'Please stand in front of the camera (Detecting...)',
+                              style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 11.5),
                             ),
                           ],
                         ),
                       );
                     }
 
+                    final isHindi = Get.locale?.languageCode == 'hi';
                     final isErr = trackCtrl.hasActivePostureError.value;
+                    final statusLabel = isErr
+                        ? (isHindi ? 'मुद्रा में त्रुटि है' : 'Posture Error')
+                        : (isHindi ? 'मुद्रा बिल्कुल सही है' : 'Good Form - Correct Posture');
+
                     return Container(
                       margin: const EdgeInsets.only(bottom: 8),
                       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
@@ -338,7 +345,7 @@ class _LivePoseExerciseScreenState extends State<LivePoseExerciseScreen> {
                           ),
                           const SizedBox(width: 6),
                           Text(
-                            isErr ? 'POSITION GALAT HAI (Posture Error)' : 'POSITION BILKUL SAHI HAI (Good Form)',
+                            statusLabel,
                             style: const TextStyle(
                               color: Colors.white,
                               fontWeight: FontWeight.w900,

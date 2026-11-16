@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import '../../theme/app_theme.dart';
 import '../../services/government_health_service.dart';
 import '../../core/storage/token_storage.dart';
@@ -124,7 +125,12 @@ class _MaternalChildScreenState extends State<MaternalChildScreen> with SingleTi
                   }
                 },
                 style: ElevatedButton.styleFrom(backgroundColor: AppColors.primaryTeal),
-                child: const Center(child: Text('Profile Surakshit Karein', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold))),
+                child: Center(
+                  child: Text(
+                    Get.locale?.languageCode == 'hi' ? 'प्रोफ़ाइल सुरक्षित करें' : 'Save Profile',
+                    style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                  ),
+                ),
               ),
             ],
           ),
@@ -670,7 +676,9 @@ class _MaternalChildScreenState extends State<MaternalChildScreen> with SingleTi
                           borderRadius: BorderRadius.circular(6),
                         ),
                         child: Text(
-                          isGiven ? 'Laga Diya Gaya (Completed)' : 'Baki Hai (Scheduled / Pending)',
+                          isGiven
+                              ? (Get.locale?.languageCode == 'hi' ? 'टीका लगाया गया (पूर्ण)' : 'Completed')
+                              : (Get.locale?.languageCode == 'hi' ? 'लंबित (निर्धारित)' : 'Scheduled / Pending'),
                           style: TextStyle(
                             fontSize: 11,
                             fontWeight: FontWeight.bold,

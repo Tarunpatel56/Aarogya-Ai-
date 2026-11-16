@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:get/get.dart';
 import '../../theme/app_theme.dart';
 import '../../services/government_health_service.dart';
 
@@ -556,15 +557,20 @@ class _BloodBankFinderScreenState extends State<BloodBankFinderScreen> with Sing
                 child: const Icon(Icons.favorite_rounded, color: AppColors.sosRed, size: 24),
               ),
               const SizedBox(width: 12),
-              const Expanded(
+              Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Indore Raktdata Samuday', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: Color(0xFF991B1B))),
-                    SizedBox(height: 2),
                     Text(
-                      'Emergency me mareez ke liye sidha voluntary donor se sampark karein ya khud raktdata banein.',
-                      style: TextStyle(fontSize: 11, color: Color(0xFFB91C1C)),
+                      Get.locale?.languageCode == 'hi' ? 'स्वैच्छिक रक्तदाता समुदाय' : 'Voluntary Blood Donors Community',
+                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: Color(0xFF991B1B)),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      Get.locale?.languageCode == 'hi'
+                          ? 'आपातकाल में रोगी हेतु सीधे स्वैच्छिक रक्तदाता से संपर्क करें अथवा स्वयं रक्तदाता बनें।'
+                          : 'Directly connect with voluntary blood donors in emergency or register as a donor.',
+                      style: const TextStyle(fontSize: 11, color: Color(0xFFB91C1C)),
                     ),
                   ],
                 ),

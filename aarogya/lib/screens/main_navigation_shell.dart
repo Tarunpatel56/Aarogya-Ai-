@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import '../theme/app_theme.dart';
 import '../services/auth_service.dart';
 import 'home_screen.dart';
@@ -77,45 +78,45 @@ class _MainNavigationShellState extends State<MainNavigationShell> {
       padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
       child: SafeArea(
         top: false,
-        child: Row(
+        child: Obx(() => Row(
           children: [
             Expanded(
               child: _buildNavItem(
                 index: 0,
                 icon: Icons.home_rounded,
-                label: 'Home',
+                label: 'nav_home'.tr,
               ),
             ),
             Expanded(
               child: _buildNavItem(
                 index: 1,
                 icon: Icons.show_chart_rounded,
-                label: 'Health',
+                label: 'nav_health'.tr,
               ),
             ),
             Expanded(
               child: _buildNavItem(
                 index: 2,
                 icon: Icons.smart_toy_outlined,
-                label: 'AI Assistant',
+                label: 'nav_ai'.tr,
               ),
             ),
             Expanded(
               child: _buildNavItem(
                 index: 3,
                 icon: Icons.folder_open_rounded,
-                label: 'Records',
+                label: 'nav_records'.tr,
               ),
             ),
             Expanded(
               child: _buildNavItem(
                 index: 4,
                 icon: Icons.person_outline_rounded,
-                label: 'Profile',
+                label: 'nav_profile'.tr,
               ),
             ),
           ],
-        ),
+        )),
       ),
     );
   }

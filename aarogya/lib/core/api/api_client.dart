@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'package:http/http.dart' as http;
+import 'package:get/get.dart';
 import '../config/api_config.dart';
 import '../storage/token_storage.dart';
 import 'api_exception.dart';
@@ -50,9 +51,12 @@ class ApiClient {
   }
 
   Future<Map<String, String>> _buildHeaders({bool includeAuth = true}) async {
+    final isHindi = Get.locale?.languageCode == 'hi';
     final headers = <String, String>{
       'Content-Type': 'application/json',
       'Accept': 'application/json',
+      'Accept-Language': isHindi ? 'hi-IN,hi;q=0.9,en;q=0.8' : 'en-US,en;q=0.9,hi;q=0.8',
+      'x-language': isHindi ? 'hi' : 'en',
       'ngrok-skip-browser-warning': 'true',
     };
 

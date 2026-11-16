@@ -21,6 +21,10 @@ android {
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
+        multiDexEnabled = true
+        ndk {
+            abiFilters.addAll(listOf("armeabi-v7a", "arm64-v8a", "x86_64"))
+        }
     }
 
     androidResources {
@@ -56,6 +60,7 @@ flutter {
 }
 
 dependencies {
+    implementation("androidx.multidex:multidex:2.0.1")
     implementation("com.google.mediapipe:tasks-vision:0.10.14")
     implementation("com.google.mediapipe:tasks-core:0.10.14")
 }

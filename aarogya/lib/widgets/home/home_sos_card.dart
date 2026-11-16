@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import '../../theme/app_theme.dart';
 import '../../screens/emergency_sos_dialog.dart';
 
@@ -45,19 +46,19 @@ class HomeSosCard extends StatelessWidget {
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
-                          children: const [
+                          children: [
                             Text(
-                              'Emergency SOS',
-                              style: TextStyle(
+                              'emergency_sos'.tr,
+                              style: const TextStyle(
                                 fontSize: 14.5,
                                 fontWeight: FontWeight.bold,
                                 color: AppColors.textPrimary,
                               ),
                             ),
-                            SizedBox(height: 2),
+                            const SizedBox(height: 2),
                             Text(
-                              '1-tap alert to contacts & medical services',
-                              style: TextStyle(
+                              'emergency_sos_sub'.tr,
+                              style: const TextStyle(
                                 fontSize: 11.5,
                                 color: AppColors.textSecondary,
                               ),
@@ -85,9 +86,9 @@ class HomeSosCard extends StatelessWidget {
                           );
                         },
                         icon: const Icon(Icons.warning_amber_rounded, size: 14, color: Colors.white),
-                        label: const Text(
-                          'TRIGGER',
-                          style: TextStyle(
+                        label: Text(
+                          Get.locale?.languageCode == 'hi' ? 'सहायता' : 'SOS',
+                          style: const TextStyle(
                             fontSize: 11,
                             fontWeight: FontWeight.w800,
                             letterSpacing: 0.5,
