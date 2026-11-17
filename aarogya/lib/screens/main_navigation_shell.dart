@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../theme/app_theme.dart';
 import '../services/auth_service.dart';
+import '../core/localization/language_controller.dart';
 import 'home_screen.dart';
 import 'health_monitoring_screen.dart';
 import 'ai_assistant_screen.dart';
@@ -78,45 +79,51 @@ class _MainNavigationShellState extends State<MainNavigationShell> {
       padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
       child: SafeArea(
         top: false,
-        child: Obx(() => Row(
-          children: [
-            Expanded(
-              child: _buildNavItem(
-                index: 0,
-                icon: Icons.home_rounded,
-                label: 'nav_home'.tr,
+        child: Obx(() {
+          final langCtrl = Get.isRegistered<LanguageController>()
+              ? Get.find<LanguageController>()
+              : Get.put(LanguageController());
+          final _ = langCtrl.currentLanguage.value;
+          return Row(
+            children: [
+              Expanded(
+                child: _buildNavItem(
+                  index: 0,
+                  icon: Icons.home_rounded,
+                  label: 'nav_home'.tr,
+                ),
               ),
-            ),
-            Expanded(
-              child: _buildNavItem(
-                index: 1,
-                icon: Icons.show_chart_rounded,
-                label: 'nav_health'.tr,
+              Expanded(
+                child: _buildNavItem(
+                  index: 1,
+                  icon: Icons.show_chart_rounded,
+                  label: 'nav_health'.tr,
+                ),
               ),
-            ),
-            Expanded(
-              child: _buildNavItem(
-                index: 2,
-                icon: Icons.smart_toy_outlined,
-                label: 'nav_ai'.tr,
+              Expanded(
+                child: _buildNavItem(
+                  index: 2,
+                  icon: Icons.smart_toy_outlined,
+                  label: 'nav_ai'.tr,
+                ),
               ),
-            ),
-            Expanded(
-              child: _buildNavItem(
-                index: 3,
-                icon: Icons.folder_open_rounded,
-                label: 'nav_records'.tr,
+              Expanded(
+                child: _buildNavItem(
+                  index: 3,
+                  icon: Icons.folder_open_rounded,
+                  label: 'nav_records'.tr,
+                ),
               ),
-            ),
-            Expanded(
-              child: _buildNavItem(
-                index: 4,
-                icon: Icons.person_outline_rounded,
-                label: 'nav_profile'.tr,
+              Expanded(
+                child: _buildNavItem(
+                  index: 4,
+                  icon: Icons.person_outline_rounded,
+                  label: 'nav_profile'.tr,
+                ),
               ),
-            ),
-          ],
-        )),
+            ],
+          );
+        }),
       ),
     );
   }
