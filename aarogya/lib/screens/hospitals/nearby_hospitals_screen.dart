@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import '../../theme/app_theme.dart';
 import '../../models/hospital_model.dart';
 import '../../services/hospital_service.dart';
+import '../../core/utils/phone_launcher_util.dart';
 import '../../services/device_location_service.dart';
 import '../../core/api/api_exception.dart';
 
@@ -104,35 +104,18 @@ class _NearbyHospitalsScreenState extends State<NearbyHospitalsScreen> {
     });
   }
 
-  static const MethodChannel _platformChannel = MethodChannel('io.aarogya.mediapipe/pose');
-
   Future<void> _callHospital(HospitalModel hospital) async {
     final phone = hospital.emergencyPhone.isNotEmpty
         ? hospital.emergencyPhone
         : (hospital.contactPhone.isNotEmpty ? hospital.contactPhone : '108');
 
-    try {
-      await _platformChannel.invokeMethod('launchDialer', {'phoneNumber': phone});
-    } catch (_) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Dialing ${hospital.name} emergency: $phone'),
-            backgroundColor: const Color(0xFFDC2626),
-            duration: const Duration(seconds: 3),
-          ),
-        );
-      }
-    }
+    await PhoneLauncherUtil.launchPhone(phone, context: context);
   }
 
   Future<void> _openDirections(HospitalModel hospital) async {
     try {
-      await _platformChannel.invokeMethod('launchMapDirections', {
-        'latitude': hospital.latitude,
-        'longitude': hospital.longitude,
-        'label': hospital.name,
-      });
+      final url = 'https://www.google.com/maps/search/?api=1&query=${hospital.latitude},${hospital.longitude}';
+      await PhoneLauncherUtil.launchWeb(url);
     } catch (_) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(

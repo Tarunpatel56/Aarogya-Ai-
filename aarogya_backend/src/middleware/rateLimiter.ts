@@ -7,9 +7,10 @@ import { env } from '../config/env';
  */
 export const authRateLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: env.NODE_ENV === 'test' ? 1000 : 15, // 15 attempts per 15 minutes in non-test env
+  max: env.NODE_ENV === 'test' ? 1000 : 500, // 500 attempts per 15 minutes to accommodate multi-user and mobile clients
   standardHeaders: true,
   legacyHeaders: false,
+  validate: false, // Prevent proxy-header validation crashes behind Cloudflare/Render
   message: {
     success: false,
     error: {

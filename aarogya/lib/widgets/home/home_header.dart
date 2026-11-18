@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import '../../theme/app_theme.dart';
 import '../../models/patient_profile_model.dart';
 import '../../models/user_model.dart';
 import '../../screens/notifications/notifications_screen.dart';
+import '../../screens/emergency/emergency_helplines_screen.dart';
 import '../../services/notification_service.dart';
-import '../../core/localization/language_selector_widget.dart';
 
 class HomeHeader extends StatelessWidget {
   final UserModel? user;
@@ -39,10 +40,22 @@ class HomeHeader extends StatelessWidget {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
+        // Drawer Menu Button
+        Builder(
+          builder: (ctx) => IconButton(
+            icon: const Icon(Icons.menu_rounded, color: AppColors.primaryTeal, size: 26),
+            padding: EdgeInsets.zero,
+            constraints: const BoxConstraints(),
+            tooltip: 'Menu',
+            onPressed: () => Scaffold.of(ctx).openDrawer(),
+          ),
+        ),
+        const SizedBox(width: 10),
+
         // Avatar circle with initials
         Container(
-          width: 46,
-          height: 46,
+          width: 42,
+          height: 42,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
             border: Border.all(color: AppColors.primaryTeal, width: 1.5),
@@ -54,12 +67,12 @@ class HomeHeader extends StatelessWidget {
               style: const TextStyle(
                 color: AppColors.primaryTeal,
                 fontWeight: FontWeight.bold,
-                fontSize: 16,
+                fontSize: 15,
               ),
             ),
           ),
         ),
-        const SizedBox(width: 12),
+        const SizedBox(width: 10),
 
         // User info & ABHA ID
         Expanded(
@@ -72,7 +85,7 @@ class HomeHeader extends StatelessWidget {
                     child: Text(
                       displayName,
                       style: const TextStyle(
-                        fontSize: 16,
+                        fontSize: 15,
                         fontWeight: FontWeight.w700,
                         color: AppColors.textPrimary,
                       ),
@@ -101,7 +114,7 @@ class HomeHeader extends StatelessWidget {
               Text(
                 abhaId,
                 style: const TextStyle(
-                  fontSize: 12,
+                  fontSize: 11.5,
                   fontWeight: FontWeight.w500,
                   color: AppColors.textSecondary,
                   letterSpacing: 0.2,
@@ -111,11 +124,17 @@ class HomeHeader extends StatelessWidget {
             ],
           ),
         ),
-        const SizedBox(width: 8),
+        const SizedBox(width: 6),
 
-        // Quick Language Switcher [ English | हिन्दी ]
-        const LanguageSelectorWidget(compact: true),
-        const SizedBox(width: 8),
+        // Emergency Helpline Direct Shortcut (Red)
+        IconButton(
+          icon: const Icon(Icons.emergency_rounded, color: Color(0xFFDC2626), size: 22),
+          padding: EdgeInsets.zero,
+          constraints: const BoxConstraints(),
+          tooltip: 'Emergency Helplines (112, 108, 100, 1091)',
+          onPressed: () => Get.to(() => const EmergencyHelplinesScreen()),
+        ),
+        const SizedBox(width: 10),
 
         // Notification Bell
         IconButton(

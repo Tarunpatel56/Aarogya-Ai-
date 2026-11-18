@@ -1094,14 +1094,12 @@ ${isHindi ? 'Provide findingsSummary, plainLanguageExplanation, recommendedSpeci
   }
 
   /**
-   * AI Health Record Summarizer (Multilingual: English, Hindi, Hinglish)
+   * AI Health Record Summarizer (Strict Bilingual: English, Pure Devanagari Hindi)
    */
-  public async summarizeHealthRecord(recordText: string, language: 'en' | 'hi' | 'hinglish' = 'en'): Promise<any> {
+  public async summarizeHealthRecord(recordText: string, language: 'en' | 'hi' = 'en'): Promise<any> {
     const langPrompt =
       language === 'hi'
-        ? 'Provide the final summary in natural Hindi (Devanagari script).'
-        : language === 'hinglish'
-        ? 'Provide the summary in natural, conversational Hinglish (Hindi written in Roman English script) that Indian patients easily understand.'
+        ? 'Provide the final summary entirely in natural, pure Hindi (Devanagari script only, absolutely no Hinglish or mixed romanized Hindi).'
         : 'Provide the summary in clear, easy-to-understand plain English.';
 
     const systemPrompt = `You are "Aarogya Clinical AI Health Record Summarizer".
@@ -1140,15 +1138,13 @@ Safety:
   }
 
   /**
-   * AI Medicine Composition & Jan Aushadhi Alternative Explainer
+   * AI Medicine Composition & Jan Aushadhi Alternative Explainer (Strict Bilingual)
    */
-  public async explainMedicineComposition(medicineName: string, composition: string, language: 'en' | 'hi' | 'hinglish' = 'en'): Promise<any> {
+  public async explainMedicineComposition(medicineName: string, composition: string, language: 'en' | 'hi' = 'en'): Promise<any> {
     const langPrompt =
       language === 'hi'
-        ? 'Explain in Hindi.'
-        : language === 'hinglish'
-        ? 'Explain in natural, warm Hinglish (Roman Hindi).'
-        : 'Explain in simple English.';
+        ? 'Explain entirely in pure, polite Hindi (Devanagari script only, absolutely no Hinglish or mixed words).'
+        : 'Explain in simple, clear English.';
 
     const systemPrompt = `You are "Aarogya Medicine Explainer".
 Explain what the medicine "${medicineName}" (active salt: ${composition}) does, safe dosage rules, side effects, and why the generic version from PM Jan Aushadhi is bio-equivalent and cost-effective.
@@ -1170,12 +1166,12 @@ Return JSON:
     } catch {}
 
     return {
-      simplePurpose: `${medicineName} provides therapeutic management for the indicated clinical condition.`,
-      howItWorks: `Contains active formulation: ${composition}.`,
-      safeUsage: 'Take with a glass of water as advised on prescription.',
-      genericAlternativeAdvice: 'Bio-equivalent generic medicines are available at Pradhan Mantri Jan Aushadhi Kendras at up to 80% lower cost.',
-      warnings: ['Do not exceed maximum daily dosage', 'Avoid alcohol concurrent intake'],
-      disclaimer: 'Always verify with your doctor or pharmacist.',
+      simplePurpose: language === 'hi' ? `${medicineName} संबंधित स्वास्थ्य समस्या के उपचार में सहायक है।` : `${medicineName} provides therapeutic management for the indicated clinical condition.`,
+      howItWorks: language === 'hi' ? `इसमें सक्रिय साल्ट संघटक उपलब्ध है: ${composition}।` : `Contains active formulation: ${composition}.`,
+      safeUsage: language === 'hi' ? 'चिकित्सक की पर्ची अनुसार पर्याप्त पानी के साथ समय पर लें।' : 'Take with a glass of water as advised on prescription.',
+      genericAlternativeAdvice: language === 'hi' ? 'प्रधानमंत्री जन औषधि केंद्रों पर समान गुणवत्ता वाली जेनेरिक दवाइयां 50% से 80% तक कम कीमत पर उपलब्ध हैं।' : 'Bio-equivalent generic medicines are available at Pradhan Mantri Jan Aushadhi Kendras at up to 80% lower cost.',
+      warnings: language === 'hi' ? ['दैनिक सुझाई गई खुराक से अधिक न लें', 'शराब या नशीले पदार्थों के साथ सेवन न करें'] : ['Do not exceed maximum daily dosage', 'Avoid alcohol concurrent intake'],
+      disclaimer: language === 'hi' ? 'दवा बदलने से पहले सदैव अपने पंजीकृत चिकित्सक या फार्मासिस्ट से परामर्श करें।' : 'Always verify with your doctor or pharmacist.',
     };
   }
 

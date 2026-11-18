@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../theme/app_theme.dart';
 import '../../services/community_service.dart';
+import '../../core/utils/phone_launcher_util.dart';
 
 class HealthCampsScreen extends StatefulWidget {
   final CommunityService? communityService;
@@ -573,9 +574,7 @@ class _HealthCampsScreenState extends State<HealthCampsScreen> {
                                       Expanded(
                                         child: OutlinedButton.icon(
                                           onPressed: () {
-                                            ScaffoldMessenger.of(context).showSnackBar(
-                                              SnackBar(content: Text('Calling Camp Helpline: $phone')),
-                                            );
+                                            PhoneLauncherUtil.launchPhone(phone, context: context);
                                           },
                                           icon: const Icon(Icons.phone, size: 16),
                                           label: Text('Call Helpline: $phone', overflow: TextOverflow.ellipsis),

@@ -44,6 +44,7 @@ import '../widgets/home/home_physio_card.dart';
 import '../models/emergency_model.dart';
 import '../services/emergency_service.dart';
 import 'emergency/live_ambulance_tracking_screen.dart';
+import '../widgets/navigation/app_navigation_drawer.dart';
 
 class HomeScreen extends StatefulWidget {
   final VoidCallback? onNavigateToAI;
@@ -374,6 +375,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.scaffoldBg,
+      drawer: AppNavigationDrawer(authService: widget.authService),
       body: SafeArea(
         child: RefreshIndicator(
           onRefresh: _loadData,

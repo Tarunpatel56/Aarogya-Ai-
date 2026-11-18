@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import '../../theme/app_theme.dart';
 import '../../services/government_health_service.dart';
+import '../../core/utils/phone_launcher_util.dart';
 
 class BloodBankFinderScreen extends StatefulWidget {
   final GovernmentHealthService? service;
@@ -279,12 +280,7 @@ class _BloodBankFinderScreenState extends State<BloodBankFinderScreen> with Sing
 
   void _makeCall(String? phone) {
     if (phone == null || phone.isEmpty) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Connecting to Blood Bank helpline: $phone'),
-        backgroundColor: AppColors.primaryTeal,
-      ),
-    );
+    PhoneLauncherUtil.launchPhone(phone, context: context);
   }
 
   void _showEmergencyRequestDialog(BuildContext context, Map<String, dynamic>? bank) {

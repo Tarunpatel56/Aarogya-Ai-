@@ -11,6 +11,8 @@ import 'maternal_child_screen.dart';
 import 'nearby_healthcare_places_screen.dart';
 import '../profile/family_health_screen.dart';
 import '../../features/ayushman/views/ayushman_web_screen.dart';
+import '../emergency/emergency_helplines_screen.dart';
+import '../community/government_schemes_screen.dart';
 
 class GovernmentDashboardScreen extends StatelessWidget {
   const GovernmentDashboardScreen({super.key});
@@ -80,9 +82,11 @@ class GovernmentDashboardScreen extends StatelessWidget {
                       ],
                     ),
                     const SizedBox(height: 14),
-                    const Text(
-                      'National Digital Health Mission\n& Sarkari Yojana Hub',
-                      style: TextStyle(
+                    Text(
+                      Get.locale?.languageCode == 'hi'
+                          ? 'राष्ट्रीय डिजिटल स्वास्थ्य मिशन\nएवं सरकारी योजना केंद्र'
+                          : 'National Digital Health Mission\n& Government Schemes Hub',
+                      style: const TextStyle(
                         color: Colors.white,
                         fontSize: 20,
                         fontWeight: FontWeight.w800,
@@ -91,9 +95,11 @@ class GovernmentDashboardScreen extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 8),
-                    const Text(
-                      'ABHA ID, e-RaktKosh, Jan Aushadhi, PM-JAY, U-WIN aur sabhi sarkari swasthya suvidhayein ek sthan par.',
-                      style: TextStyle(color: Color(0xFFE0F2F1), fontSize: 12, height: 1.4),
+                    Text(
+                      Get.locale?.languageCode == 'hi'
+                          ? 'आभा आईडी, ई-रक्तकोश, जन औषधि, पीएम-जय, यू-विन एवं समस्त सरकारी स्वास्थ्य सेवाएं एक स्थान पर।'
+                          : 'ABHA ID, e-RaktKosh, Jan Aushadhi, PM-JAY, U-WIN, and official public healthcare services in one unified platform.',
+                      style: const TextStyle(color: Color(0xFFE0F2F1), fontSize: 12, height: 1.4),
                     ),
                   ],
                 ),
@@ -105,6 +111,44 @@ class GovernmentDashboardScreen extends StatelessWidget {
                     ? 'प्रमुख सरकारी स्वास्थ्य सुविधाएं'
                     : 'Core Government Services',
                 style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: AppColors.textPrimary),
+              ),
+              const SizedBox(height: 12),
+
+              // Emergency National Helplines Directory Card (1-Tap Dialing)
+              _buildServiceCard(
+                context,
+                title: Get.locale?.languageCode == 'hi'
+                    ? 'राष्ट्रीय आपातकालीन हेल्पलाइन निर्देशिका'
+                    : 'National Emergency Helplines (1-Tap Dial)',
+                subtitle: Get.locale?.languageCode == 'hi'
+                    ? 'पुलिस (112/100), एम्बुलेंस (108), महिला सुरक्षा (1091/181), अग्निशमन (101) एवं स्वास्थ्य सहायता।'
+                    : 'Police (112/100), Ambulance (108), Women Safety (1091/181), Fire (101) & Health helplines.',
+                icon: Icons.emergency_rounded,
+                iconColor: const Color(0xFFDC2626),
+                iconBg: const Color(0xFFFEE2E2),
+                badgeText: Get.locale?.languageCode == 'hi' ? '24x7 तत्काल कॉल' : '24x7 Direct Dial',
+                badgeColor: Colors.red.shade50,
+                badgeTextColor: Colors.red.shade800,
+                onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const EmergencyHelplinesScreen())),
+              ),
+              const SizedBox(height: 12),
+
+              // Government Schemes Directory & Official Portals
+              _buildServiceCard(
+                context,
+                title: Get.locale?.languageCode == 'hi'
+                    ? 'सरकारी योजनाएं एवं आधिकारिक वेब पोर्टल'
+                    : 'Government Schemes & Official Portals',
+                subtitle: Get.locale?.languageCode == 'hi'
+                    ? 'पीएम-जय, आभा, जन औषधि एवं राज्य स्वास्थ्य योजनाओं के लाभ, पात्रता व आधिकारिक वेब पोर्टल।'
+                    : 'Explore all national health schemes, eligibility, benefits, and launch official web portals.',
+                icon: Icons.policy_rounded,
+                iconColor: const Color(0xFF4338CA),
+                iconBg: const Color(0xFFEEF2FF),
+                badgeText: Get.locale?.languageCode == 'hi' ? 'आधिकारिक पोर्टल' : 'Official Portals',
+                badgeColor: Colors.indigo.shade50,
+                badgeTextColor: Colors.indigo.shade800,
+                onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const GovernmentSchemesScreen())),
               ),
               const SizedBox(height: 12),
 

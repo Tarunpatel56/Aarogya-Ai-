@@ -20,6 +20,7 @@ class SuperAdminService {
       body: {
         'email': email.trim(),
         'password': password,
+        'role': 'SUPER_ADMIN',
       },
       requiresAuth: false,
     );

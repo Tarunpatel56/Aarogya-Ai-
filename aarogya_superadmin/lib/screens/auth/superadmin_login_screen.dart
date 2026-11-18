@@ -17,7 +17,6 @@ class _SuperAdminLoginScreenState extends State<SuperAdminLoginScreen> {
   final _passwordController = TextEditingController();
   final _adminService = SuperAdminService();
   bool _isLoading = false;
-  bool _obscurePassword = true;
   String? _errorMessage;
 
   Future<void> _handleLogin() async {
@@ -52,8 +51,14 @@ class _SuperAdminLoginScreenState extends State<SuperAdminLoginScreen> {
       }
     } catch (e) {
       if (mounted) {
+        final rawMsg = e.toString().replaceAll('ApiException: ', '');
+        final cleanMsg = rawMsg.contains('404')
+            ? 'Backend service is starting up or temporarily unreachable. Please retry in a few moments.'
+            : (rawMsg.contains('500')
+                ? 'Server is processing request. Please retry in a few moments.'
+                : rawMsg);
         setState(() {
-          _errorMessage = e.toString().replaceAll('ApiException: ', '');
+          _errorMessage = cleanMsg;
           _isLoading = false;
         });
       }
@@ -74,10 +79,7 @@ class _SuperAdminLoginScreenState extends State<SuperAdminLoginScreen> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   // Shield Logo
-                  const SuperAdminBrandLogo(
-                    size: 78,
-                    showText: false,
-                  ),
+                  const SuperAdminBrandLogo(size: 78, showText: false),
                   const SizedBox(height: 20),
                   const Text(
                     'Aarogya SuperAdmin',
@@ -206,21 +208,13 @@ class _SuperAdminLoginScreenState extends State<SuperAdminLoginScreen> {
                         const SizedBox(height: 6),
                         TextField(
                           controller: _passwordController,
-                          obscureText: _obscurePassword,
+                          obscureText: true,
                           style: const TextStyle(color: Colors.white),
                           decoration: InputDecoration(
                             prefixIcon: const Icon(
                               Icons.lock_outline,
                               size: 20,
                               color: Color(0xFF94A3B8),
-                            ),
-                            suffixIcon: IconButton(
-                              icon: Icon(
-                                _obscurePassword ? Icons.visibility_off : Icons.visibility,
-                                size: 20,
-                                color: const Color(0xFF94A3B8),
-                              ),
-                              onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
                             ),
                             hintText: '••••••••',
                             hintStyle: const TextStyle(

@@ -11,6 +11,9 @@ import { errorHandler } from './middleware/errorHandler';
 export function createApp(): Application {
   const app = express();
 
+  // Trust first proxy hop (Render, Cloudflare, AWS, reverse proxies)
+  app.set('trust proxy', 1);
+
   // Security headers middleware configured for cross-origin web client compatibility
   app.use(
     helmet({

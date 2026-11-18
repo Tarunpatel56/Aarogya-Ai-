@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../theme/app_theme.dart';
 import '../../services/community_service.dart';
+import '../../core/utils/phone_launcher_util.dart';
 
 class BloodDonorDirectoryScreen extends StatefulWidget {
   final CommunityService? communityService;
@@ -828,14 +829,9 @@ class _BloodDonorDirectoryScreenState extends State<BloodDonorDirectoryScreen> {
                                     tooltip: 'Direct Phone Call',
                                     icon: const Icon(Icons.phone, size: 20),
                                     onPressed: () {
-                                      ScaffoldMessenger.of(
-                                        context,
-                                      ).showSnackBar(
-                                        SnackBar(
-                                          content: Text(
-                                            'Calling Donor $name at $phone...',
-                                          ),
-                                        ),
+                                      PhoneLauncherUtil.launchPhone(
+                                        phone,
+                                        context: context,
                                       );
                                     },
                                   ),

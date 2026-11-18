@@ -8,6 +8,7 @@ import '../../core/storage/token_storage.dart';
 import '../../features/ayushman/views/ayushman_web_screen.dart';
 import 'opd_scan_share_screen.dart';
 import 'nearby_healthcare_places_screen.dart';
+import '../../core/utils/phone_launcher_util.dart';
 
 class PmjayAyushmanScreen extends StatefulWidget {
   final GovernmentHealthService? service;
@@ -200,7 +201,9 @@ class _PmjayAyushmanScreenState extends State<PmjayAyushmanScreen>
       final isHindi = Get.locale?.languageCode == 'hi';
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(isHindi ? 'कृपया कार्ड नंबर दर्ज करें' : 'Please enter card number'),
+          content: Text(
+            isHindi ? 'कृपया कार्ड नंबर दर्ज करें' : 'Please enter card number',
+          ),
           backgroundColor: AppColors.sosRed,
         ),
       );
@@ -251,14 +254,7 @@ class _PmjayAyushmanScreenState extends State<PmjayAyushmanScreen>
   }
 
   void _callHelpline() {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text(
-          'Ayushman Bharat National Toll-Free: 14555 / 1800-111-565',
-        ),
-        backgroundColor: AppColors.primaryTeal,
-      ),
-    );
+    PhoneLauncherUtil.launchPhone('14555');
   }
 
   @override
@@ -540,16 +536,9 @@ class _PmjayAyushmanScreenState extends State<PmjayAyushmanScreen>
                                 Expanded(
                                   child: OutlinedButton.icon(
                                     onPressed: () {
-                                      ScaffoldMessenger.of(
-                                        context,
-                                      ).showSnackBar(
-                                        SnackBar(
-                                          content: Text(
-                                            'Ayushman Mitra Desk Helpline: $deskPhone',
-                                          ),
-                                          backgroundColor:
-                                              AppColors.primaryTeal,
-                                        ),
+                                      PhoneLauncherUtil.launchPhone(
+                                        deskPhone,
+                                        context: context,
                                       );
                                     },
                                     icon: const Icon(
@@ -713,7 +702,11 @@ class _PmjayAyushmanScreenState extends State<PmjayAyushmanScreen>
               ),
               child: Row(
                 children: [
-                  const Icon(Icons.download_for_offline_rounded, color: Colors.white, size: 26),
+                  const Icon(
+                    Icons.download_for_offline_rounded,
+                    color: Colors.white,
+                    size: 26,
+                  ),
                   const SizedBox(width: 12),
                   Expanded(
                     child: Column(
@@ -723,19 +716,30 @@ class _PmjayAyushmanScreenState extends State<PmjayAyushmanScreen>
                           Get.locale?.languageCode == 'hi'
                               ? 'आयुष्मान कार्ड डाउनलोड (PDF)'
                               : 'Download Ayushman Card (PDF)',
-                          style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14),
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 14,
+                          ),
                         ),
                         const SizedBox(height: 2),
                         Text(
                           Get.locale?.languageCode == 'hi'
                               ? 'एनएचए आधिकारिक पोर्टल से कार्ड पीडीएफ डाउनलोड करें'
                               : 'Download card PDF from NHA official portal',
-                          style: const TextStyle(color: Colors.white70, fontSize: 11),
+                          style: const TextStyle(
+                            color: Colors.white70,
+                            fontSize: 11,
+                          ),
                         ),
                       ],
                     ),
                   ),
-                  Icon(Icons.arrow_forward_ios_rounded, color: Colors.white70, size: 14),
+                  Icon(
+                    Icons.arrow_forward_ios_rounded,
+                    color: Colors.white70,
+                    size: 14,
+                  ),
                 ],
               ),
             ),
@@ -893,7 +897,10 @@ class _PmjayAyushmanScreenState extends State<PmjayAyushmanScreen>
                   Get.locale?.languageCode == 'hi'
                       ? 'अपनी पात्रता जांचें'
                       : 'Check Eligibility',
-                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 15,
+                  ),
                 ),
                 const SizedBox(height: 6),
                 Text(

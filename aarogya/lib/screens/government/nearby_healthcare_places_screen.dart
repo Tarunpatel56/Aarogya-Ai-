@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import '../../theme/app_theme.dart';
 import '../../services/government_health_service.dart';
 import '../../services/device_location_service.dart';
+import '../../core/utils/phone_launcher_util.dart';
 import 'opd_scan_share_screen.dart';
 
 class NearbyHealthcarePlacesScreen extends StatefulWidget {
@@ -95,12 +96,7 @@ class _NearbyHealthcarePlacesScreenState extends State<NearbyHealthcarePlacesScr
 
   void _callPlace(String? phone) {
     if (phone == null || phone.isEmpty) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Helpline contact: $phone'),
-        backgroundColor: AppColors.primaryTeal,
-      ),
-    );
+    PhoneLauncherUtil.launchPhone(phone, context: context);
   }
 
   @override

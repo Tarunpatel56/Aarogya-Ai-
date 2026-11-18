@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import '../../theme/app_theme.dart';
 import '../../services/community_service.dart';
+import '../../core/utils/phone_launcher_util.dart';
+import '../government/government_scheme_detail_screen.dart';
 
 class GovernmentSchemesScreen extends StatefulWidget {
   final CommunityService? communityService;
@@ -269,9 +271,7 @@ class _GovernmentSchemesScreenState extends State<GovernmentSchemesScreen> {
               Expanded(
                 child: OutlinedButton.icon(
                   onPressed: () {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('National Helpline: $helpline')),
-                    );
+                    PhoneLauncherUtil.launchPhone(helpline, context: context);
                   },
                   icon: const Icon(Icons.phone_outlined, size: 16),
                   label: Text('Helpline: $helpline', overflow: TextOverflow.ellipsis),
@@ -280,6 +280,34 @@ class _GovernmentSchemesScreenState extends State<GovernmentSchemesScreen> {
                     side: const BorderSide(color: AppColors.primaryTeal),
                     padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
                   ),
+                ),
+              ),
+              const SizedBox(width: 8),
+              ElevatedButton.icon(
+                onPressed: () {
+                  final title = scheme['title']?.toString() ?? 'Scheme Details';
+                  final desc = scheme['description']?.toString() ?? '';
+                  final benefits = List<String>.from(scheme['benefits'] ?? []);
+                  final portalUrl = scheme['officialPortalUrl']?.toString() ?? 'https://beneficiary.nha.gov.in';
+
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (_) => GovernmentSchemeDetailScreen(
+                        titleEn: title,
+                        overviewEn: desc,
+                        benefitsEn: benefits,
+                        helplineNumber: helpline,
+                        officialPortalUrl: portalUrl,
+                      ),
+                    ),
+                  );
+                },
+                icon: const Icon(Icons.info_outline, size: 16),
+                label: const Text('Details'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.primaryTeal,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                 ),
               ),
             ],

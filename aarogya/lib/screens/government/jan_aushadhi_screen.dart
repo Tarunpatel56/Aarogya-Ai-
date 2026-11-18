@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../../theme/app_theme.dart';
 import '../../services/government_health_service.dart';
+import '../../core/utils/phone_launcher_util.dart';
 
 class JanAushadhiScreen extends StatefulWidget {
   final GovernmentHealthService? service;
@@ -217,12 +218,7 @@ class _JanAushadhiScreenState extends State<JanAushadhiScreen> with SingleTicker
 
   void _makeCall(String? phone) {
     if (phone == null || phone.isEmpty) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Jan Aushadhi Kendra helpline: $phone'),
-        backgroundColor: AppColors.primaryTeal,
-      ),
-    );
+    PhoneLauncherUtil.launchPhone(phone, context: context);
   }
 
   @override

@@ -7,6 +7,7 @@ import '../../models/emergency_model.dart';
 import '../../services/emergency_service.dart';
 import '../../services/patient_socket_service.dart';
 import '../../core/api/api_exception.dart';
+import '../../core/utils/phone_launcher_util.dart';
 
 class LiveAmbulanceTrackingScreen extends StatefulWidget {
   final EmergencyService? emergencyService;
@@ -761,12 +762,9 @@ class _LiveAmbulanceTrackingScreenState
               if (hasAssignedDriver)
                 ElevatedButton.icon(
                   onPressed: () {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text(
-                          'Calling Driver: ${_emergency.driverPhone ?? "+91-9876543210"}',
-                        ),
-                      ),
+                    PhoneLauncherUtil.launchPhone(
+                      _emergency.driverPhone ?? "+91-9876543210",
+                      context: context,
                     );
                   },
                   icon: const Icon(Icons.call, size: 14),
